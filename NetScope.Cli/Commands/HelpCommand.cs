@@ -22,6 +22,7 @@ internal static class HelpCommand
         Console.WriteLine("  dns <hostname>               Resolve a hostname and display addresses");
         Console.WriteLine("  trace <target> [options]     Traceroute to a host");
         Console.WriteLine("  scan [options]               Scan the local network for devices");
+        Console.WriteLine("  monitor [options]            Continuous network health monitoring");
         Console.WriteLine("  help                         Show this help message");
         Console.WriteLine();
         Console.WriteLine("Ping options:");
@@ -53,6 +54,20 @@ internal static class HelpCommand
         Console.WriteLine("  netscope scan");
         Console.WriteLine("  netscope scan --subnet 192.168.1.0/24 --timeout 500");
         Console.WriteLine("  netscope scan --concurrency 64 --no-dns --no-mac");
+        Console.WriteLine();
+        Console.WriteLine("Monitor options:");
+        Console.WriteLine("  --target <host>              Target to monitor (default 1.1.1.1)");
+        Console.WriteLine("  --interval, -i <seconds>     Seconds between cycles (1–300, default 5)");
+        Console.WriteLine("  --timeout, -t <ms>           Timeout per probe (100–30000, default 3000)");
+        Console.WriteLine("  --probes, -p <n>             Probes per cycle (1–20, default 4)");
+        Console.WriteLine("  --count, -c <n>              Number of cycles (default: unlimited)");
+        Console.WriteLine("  --dns                        Include DNS resolution timing");
+        Console.WriteLine("  --gateway [addr]             Include gateway latency (auto-detect or specify)");
+        Console.WriteLine();
+        Console.WriteLine("Monitor examples:");
+        Console.WriteLine("  netscope monitor --target 1.1.1.1");
+        Console.WriteLine("  netscope monitor --interval 5 --count 20");
+        Console.WriteLine("  netscope monitor --target google.com --dns --count 10");
 
         return Task.FromResult(error is null ? 0 : 1);
     }

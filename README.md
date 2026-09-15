@@ -33,6 +33,7 @@ netscope <command> [options]
 | `dns <hostname>` | Resolve a hostname and display addresses |
 | `trace <target> [options]` | Traceroute to a host |
 | `scan [options]` | Scan the local network for devices |
+| `monitor [options]` | Continuous network health monitoring |
 | `help` | Show help |
 
 ### Ping Options
@@ -74,6 +75,15 @@ dotnet run --project NetScope.Cli -- scan
 
 # LAN scan — explicit subnet, high concurrency, no DNS
 dotnet run --project NetScope.Cli -- scan --subnet 192.168.1.0/24 --concurrency 64 --no-dns
+
+# Monitor — 5 cycles against 1.1.1.1
+dotnet run --project NetScope.Cli -- monitor --target 1.1.1.1 --count 5
+
+# Monitor — 10-second interval, include DNS timing
+dotnet run --project NetScope.Cli -- monitor --interval 10 --dns --count 10
+
+# Monitor — indefinite until Ctrl+C
+dotnet run --project NetScope.Cli -- monitor --target 8.8.8.8
 ```
 
 ### Scan Options
@@ -231,6 +241,87 @@ MAC addresses are obtained from the OS ARP cache, which is populated by network 
 
 ---
 
+## Monitoring Engine
+
+### Design
+
+The monitoring engine provides continuous, periodic network health measurement. It is designed to be consumed by any caller: CLI, dashboard, live charts, alerts, database storage, or AI diagnostics.
+
+- **`INetworkMonitorService`** — async streaming interface yielding `IAsyncEnumerable<NetworkMeasurement>`
+- **`NetworkMonitorService`** — composes `IPingService` and optionally `IDnsService` via dependency injection
+- **`MonitorOptions`** — validated configuration (target, interval, probes, timeout, DNS/gateway toggles, count)
+- **`NetworkMeasurement`** — one monitoring sample with connectivity, packet stats, latency, jitter, optional DNS/gateway
+- **`NetworkHealthStatus`** — enum (Healthy, Degraded, Unstable, Disconnected) with deterministic classification
+- **`HealthClassifier`** — pure static `Classify()` method — no I/O, fully unit-testable
+
+### Monitor Options
+
+| Option | Default | Range | Description |
+|---|---|---|---|
+| `--target` | `1.1.1.1` | — | Host/IP to monitor |
+| `--interval`, `-i` | 5 | 1–300 seconds | Seconds between measurement cycles |
+| `--timeout`, `-t` | 3000 | 100–30,000 ms | Timeout per ping probe |
+| `--probes`, `-p` | 4 | 1–20 | Probes per measurement cycle |
+| `--count`, `-c` | unlimited | 1–100,000 | Number of cycles (omit for indefinite) |
+| `--dns` | off | — | Include DNS resolution timing |
+| `--gateway` | off | — | Include gateway latency (auto-detect or specify address) |
+
+### Health Classification
+
+Health status is classified from measurable metrics. These are **practical defaults**, not universal network standards.
+
+| Status | Criteria |
+|---|---|
+| **Healthy** | Loss = 0%, Avg RTT < 100 ms, Jitter < 10 ms |
+| **Degraded** | Loss < 10%, or Avg RTT 100–500 ms, or Jitter 10–50 ms |
+| **Unstable** | Loss ≥ 10%, or Avg RTT > 500 ms, or Jitter > 50 ms |
+| **Disconnected** | Loss = 100% (no probes succeeded) |
+
+The worst matching state wins. The classification is deterministic and implemented in `HealthClassifier.Classify()`, which is a pure function with no I/O.
+
+### How it works
+
+1. Validates options before the first cycle
+2. Each cycle runs a short ping session (N probes, 200ms intra-probe interval)
+3. Optionally measures DNS resolution time and gateway latency
+4. Classifies health from the ping statistics
+5. Yields a `NetworkMeasurement` to the caller
+6. Waits for the remaining interval (skips wait if the cycle exceeded the interval)
+7. Repeats until cancellation or max cycles
+
+### No overlapping cycles
+
+If a measurement cycle takes longer than the configured interval, the next cycle starts immediately — but never concurrently. This guarantees predictable, sequential measurement behavior.
+
+### Cancellation
+
+- **Ctrl+C in CLI** — triggers `CancellationToken`, monitor stops cleanly after the current cycle
+- **`MaxCycles` reached** — monitor yields the final measurement and exits
+- **Programmatic cancellation** — any consumer can cancel via the `CancellationToken`
+
+### Failure recovery
+
+Individual cycle failures (e.g. all probes timeout) produce a `NetworkMeasurement` with `IsConnected = false` and `HealthStatus = Disconnected`. The monitor continues to the next cycle — it does not throw or stop on transient failures.
+
+### Sample CLI output
+
+```
+TIME       TARGET          LATENCY    LOSS     JITTER    STATUS
+─────────  ──────────────  ─────────  ───────  ────────  ────────────
+10:20:01   1.1.1.1            5.8 ms     0%       1.2 ms  Healthy
+10:20:06   1.1.1.1            6.1 ms     0%       1.5 ms  Healthy
+10:20:11   1.1.1.1           85.0 ms     0%      22.0 ms  Degraded
+```
+
+### Known limitations
+
+- Health classification thresholds are currently hard-coded defaults. Future versions may make them configurable per-session.
+- Gateway auto-detection depends on the active interface reporting a gateway address.
+- DNS measurement timing may vary with OS resolver caching behavior.
+- The monitoring engine does not persist measurements to disk — this will be addressed in Phase 6 (SQLite history).
+
+---
+
 ### Cross-Platform Notes
 
 | Concern | Behavior |
@@ -253,7 +344,7 @@ MAC addresses are obtained from the OS ARP cache, which is populated by network 
 - [x] **Phase 2** — Ping / latency engine
 - [x] **Phase 3** — DNS / traceroute
 - [x] **Phase 4** — LAN scanner
-- [ ] Phase 5 — Monitoring engine
+- [x] **Phase 5** — Monitoring engine
 - [ ] Phase 6 — SQLite history
 - [ ] Phase 7 — Desktop UI (Avalonia)
 - [ ] Phase 8 — AI diagnostics
