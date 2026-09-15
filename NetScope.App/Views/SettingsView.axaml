@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:NetScope.App.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="650"
+             x:Class="NetScope.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="12,8" MaxWidth="600">
+            <TextBlock Text="Settings" FontSize="22" FontWeight="Bold" Foreground="White" Margin="0,0,0,12"/>
+
+            <Border Classes="card" Margin="0,0,0,8">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="section-title" Text="Monitoring Defaults"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Default target:" Width="120" VerticalAlignment="Center"
+                                   Foreground="#AAAAAA" FontSize="13"/>
+                        <TextBox Text="{Binding DefaultTarget}" Width="200" FontSize="13"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Interval (sec):" Width="120" VerticalAlignment="Center"
+                                   Foreground="#AAAAAA" FontSize="13"/>
+                        <NumericUpDown Value="{Binding DefaultInterval}" Minimum="1" Maximum="300"
+                                       Width="120" FontSize="13"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Probes/cycle:" Width="120" VerticalAlignment="Center"
+                                   Foreground="#AAAAAA" FontSize="13"/>
+                        <NumericUpDown Value="{Binding DefaultProbes}" Minimum="1" Maximum="20"
+                                       Width="120" FontSize="13"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Timeout (ms):" Width="120" VerticalAlignment="Center"
+                                   Foreground="#AAAAAA" FontSize="13"/>
+                        <NumericUpDown Value="{Binding DefaultTimeout}" Minimum="100" Maximum="30000"
+                                       Width="120" FontSize="13"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card" Margin="0,0,0,8">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="section-title" Text="Database"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Path:" Width="120" VerticalAlignment="Center"
+                                   Foreground="#AAAAAA" FontSize="13"/>
+                        <TextBox Text="{Binding DatabasePath}" Width="400" FontSize="12" IsReadOnly="True"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card" Margin="0,0,0,8">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="section-title" Text="About"/>
+                    <TextBlock Text="NetScope — Network Diagnostics" Foreground="#CCCCCC" FontSize="13"/>
+                    <TextBlock Text="Phase 7 • Avalonia Desktop UI" Foreground="#888888" FontSize="12"/>
+                    <TextBlock Text="Built with .NET 10, Avalonia 12, Clean Architecture" Foreground="#666666" FontSize="11"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Classes="status-text" Text="{Binding StatusText}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

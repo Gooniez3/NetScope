@@ -3,20 +3,51 @@
         xmlns:vm="using:NetScope.App.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
         x:Class="NetScope.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="NetScope.App">
+        Title="NetScope — Network Diagnostics"
+        Width="1100" Height="700"
+        MinWidth="900" MinHeight="550"
+        Background="#12121E">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
+    <Grid ColumnDefinitions="200,*">
 
-    <TextBox Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="#16162A" Padding="0,12">
+            <DockPanel>
+                <!-- Logo -->
+                <StackPanel DockPanel.Dock="Top" Margin="16,8,16,20">
+                    <TextBlock Text="◉ NetScope" FontSize="18" FontWeight="Bold" Foreground="#3B82F6"/>
+                    <TextBlock Text="Network Diagnostics" FontSize="11" Foreground="#666666" Margin="0,2,0,0"/>
+                </StackPanel>
 
+                <!-- Version at bottom -->
+                <TextBlock DockPanel.Dock="Bottom" Text="Phase 7 • v0.7.0" FontSize="10"
+                           Foreground="#444444" Margin="16,8" VerticalAlignment="Bottom"/>
+
+                <!-- Nav buttons -->
+                <StackPanel Margin="8,0">
+                    <Button Classes="nav-btn" Classes.nav-active="{Binding SelectedNav, Converter={x:Static StringConverters.IsNotNullOrEmpty}, ConverterParameter=Dashboard}"
+                            Command="{Binding NavigateCommand}" CommandParameter="Dashboard"
+                            Content="▣  Dashboard"/>
+                    <Button Classes="nav-btn"
+                            Command="{Binding NavigateCommand}" CommandParameter="Monitor"
+                            Content="◎  Monitor"/>
+                    <Button Classes="nav-btn"
+                            Command="{Binding NavigateCommand}" CommandParameter="History"
+                            Content="◷  History"/>
+                    <Button Classes="nav-btn"
+                            Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"
+                            Content="⚡  Diagnostics"/>
+                    <Button Classes="nav-btn"
+                            Command="{Binding NavigateCommand}" CommandParameter="Settings"
+                            Content="⚙  Settings"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Content -->
+        <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" Margin="8"/>
+    </Grid>
 </Window>

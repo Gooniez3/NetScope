@@ -1,0 +1,109 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:NetScope.App.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="650"
+             x:Class="NetScope.App.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="8">
+            <!-- Header -->
+            <TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold" Foreground="White" Margin="4,0,0,12"/>
+
+            <!-- Network info row -->
+            <WrapPanel Margin="0,0,0,8">
+                <Border Classes="metric" MinWidth="200">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="INTERFACE"/>
+                        <TextBlock Classes="metric-value" Text="{Binding InterfaceName}" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="metric">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="LOCAL IP"/>
+                        <TextBlock Classes="metric-value" Text="{Binding LocalIp}" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="metric">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="GATEWAY"/>
+                        <TextBlock Classes="metric-value" Text="{Binding Gateway}" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="metric">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="STATUS"/>
+                        <TextBlock Classes="metric-value" Text="{Binding ConnectionStatus}" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+
+            <!-- Health + Metrics row -->
+            <WrapPanel Margin="0,0,0,8">
+                <Border Classes="metric">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="HEALTH"/>
+                        <TextBlock Classes="metric-value" Text="{Binding HealthStatus}"
+                                   Foreground="{Binding HealthColor}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="metric">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="LATENCY"/>
+                        <TextBlock Classes="metric-value" Text="{Binding LatencyDisplay}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="metric">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="PACKET LOSS"/>
+                        <TextBlock Classes="metric-value" Text="{Binding PacketLossDisplay}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="metric">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="JITTER"/>
+                        <TextBlock Classes="metric-value" Text="{Binding JitterDisplay}"/>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+
+            <!-- Controls -->
+            <Border Classes="card" Margin="4,0,4,8">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Target:" VerticalAlignment="Center" Foreground="#AAAAAA" FontSize="13"/>
+                    <TextBox Text="{Binding MonitorTarget}" Width="180" FontSize="13"/>
+                    <Button Classes="primary" Content="▶  Start Monitor"
+                            Command="{Binding StartQuickMonitorCommand}"
+                            IsVisible="{Binding !IsMonitoring}"/>
+                    <Button Classes="danger" Content="■  Stop"
+                            Command="{Binding StopMonitorCommand}"
+                            IsVisible="{Binding IsMonitoring}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Recent measurements table -->
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="section-title" Text="Recent Measurements"/>
+                    <DataGrid ItemsSource="{Binding RecentMeasurements}"
+                              IsReadOnly="True"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="False"
+                              HeadersVisibility="Column"
+                              MaxHeight="300">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="80"/>
+                            <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120"/>
+                            <DataGridTextColumn Header="Latency" Binding="{Binding Latency}" Width="90"/>
+                            <DataGridTextColumn Header="Loss" Binding="{Binding Loss}" Width="70"/>
+                            <DataGridTextColumn Header="Jitter" Binding="{Binding Jitter}" Width="90"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

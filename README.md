@@ -449,6 +449,72 @@ netscope history --cleanup --older-than 30
 
 ---
 
+## Desktop Application (Avalonia UI)
+
+### Running
+
+```sh
+dotnet run --project NetScope.App
+```
+
+The application opens a dark-themed professional desktop window with sidebar navigation.
+
+### Pages
+
+| Page | Description |
+|---|---|
+| **Dashboard** | Connection status, active interface, IP/gateway info, live health metrics, quick monitor with start/stop, recent measurement table |
+| **Monitor** | Configurable monitoring (target, interval, probes, timeout), start/stop, save-to-DB toggle, live metric cards, latency bar chart, scrolling measurement table |
+| **History** | Browse saved SQLite sessions, view session measurements, aggregate statistics (uptime, latency, jitter, loss), cleanup old data |
+| **Diagnostics** | Tabbed interface for Ping, DNS, Traceroute, and LAN Scan — all using existing Core/Infrastructure services |
+| **Settings** | Monitoring defaults, database path display, about information |
+
+### Architecture
+
+```
+NetScope.App/
+├── Services/
+│   └── ServiceLocator.cs        — wires Core interfaces → Infrastructure implementations
+├── ViewModels/
+│   ├── ViewModelBase.cs          — ObservableObject base
+│   ├── MainViewModel.cs          — sidebar navigation, page switching
+│   ├── DashboardViewModel.cs     — network info, quick monitor, live metrics
+│   ├── MonitorViewModel.cs       — configurable monitoring, persistence, latency history
+│   ├── HistoryViewModel.cs       — session browsing, aggregates, cleanup
+│   ├── DiagnosticsViewModel.cs   — ping, DNS, traceroute, LAN scan
+│   └── SettingsViewModel.cs      — defaults and about
+├── Views/
+│   ├── MainWindow.axaml          — sidebar + content shell
+│   ├── DashboardView.axaml       — dashboard page
+│   ├── MonitorView.axaml         — monitoring page
+│   ├── HistoryView.axaml         — history page
+│   ├── DiagnosticsView.axaml     — diagnostics tabs
+│   └── SettingsView.axaml        — settings page
+├── Styles/
+│   └── AppStyles.axaml           — cards, metrics, navigation, typography
+├── ViewLocator.cs                — ViewModel → View resolution
+├── App.axaml                     — theme (dark), styles, DataGrid
+└── Program.cs                    — entry point
+```
+
+### Design Principles
+
+- **MVVM** with CommunityToolkit.Mvvm source generators
+- **No networking logic in the UI** — all operations go through Core interfaces
+- **Async everywhere** — no UI thread blocking
+- **Cancellation support** — all long-running operations support stop/cancel
+- **Graceful error handling** — network/DB errors shown in status text, never crash
+- **Reuses all existing services** — `IPingService`, `IDnsService`, `ITracerouteService`, `INetworkScannerService`, `INetworkMonitorService`, `IMeasurementRepository`
+
+### UI limitations
+
+- No real-time line charts (latency history uses a simple bar visualization)
+- Settings are in-memory only (not persisted to a config file)
+- Theme is dark-only (no light theme toggle)
+- No system tray or background monitoring when the window is closed
+
+---
+
 ## Development Phases
 
 - [x] **Phase 1** — Network information (interfaces, IPs, gateway, DNS, public IP, connection test)
@@ -457,7 +523,7 @@ netscope history --cleanup --older-than 30
 - [x] **Phase 4** — LAN scanner
 - [x] **Phase 5** — Monitoring engine
 - [x] **Phase 6** — SQLite persistence & historical monitoring
-- [ ] Phase 7 — Desktop UI (Avalonia)
+- [x] **Phase 7** — Desktop UI (Avalonia)
 - [ ] Phase 8 — AI diagnostics
 - [ ] Phase 9 — Testing, security, packaging
 - [ ] Phase 10 — Portfolio presentation
@@ -468,6 +534,12 @@ netscope history --cleanup --older-than 30
 
 ```sh
 dotnet build NetScope.slnx
+```
+
+## Running the Desktop App
+
+```sh
+dotnet run --project NetScope.App
 ```
 
 ## Running Tests
