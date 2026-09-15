@@ -10,156 +10,94 @@
     <ScrollViewer Padding="28,24,28,16">
         <StackPanel>
 
-            <!-- ═══ PAGE HEADER ═══ -->
-            <StackPanel Margin="0,0,0,24">
-                <TextBlock Classes="page-title" Text="Dashboard"/>
-                <TextBlock Classes="page-subtitle" Text="Network overview and quick monitoring"/>
-            </StackPanel>
+            <TextBlock Classes="page-title" Text="Dashboard" Margin="0,0,0,20"/>
 
-            <!-- ═══ NETWORK INFO CARDS ═══ -->
+            <!-- Network info -->
             <UniformGrid Columns="4" Margin="0,0,0,12">
-                <!-- Interface -->
-                <Border Classes="metric-card" Margin="0,0,10,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" CornerRadius="12,12,0,0">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
-                                    <GradientStop Color="#3B82F6" Offset="0"/>
-                                    <GradientStop Color="#6366F1" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="INTERFACE"/>
-                            <TextBlock Text="{Binding InterfaceName}" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
+                <Border Classes="card" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="INTERFACE"/>
+                        <TextBlock Text="{Binding InterfaceName}" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
                 </Border>
-                <!-- Local IP -->
-                <Border Classes="metric-card" Margin="5,0,5,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" Background="#8B5CF6" CornerRadius="12,12,0,0"/>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="LOCAL IP"/>
-                            <TextBlock Text="{Binding LocalIp}" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
+                <Border Classes="card" Margin="4,0,4,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="LOCAL IP"/>
+                        <TextBlock Text="{Binding LocalIp}" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="#E2E8F0"/>
+                    </StackPanel>
                 </Border>
-                <!-- Gateway -->
-                <Border Classes="metric-card" Margin="5,0,5,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" Background="#06B6D4" CornerRadius="12,12,0,0"/>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="GATEWAY"/>
-                            <TextBlock Text="{Binding Gateway}" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
+                <Border Classes="card" Margin="4,0,4,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="GATEWAY"/>
+                        <TextBlock Text="{Binding Gateway}" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="#E2E8F0"/>
+                    </StackPanel>
                 </Border>
-                <!-- Status -->
-                <Border Classes="metric-card" Margin="10,0,0,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" Background="#10B981" CornerRadius="12,12,0,0"/>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="STATUS"/>
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Ellipse Width="8" Height="8" Fill="#10B981" Margin="0,3,0,0"/>
-                                <TextBlock Text="{Binding ConnectionStatus}" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#10B981"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
+                <Border Classes="card" Margin="8,0,0,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="STATUS"/>
+                        <TextBlock Text="{Binding ConnectionStatus}" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="#10B981"/>
+                    </StackPanel>
                 </Border>
             </UniformGrid>
 
-            <!-- ═══ HEALTH METRICS ═══ -->
-            <UniformGrid Columns="4" Margin="0,4,0,12">
-                <!-- Health -->
-                <Border Classes="metric-card" Margin="0,0,10,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" CornerRadius="12,12,0,0">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
-                                    <GradientStop Color="#10B981" Offset="0"/>
-                                    <GradientStop Color="#06B6D4" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="HEALTH"/>
-                            <TextBlock Classes="metric-value" Text="{Binding HealthStatus}"
-                                       Foreground="{Binding HealthColor}"/>
-                        </StackPanel>
-                    </Grid>
+            <!-- Health metrics -->
+            <UniformGrid Columns="4" Margin="0,0,0,16">
+                <Border Classes="card" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="HEALTH"/>
+                        <TextBlock Classes="metric-value" Text="{Binding HealthStatus}"
+                                   Foreground="{Binding HealthColor}"/>
+                    </StackPanel>
                 </Border>
-                <!-- Latency -->
-                <Border Classes="metric-card" Margin="5,0,5,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" Background="#3B82F6" CornerRadius="12,12,0,0"/>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="LATENCY"/>
-                            <TextBlock Classes="metric-value" Text="{Binding LatencyDisplay}"/>
-                        </StackPanel>
-                    </Grid>
+                <Border Classes="card" Margin="4,0,4,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="LATENCY"/>
+                        <TextBlock Classes="metric-value" Text="{Binding LatencyDisplay}"/>
+                    </StackPanel>
                 </Border>
-                <!-- Packet Loss -->
-                <Border Classes="metric-card" Margin="5,0,5,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" Background="#F59E0B" CornerRadius="12,12,0,0"/>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="PACKET LOSS"/>
-                            <TextBlock Classes="metric-value" Text="{Binding PacketLossDisplay}"/>
-                        </StackPanel>
-                    </Grid>
+                <Border Classes="card" Margin="4,0,4,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="PACKET LOSS"/>
+                        <TextBlock Classes="metric-value" Text="{Binding PacketLossDisplay}"/>
+                    </StackPanel>
                 </Border>
-                <!-- Jitter -->
-                <Border Classes="metric-card" Margin="10,0,0,0">
-                    <Grid RowDefinitions="3,*">
-                        <Border Grid.Row="0" Background="#8B5CF6" CornerRadius="12,12,0,0"/>
-                        <StackPanel Grid.Row="1" Margin="16,12,16,16">
-                            <TextBlock Classes="metric-label" Text="JITTER"/>
-                            <TextBlock Classes="metric-value" Text="{Binding JitterDisplay}"/>
-                        </StackPanel>
-                    </Grid>
+                <Border Classes="card" Margin="8,0,0,0">
+                    <StackPanel>
+                        <TextBlock Classes="metric-label" Text="JITTER"/>
+                        <TextBlock Classes="metric-value" Text="{Binding JitterDisplay}"/>
+                    </StackPanel>
                 </Border>
             </UniformGrid>
 
-            <!-- ═══ QUICK MONITOR ═══ -->
+            <!-- Quick monitor -->
             <Border Classes="card">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Classes="section-title" Text="Quick Monitor"/>
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="section-title" Text="Quick Monitor" Margin="0"/>
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <TextBlock Text="Target" VerticalAlignment="Center" Foreground="#64748B" FontSize="12"/>
-                        <TextBox Classes="field" Text="{Binding MonitorTarget}" Width="200" />
-                        <Button Classes="success" Content="▶  Start Monitor"
+                        <TextBox Classes="field" Text="{Binding MonitorTarget}" Width="200"/>
+                        <Button Classes="success" Content="Start"
                                 Command="{Binding StartQuickMonitorCommand}"
                                 IsVisible="{Binding !IsMonitoring}"/>
-                        <Button Classes="danger" Content="■  Stop Monitoring"
+                        <Button Classes="danger" Content="Stop"
                                 Command="{Binding StopMonitorCommand}"
                                 IsVisible="{Binding IsMonitoring}"/>
-                        <Border Classes="separator-v" IsVisible="{Binding IsMonitoring}"/>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center"
-                                    IsVisible="{Binding IsMonitoring}">
-                            <Ellipse Width="8" Height="8" Fill="#10B981"/>
-                            <TextBlock Text="Live" FontSize="12" Foreground="#10B981" FontWeight="SemiBold"/>
-                        </StackPanel>
                     </StackPanel>
-                </DockPanel>
+                </StackPanel>
             </Border>
 
-            <!-- ═══ RECENT MEASUREMENTS ═══ -->
+            <!-- Recent measurements -->
             <Border Classes="card" Padding="0">
                 <StackPanel>
                     <TextBlock Classes="section-title" Margin="20,16,20,0" Text="Recent Measurements"/>
                     <DataGrid ItemsSource="{Binding RecentMeasurements}"
-                              IsReadOnly="True"
-                              CanUserResizeColumns="True"
-                              CanUserSortColumns="False"
-                              HeadersVisibility="Column"
-                              MaxHeight="340"
-                              Margin="8,8,8,8">
+                              IsReadOnly="True" CanUserResizeColumns="True"
+                              CanUserSortColumns="False" HeadersVisibility="Column"
+                              MaxHeight="340" Margin="8,8,8,8">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="TIME" Binding="{Binding Time}" Width="90"/>
                             <DataGridTextColumn Header="TARGET" Binding="{Binding Target}" Width="130"/>
@@ -169,18 +107,10 @@
                             <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="100"/>
                         </DataGrid.Columns>
                     </DataGrid>
-
-                    <!-- Empty state -->
-                    <Border Classes="empty-state" Margin="12,0,12,12"
-                            IsVisible="{Binding !RecentMeasurements.Count}">
-                        <StackPanel HorizontalAlignment="Center" Spacing="8">
-                            <TextBlock Text="📊" FontSize="28" HorizontalAlignment="Center"/>
-                            <TextBlock Text="No measurements yet" FontSize="14" FontWeight="SemiBold"
-                                       Foreground="#64748B" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Start a quick monitor above to see live data"
-                                       FontSize="12" Foreground="#475569" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
+                    <TextBlock Text="Start a quick monitor to see live measurements here."
+                               IsVisible="{Binding !RecentMeasurements.Count}"
+                               Foreground="#475569" FontSize="12" Margin="20,4,20,16"
+                               HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 

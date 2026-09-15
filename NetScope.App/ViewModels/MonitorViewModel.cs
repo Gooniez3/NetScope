@@ -169,7 +169,6 @@ public class LatencyPoint
     public double Jitter { get; }
     public double BarWidth { get; }
     public string BarColor { get; }
-    public string BarColorEnd { get; }
 
     public LatencyPoint(NetworkMeasurement m)
     {
@@ -178,13 +177,12 @@ public class LatencyPoint
         Loss = m.PacketLossPercent;
         Jitter = m.JitterMs ?? 0;
         BarWidth = Math.Min(Math.Max(Latency * 4, 4), 400);
-
-        (BarColor, BarColorEnd) = Latency switch
+        BarColor = Latency switch
         {
-            <= 20 => ("#10B981", "#06B6D4"),
-            <= 50 => ("#F59E0B", "#FB923C"),
-            <= 100 => ("#F97316", "#EF4444"),
-            _ => ("#EF4444", "#DC2626")
+            <= 20 => "#10B981",
+            <= 50 => "#F59E0B",
+            <= 100 => "#F97316",
+            _ => "#EF4444"
         };
     }
 }

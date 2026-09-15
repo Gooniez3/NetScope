@@ -1,70 +1,24 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!--
-        ════════════════════════════════════════════════════════════════
-        NetScope Premium Design System
-        Deep dark theme · Strategic color accents · Depth & layering
-        ════════════════════════════════════════════════════════════════
-        
-        Color Palette:
-          Window BG:  #0B0E14     Sidebar BG: #0D1117
-          Surface:    #151B26     Surface 2:  #1C2333
-          Border:     #1E2736     Border Hover: #2D3A4F
-          
-          Blue:    #3B82F6   Green:  #10B981   Amber:  #F59E0B
-          Red:     #EF4444   Purple: #8B5CF6   Cyan:   #06B6D4
-          
-          Text 1:  #E2E8F0   Text 2:  #94A3B8
-          Text 3:  #64748B   Text 4:  #334155
-    -->
-
-    <!-- ═══════════════ CARDS ═══════════════ -->
-
+    <!-- Cards -->
     <Style Selector="Border.card">
         <Setter Property="Background" Value="#151B26"/>
-        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="BorderBrush" Value="#1E2736"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="20"/>
-        <Setter Property="Margin" Value="0,0,0,16"/>
-        <Setter Property="BoxShadow" Value="0 2 12 0 #18000000"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="BoxShadow" Value="0 1 4 0 #10000000"/>
     </Style>
 
-    <Style Selector="Border.card-elevated">
-        <Setter Property="Background" Value="#1C2333"/>
-        <Setter Property="CornerRadius" Value="12"/>
-        <Setter Property="BorderBrush" Value="#253048"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="20"/>
-        <Setter Property="Margin" Value="0,0,0,16"/>
-        <Setter Property="BoxShadow" Value="0 4 20 0 #20000000"/>
-    </Style>
-
-    <!-- Metric card: outer wrapper (no padding — inner grid handles layout) -->
-    <Style Selector="Border.metric-card">
-        <Setter Property="Background" Value="#151B26"/>
-        <Setter Property="CornerRadius" Value="12"/>
-        <Setter Property="BorderBrush" Value="#1E2736"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="ClipToBounds" Value="True"/>
-        <Setter Property="MinWidth" Value="160"/>
-        <Setter Property="BoxShadow" Value="0 2 12 0 #18000000"/>
-    </Style>
-
-    <Style Selector="Border.metric-card:pointerover">
-        <Setter Property="BorderBrush" Value="#2D3A4F"/>
-        <Setter Property="BoxShadow" Value="0 4 20 0 #20000000"/>
-    </Style>
-
-    <!-- ═══════════════ NAVIGATION ═══════════════ -->
-
+    <!-- Navigation -->
     <Style Selector="Button.nav-btn">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="#64748B"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="Padding" Value="20,11,16,11"/>
+        <Setter Property="Padding" Value="20,10,16,10"/>
         <Setter Property="CornerRadius" Value="0"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="Normal"/>
@@ -92,29 +46,22 @@
         <Setter Property="BorderBrush" Value="#3B82F6"/>
     </Style>
 
-    <!-- ═══════════════ TYPOGRAPHY ═══════════════ -->
-
+    <!-- Typography -->
     <Style Selector="TextBlock.page-title">
-        <Setter Property="FontSize" Value="26"/>
+        <Setter Property="FontSize" Value="24"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="#E2E8F0"/>
     </Style>
 
-    <Style Selector="TextBlock.page-subtitle">
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="Foreground" Value="#64748B"/>
-        <Setter Property="Margin" Value="0,4,0,0"/>
-    </Style>
-
     <Style Selector="TextBlock.section-title">
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="#CBD5E1"/>
         <Setter Property="Margin" Value="0,0,0,12"/>
     </Style>
 
     <Style Selector="TextBlock.metric-value">
-        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontSize" Value="26"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="#F1F5F9"/>
     </Style>
@@ -126,19 +73,7 @@
         <Setter Property="Margin" Value="0,0,0,6"/>
     </Style>
 
-    <Style Selector="TextBlock.caption">
-        <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Foreground" Value="#64748B"/>
-    </Style>
-
-    <Style Selector="TextBlock.status-text">
-        <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Foreground" Value="#64748B"/>
-        <Setter Property="Margin" Value="0,6,0,0"/>
-    </Style>
-
-    <!-- ═══════════════ BUTTONS ═══════════════ -->
-
+    <!-- Buttons -->
     <Style Selector="Button.primary">
         <Setter Property="Background" Value="#3B82F6"/>
         <Setter Property="Foreground" Value="White"/>
@@ -193,8 +128,7 @@
         <Setter Property="BorderBrush" Value="#2D3A4F"/>
     </Style>
 
-    <!-- ═══════════════ DATAGRID ═══════════════ -->
-
+    <!-- DataGrid -->
     <Style Selector="DataGrid">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -216,10 +150,6 @@
         <Setter Property="SeparatorBrush" Value="#1A2030"/>
     </Style>
 
-    <Style Selector="DataGridRow">
-        <Setter Property="Foreground" Value="#CBD5E1"/>
-    </Style>
-
     <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
         <Setter Property="Fill" Value="#1A2235"/>
     </Style>
@@ -233,8 +163,7 @@
         <Setter Property="FontSize" Value="12"/>
     </Style>
 
-    <!-- ═══════════════ INPUTS ═══════════════ -->
-
+    <!-- Inputs -->
     <Style Selector="TextBox.field">
         <Setter Property="Background" Value="#0D1117"/>
         <Setter Property="BorderBrush" Value="#1E2736"/>
@@ -248,15 +177,9 @@
         <Setter Property="BorderBrush" Value="#3B82F6"/>
     </Style>
 
-    <!-- ═══════════════ TAB CONTROL ═══════════════ -->
-
-    <Style Selector="TabControl">
-        <Setter Property="Background" Value="Transparent"/>
-    </Style>
-
+    <!-- Tabs -->
     <Style Selector="TabItem">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="FontSize" Value="13"/>
         <Setter Property="Foreground" Value="#64748B"/>
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="Margin" Value="0,0,4,0"/>
@@ -269,58 +192,12 @@
         <Setter Property="Foreground" Value="#94A3B8"/>
     </Style>
 
-    <!-- ═══════════════ STATUS BADGES ═══════════════ -->
-
-    <Style Selector="Border.badge-healthy">
-        <Setter Property="Background" Value="#052E16"/>
-        <Setter Property="BorderBrush" Value="#14532D"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="Padding" Value="10,4"/>
-    </Style>
-
-    <Style Selector="Border.badge-degraded">
-        <Setter Property="Background" Value="#422006"/>
-        <Setter Property="BorderBrush" Value="#713F12"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="Padding" Value="10,4"/>
-    </Style>
-
-    <Style Selector="Border.badge-error">
-        <Setter Property="Background" Value="#450A0A"/>
-        <Setter Property="BorderBrush" Value="#7F1D1D"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="Padding" Value="10,4"/>
-    </Style>
-
-    <!-- ═══════════════ SEPARATORS ═══════════════ -->
-
+    <!-- Separator -->
     <Style Selector="Border.separator">
         <Setter Property="Height" Value="1"/>
         <Setter Property="Background" Value="#1A2030"/>
-        <Setter Property="Margin" Value="0,12"/>
+        <Setter Property="Margin" Value="0,8"/>
     </Style>
-
-    <Style Selector="Border.separator-v">
-        <Setter Property="Width" Value="1"/>
-        <Setter Property="Background" Value="#1A2030"/>
-        <Setter Property="Margin" Value="12,0"/>
-    </Style>
-
-    <!-- ═══════════════ EMPTY STATE ═══════════════ -->
-
-    <Style Selector="Border.empty-state">
-        <Setter Property="Background" Value="#0F1520"/>
-        <Setter Property="CornerRadius" Value="12"/>
-        <Setter Property="BorderBrush" Value="#1A2030"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="40,32"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-    </Style>
-
-    <!-- ═══════════════ SCROLLBAR ═══════════════ -->
 
     <Style Selector="ScrollViewer">
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>

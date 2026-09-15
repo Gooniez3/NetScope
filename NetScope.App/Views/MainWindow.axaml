@@ -11,59 +11,43 @@
         MinWidth="900" MinHeight="550"
         Background="#0B0E14">
 
-    <Grid ColumnDefinitions="220,*">
+    <Grid ColumnDefinitions="200,*">
 
-        <!-- ════════ SIDEBAR ════════ -->
         <Border Grid.Column="0" Background="#0D1117" BorderBrush="#151B26" BorderThickness="0,0,1,0">
             <DockPanel>
 
-                <!-- Brand -->
                 <StackPanel DockPanel.Dock="Top" Margin="20,24,20,0">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Ellipse Width="10" Height="10" Fill="#10B981" Margin="0,3,0,0"/>
-                        <TextBlock Text="NetScope" FontSize="20" FontWeight="Bold" Foreground="#E2E8F0"/>
-                    </StackPanel>
-                    <TextBlock Text="Network Diagnostics" FontSize="11" Foreground="#475569" Margin="18,3,0,0"/>
+                    <TextBlock Text="NetScope" FontSize="17" FontWeight="Bold" Foreground="#E2E8F0"/>
+                    <TextBlock Text="Network Diagnostics" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <!-- Separator -->
                 <Border DockPanel.Dock="Top" Height="1" Background="#151B26" Margin="20,20,20,8"/>
 
-                <!-- Footer -->
                 <StackPanel DockPanel.Dock="Bottom" Margin="20,0,20,16">
                     <Border Height="1" Background="#151B26" Margin="0,0,0,12"/>
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <Ellipse Width="6" Height="6" Fill="#10B981" Margin="0,1,0,0"/>
-                        <TextBlock Text="Online" FontSize="10" Foreground="#475569"/>
-                    </StackPanel>
-                    <TextBlock Text="Phase 7 • v0.7.0" FontSize="10" Foreground="#334155" Margin="12,4,0,0"/>
+                    <TextBlock Text="v0.7.0" FontSize="10" Foreground="#334155"/>
                 </StackPanel>
 
-                <!-- Navigation -->
                 <StackPanel Margin="0,4,0,0">
-                    <TextBlock Text="NAVIGATION" FontSize="9" FontWeight="SemiBold" Foreground="#334155"
-                               Margin="20,8,0,12"/>
-
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsDashboardActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Dashboard"
-                            Content="⬛  Dashboard"/>
+                            Content="Dashboard"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsMonitorActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Monitor"
-                            Content="◉  Monitor"/>
+                            Content="Monitor"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsHistoryActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="History"
-                            Content="◔  History"/>
+                            Content="History"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsDiagnosticsActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"
-                            Content="⚡  Diagnostics"/>
+                            Content="Diagnostics"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsSettingsActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Settings"
-                            Content="⚙  Settings"/>
+                            Content="Settings"/>
                 </StackPanel>
             </DockPanel>
         </Border>
 
-        <!-- ════════ CONTENT ════════ -->
         <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" Margin="0"/>
     </Grid>
 </Window>

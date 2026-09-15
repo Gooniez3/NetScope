@@ -9,22 +9,16 @@
 
     <DockPanel Margin="28,24,28,16">
 
-        <!-- ═══ PAGE HEADER ═══ -->
-        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,20">
-            <TextBlock Classes="page-title" Text="Diagnostics"/>
-            <TextBlock Classes="page-subtitle" Text="Network diagnostic tools — ping, DNS, traceroute, and LAN discovery"/>
-        </StackPanel>
+        <TextBlock DockPanel.Dock="Top" Classes="page-title" Text="Diagnostics" Margin="0,0,0,20"/>
 
-        <!-- ═══ TABS ═══ -->
         <TabControl SelectedIndex="0">
 
-            <!-- ═══════ PING TAB ═══════ -->
-            <TabItem Header="⚡ Ping">
+            <!-- Ping -->
+            <TabItem Header="Ping">
                 <ScrollViewer Margin="0,12,0,0">
                     <StackPanel>
                         <Border Classes="card">
                             <StackPanel Spacing="16">
-                                <TextBlock Classes="section-title" Text="Ping Configuration" Margin="0"/>
                                 <WrapPanel>
                                     <StackPanel Margin="0,0,24,0">
                                         <TextBlock Text="Target Host" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
@@ -35,21 +29,18 @@
                                         <NumericUpDown Value="{Binding PingCount}" Minimum="1" Maximum="100"
                                                        Width="100" FontSize="13"/>
                                     </StackPanel>
-                                    <StackPanel VerticalAlignment="Bottom">
-                                        <Button Classes="success" Content="▶  Run Ping"
+                                    <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal" Spacing="8">
+                                        <Button Classes="success" Content="Run Ping"
                                                 Command="{Binding RunPingCommand}"
                                                 IsEnabled="{Binding !IsPinging}"/>
-                                    </StackPanel>
-                                    <StackPanel VerticalAlignment="Bottom" Margin="8,0,0,0">
                                         <Button Classes="ghost" Content="Cancel"
                                                 Command="{Binding CancelOperationCommand}"
                                                 IsVisible="{Binding IsPinging}"/>
                                     </StackPanel>
                                 </WrapPanel>
-                                <TextBlock Classes="status-text" Text="{Binding PingStatus}" Margin="0"/>
+                                <TextBlock Text="{Binding PingStatus}" FontSize="12" Foreground="#64748B"/>
                                 <TextBlock Text="{Binding PingSummary}" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold"
-                                           IsVisible="{Binding PingSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                           Margin="0,0,0,0"/>
+                                           IsVisible="{Binding PingSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                             </StackPanel>
                         </Border>
 
@@ -65,41 +56,30 @@
                                         <DataGridTextColumn Header="RTT" Binding="{Binding Rtt}" Width="120"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Border Classes="empty-state" Margin="12,0,12,12"
-                                        IsVisible="{Binding !PingResults.Count}">
-                                    <StackPanel HorizontalAlignment="Center" Spacing="6">
-                                        <TextBlock Text="🏓" FontSize="24" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="No ping results" FontSize="13" Foreground="#64748B"
-                                                   HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Configure a target and run a ping test"
-                                                   FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
-            <!-- ═══════ DNS TAB ═══════ -->
-            <TabItem Header="🌐 DNS">
+            <!-- DNS -->
+            <TabItem Header="DNS">
                 <ScrollViewer Margin="0,12,0,0">
                     <StackPanel>
                         <Border Classes="card">
                             <StackPanel Spacing="16">
-                                <TextBlock Classes="section-title" Text="DNS Lookup" Margin="0"/>
                                 <WrapPanel>
                                     <StackPanel Margin="0,0,24,0">
                                         <TextBlock Text="Hostname" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
                                         <TextBox Classes="field" Text="{Binding DnsHostname}" Width="280"/>
                                     </StackPanel>
                                     <StackPanel VerticalAlignment="Bottom">
-                                        <Button Classes="success" Content="▶  Resolve"
+                                        <Button Classes="success" Content="Resolve"
                                                 Command="{Binding RunDnsCommand}"
                                                 IsEnabled="{Binding !IsResolving}"/>
                                     </StackPanel>
                                 </WrapPanel>
-                                <TextBlock Classes="status-text" Text="{Binding DnsStatus}" Margin="0"/>
+                                <TextBlock Text="{Binding DnsStatus}" FontSize="12" Foreground="#64748B"/>
                             </StackPanel>
                         </Border>
 
@@ -114,46 +94,33 @@
                                         <DataGridTextColumn Header="FAMILY" Binding="{Binding Family}" Width="100"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Border Classes="empty-state" Margin="12,0,12,12"
-                                        IsVisible="{Binding !DnsResults.Count}">
-                                    <StackPanel HorizontalAlignment="Center" Spacing="6">
-                                        <TextBlock Text="🔍" FontSize="24" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="No DNS results" FontSize="13" Foreground="#64748B"
-                                                   HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Enter a hostname and resolve to see addresses"
-                                                   FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
-            <!-- ═══════ TRACEROUTE TAB ═══════ -->
-            <TabItem Header="🛤 Traceroute">
+            <!-- Traceroute -->
+            <TabItem Header="Traceroute">
                 <ScrollViewer Margin="0,12,0,0">
                     <StackPanel>
                         <Border Classes="card">
                             <StackPanel Spacing="16">
-                                <TextBlock Classes="section-title" Text="Traceroute" Margin="0"/>
                                 <WrapPanel>
                                     <StackPanel Margin="0,0,24,0">
                                         <TextBlock Text="Target Host" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
                                         <TextBox Classes="field" Text="{Binding TraceTarget}" Width="220"/>
                                     </StackPanel>
-                                    <StackPanel VerticalAlignment="Bottom">
-                                        <Button Classes="success" Content="▶  Trace Route"
+                                    <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal" Spacing="8">
+                                        <Button Classes="success" Content="Trace Route"
                                                 Command="{Binding RunTraceCommand}"
                                                 IsEnabled="{Binding !IsTracing}"/>
-                                    </StackPanel>
-                                    <StackPanel VerticalAlignment="Bottom" Margin="8,0,0,0">
                                         <Button Classes="ghost" Content="Cancel"
                                                 Command="{Binding CancelOperationCommand}"
                                                 IsVisible="{Binding IsTracing}"/>
                                     </StackPanel>
                                 </WrapPanel>
-                                <TextBlock Classes="status-text" Text="{Binding TraceStatus}" Margin="0"/>
+                                <TextBlock Text="{Binding TraceStatus}" FontSize="12" Foreground="#64748B"/>
                             </StackPanel>
                         </Border>
 
@@ -170,47 +137,34 @@
                                         <DataGridTextColumn Header="RTT" Binding="{Binding Rtt}" Width="110"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Border Classes="empty-state" Margin="12,0,12,12"
-                                        IsVisible="{Binding !TraceHops.Count}">
-                                    <StackPanel HorizontalAlignment="Center" Spacing="6">
-                                        <TextBlock Text="🗺" FontSize="24" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="No traceroute data" FontSize="13" Foreground="#64748B"
-                                                   HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Enter a target and trace the network path"
-                                                   FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
-            <!-- ═══════ LAN SCAN TAB ═══════ -->
-            <TabItem Header="📡 LAN Scan">
+            <!-- LAN Scan -->
+            <TabItem Header="LAN Scan">
                 <ScrollViewer Margin="0,12,0,0">
                     <StackPanel>
                         <Border Classes="card">
                             <StackPanel Spacing="16">
-                                <TextBlock Classes="section-title" Text="LAN Discovery" Margin="0"/>
                                 <WrapPanel>
                                     <StackPanel Margin="0,0,24,0">
                                         <TextBlock Text="Subnet (CIDR)" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
                                         <TextBox Classes="field" Text="{Binding ScanSubnet}" Width="220"
                                                  PlaceholderText="auto-detect"/>
                                     </StackPanel>
-                                    <StackPanel VerticalAlignment="Bottom">
-                                        <Button Classes="success" Content="▶  Scan Network"
+                                    <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal" Spacing="8">
+                                        <Button Classes="success" Content="Scan Network"
                                                 Command="{Binding RunScanCommand}"
                                                 IsEnabled="{Binding !IsScanning}"/>
-                                    </StackPanel>
-                                    <StackPanel VerticalAlignment="Bottom" Margin="8,0,0,0">
                                         <Button Classes="ghost" Content="Cancel"
                                                 Command="{Binding CancelOperationCommand}"
                                                 IsVisible="{Binding IsScanning}"/>
                                     </StackPanel>
                                 </WrapPanel>
-                                <TextBlock Classes="status-text" Text="{Binding ScanStatus}" Margin="0"/>
+                                <TextBlock Text="{Binding ScanStatus}" FontSize="12" Foreground="#64748B"/>
                             </StackPanel>
                         </Border>
 
@@ -228,16 +182,6 @@
                                         <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="90"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Border Classes="empty-state" Margin="12,0,12,12"
-                                        IsVisible="{Binding !ScannedDevices.Count}">
-                                    <StackPanel HorizontalAlignment="Center" Spacing="6">
-                                        <TextBlock Text="📡" FontSize="24" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="No devices discovered" FontSize="13" Foreground="#64748B"
-                                                   HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Scan your local network to find active devices"
-                                                   FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
                             </StackPanel>
                         </Border>
                     </StackPanel>
