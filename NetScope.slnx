@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="NetScope.App/NetScope.App.csproj" />
+  <Project Path="NetScope.Cli/NetScope.Cli.csproj" />
+  <Project Path="NetScope.Core/NetScope.Core.csproj" />
+  <Project Path="NetScope.Infrastructure/NetScope.Infrastructure.csproj" />
+  <Project Path="NetScope.Tests/NetScope.Tests.csproj" />
+</Solution>

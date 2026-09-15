@@ -1,0 +1,41 @@
+## .NET / C#
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+
+## NuGet
+**/packages/*
+*.nupkg
+**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+
+## Visual Studio
+.vs/
+*.rsuser
+*.sln.docstates
+
+## Rider
+.idea/
+
+## OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+## User-specific
+*.env
+appsettings.Development.json
