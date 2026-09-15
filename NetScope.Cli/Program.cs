@@ -6,6 +6,8 @@ return await (command switch
 {
     "info" => InfoCommand.RunAsync(),
     "ping" => PingCommand.RunAsync(args[1..]),
+    "dns" => DnsCommand.RunAsync(args[1..]),
+    "trace" => TraceCommand.RunAsync(args[1..]),
     "help" or "--help" or "-h" => HelpCommand.Run(),
     _ => HelpCommand.Run($"Unknown command: {command}")
 });

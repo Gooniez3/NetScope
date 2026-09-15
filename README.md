@@ -30,6 +30,8 @@ netscope <command> [options]
 |---|---|
 | `info` | Show network interfaces, connection status, and public IP |
 | `ping <target> [options]` | Ping a host and display latency statistics |
+| `dns <hostname>` | Resolve a hostname and display addresses |
+| `trace <target> [options]` | Traceroute to a host |
 | `help` | Show help |
 
 ### Ping Options
@@ -56,7 +58,24 @@ dotnet run --project NetScope.Cli -- ping google.com --count 10 --interval 500
 
 # Custom payload and TTL
 dotnet run --project NetScope.Cli -- ping 8.8.8.8 -c 20 -s 64 --ttl 64
+
+# DNS lookup
+dotnet run --project NetScope.Cli -- dns google.com
+
+# Traceroute
+dotnet run --project NetScope.Cli -- trace 1.1.1.1
+
+# Traceroute — skip reverse DNS, limit hops
+dotnet run --project NetScope.Cli -- trace google.com --max-hops 20 --no-dns
 ```
+
+### Traceroute Options
+
+| Option | Default | Range | Description |
+|---|---|---|---|
+| `--max-hops`, `-m` | 30 | 1–64 | Maximum number of hops |
+| `--timeout`, `-t` | 3000 | 100–10,000 ms | Timeout per hop probe |
+| `--no-dns` | (off) | — | Skip reverse DNS lookups on hops |
 
 ---
 
@@ -108,6 +127,54 @@ The engine does **not** throw exceptions for expected network failures:
 
 Exceptions are reserved for programming errors (null arguments, invalid options).
 
+---
+
+## DNS Engine
+
+### Design
+
+- **`IDnsService`** — async interface returning structured `DnsQueryResult`
+- **`DnsService`** — implementation using `System.Net.Dns.GetHostEntryAsync`
+- **`DnsQueryResult`** — hostname, resolved addresses (with address family), duration, success/failure
+- **`DnsResolvedAddress`** — individual address with `AddressFamily` and human-readable label
+
+### Capabilities
+
+- Resolves hostnames to IPv4 and IPv6 addresses
+- Reports resolution duration
+- Graceful failure for unknown hosts (structured result, no exception)
+- Supports cancellation
+
+---
+
+## Traceroute Engine
+
+### Design
+
+- **`ITracerouteService`** — async interface with `IProgress<TracerouteHop>` for live output
+- **`TracerouteService`** — pure .NET implementation using ICMP ping with incrementing TTL
+- **`TracerouteOptions`** — validated configuration (max hops, timeout, reverse DNS toggle)
+- **`TracerouteHop`** — single hop with address, hostname, RTT, responded status
+- **`TracerouteResult`** — complete trace with destination-reached flag, cancellation state
+
+### How it works
+
+Each hop sends an ICMP echo with `TTL = hop number`. The router at that hop returns `TtlExpired`,
+revealing its address. When the reply comes from the destination itself with `Success`, the trace
+is complete. This is the same algorithm as `tracert`/`traceroute`, but implemented entirely within
+.NET — no shell commands, no OS-specific binaries.
+
+### Capabilities
+
+- Configurable maximum hops (1–64)
+- Configurable timeout per hop (100–10,000 ms)
+- Optional reverse DNS on each hop
+- Real-time per-hop progress reporting
+- Cancellation support (returns partial results)
+- Graceful handling of DNS resolution failure, timeout hops, unreachable destinations
+
+---
+
 ### Cross-Platform Notes
 
 | Concern | Behavior |
@@ -117,6 +184,8 @@ Exceptions are reserved for programming errors (null arguments, invalid options)
 | **macOS** | Full support through .NET runtime. DHCP server queries are disabled (unsupported API). |
 | **Payload** | Large payloads may be rejected by intermediate routers or the OS. Surfaced as a non-success result, not an exception. |
 | **TTL** | When set to `null`, uses the OS default (typically 128 on Windows, 64 on Linux/macOS). |
+| **DNS** | Uses `System.Net.Dns` — cross-platform, resolves via OS resolver (respects /etc/resolv.conf on Linux/macOS). |
+| **Traceroute** | Pure .NET ICMP-based implementation. No dependency on `tracert` or `traceroute` binaries. Some routers silently drop TTL-expired ICMP, causing `*` timeout hops — this is normal. |
 
 ---
 
@@ -124,7 +193,7 @@ Exceptions are reserved for programming errors (null arguments, invalid options)
 
 - [x] **Phase 1** — Network information (interfaces, IPs, gateway, DNS, public IP, connection test)
 - [x] **Phase 2** — Ping / latency engine
-- [ ] Phase 3 — DNS / traceroute
+- [x] **Phase 3** — DNS / traceroute
 - [ ] Phase 4 — LAN scanner
 - [ ] Phase 5 — Monitoring engine
 - [ ] Phase 6 — SQLite history
