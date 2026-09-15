@@ -17,6 +17,9 @@ public sealed class NetworkInterfaceInfo
 
     public IReadOnlyList<string> IPv4Addresses { get; init; } = [];
     public IReadOnlyList<string> IPv6Addresses { get; init; } = [];
+
+    /// <summary>IPv4 unicast addresses with their prefix lengths (for subnet calculation).</summary>
+    public IReadOnlyList<(string Address, int PrefixLength)> IPv4UnicastDetails { get; init; } = [];
     public IReadOnlyList<string> GatewayAddresses { get; init; } = [];
     public IReadOnlyList<string> DnsAddresses { get; init; } = [];
 

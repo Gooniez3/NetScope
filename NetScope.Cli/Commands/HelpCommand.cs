@@ -21,6 +21,7 @@ internal static class HelpCommand
         Console.WriteLine("  ping <target> [options]      Ping a host and display latency statistics");
         Console.WriteLine("  dns <hostname>               Resolve a hostname and display addresses");
         Console.WriteLine("  trace <target> [options]     Traceroute to a host");
+        Console.WriteLine("  scan [options]               Scan the local network for devices");
         Console.WriteLine("  help                         Show this help message");
         Console.WriteLine();
         Console.WriteLine("Ping options:");
@@ -35,6 +36,13 @@ internal static class HelpCommand
         Console.WriteLine("  --timeout, -t <ms>           Timeout per hop (100–10000, default 3000)");
         Console.WriteLine("  --no-dns                     Skip reverse DNS on hops");
         Console.WriteLine();
+        Console.WriteLine("Scan options:");
+        Console.WriteLine("  --subnet, -s <cidr>          Subnet to scan (default: auto-detect)");
+        Console.WriteLine("  --timeout, -t <ms>           Timeout per probe (100–10000, default 500)");
+        Console.WriteLine("  --concurrency, -c <n>        Max concurrent probes (1–256, default 32)");
+        Console.WriteLine("  --no-dns                     Skip reverse DNS on devices");
+        Console.WriteLine("  --no-mac                     Skip MAC address lookup");
+        Console.WriteLine();
         Console.WriteLine("Examples:");
         Console.WriteLine("  netscope info");
         Console.WriteLine("  netscope ping 1.1.1.1");
@@ -42,6 +50,9 @@ internal static class HelpCommand
         Console.WriteLine("  netscope dns google.com");
         Console.WriteLine("  netscope trace 1.1.1.1");
         Console.WriteLine("  netscope trace google.com --max-hops 20 --no-dns");
+        Console.WriteLine("  netscope scan");
+        Console.WriteLine("  netscope scan --subnet 192.168.1.0/24 --timeout 500");
+        Console.WriteLine("  netscope scan --concurrency 64 --no-dns --no-mac");
 
         return Task.FromResult(error is null ? 0 : 1);
     }

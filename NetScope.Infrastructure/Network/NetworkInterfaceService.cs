@@ -53,6 +53,11 @@ public sealed class NetworkInterfaceService : INetworkInterfaceService
                 .Select(a => a.Address.ToString())
                 .ToList(),
 
+            IPv4UnicastDetails = ipProps.UnicastAddresses
+                .Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork)
+                .Select(a => (a.Address.ToString(), a.PrefixLength))
+                .ToList(),
+
             IPv6Addresses = ipProps.UnicastAddresses
                 .Where(a => a.Address.AddressFamily == AddressFamily.InterNetworkV6)
                 .Select(a => a.Address.ToString())

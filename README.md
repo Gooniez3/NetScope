@@ -32,6 +32,7 @@ netscope <command> [options]
 | `ping <target> [options]` | Ping a host and display latency statistics |
 | `dns <hostname>` | Resolve a hostname and display addresses |
 | `trace <target> [options]` | Traceroute to a host |
+| `scan [options]` | Scan the local network for devices |
 | `help` | Show help |
 
 ### Ping Options
@@ -67,7 +68,23 @@ dotnet run --project NetScope.Cli -- trace 1.1.1.1
 
 # Traceroute — skip reverse DNS, limit hops
 dotnet run --project NetScope.Cli -- trace google.com --max-hops 20 --no-dns
+
+# LAN scan — auto-detect subnet
+dotnet run --project NetScope.Cli -- scan
+
+# LAN scan — explicit subnet, high concurrency, no DNS
+dotnet run --project NetScope.Cli -- scan --subnet 192.168.1.0/24 --concurrency 64 --no-dns
 ```
+
+### Scan Options
+
+| Option | Default | Range | Description |
+|---|---|---|---|
+| `--subnet`, `-s` | Auto-detect | CIDR | Subnet to scan (e.g. `192.168.1.0/24`) |
+| `--timeout`, `-t` | 500 | 100–10,000 ms | Timeout per ping probe |
+| `--concurrency`, `-c` | 32 | 1–256 | Max concurrent probes |
+| `--no-dns` | (off) | — | Skip reverse DNS lookups |
+| `--no-mac` | (off) | — | Skip MAC address discovery |
 
 ### Traceroute Options
 
@@ -175,6 +192,45 @@ is complete. This is the same algorithm as `tracert`/`traceroute`, but implement
 
 ---
 
+---
+
+## LAN Scanner
+
+### Design
+
+- **`INetworkScannerService`** — async interface with `IProgress<DiscoveredDevice>` for live device reporting
+- **`NetworkScannerService`** — concurrent ICMP ping sweep with `SemaphoreSlim` throttling
+- **`SubnetHelper`** — pure math utility for CIDR parsing, subnet masks, host enumeration (fully testable, no I/O)
+- **`ArpTableReader`** — platform-specific ARP table reader (Windows `arp -a`, Linux `/proc/net/arp`, macOS `arp -an`)
+- **`ScanOptions`** — validated configuration (subnet, timeout, concurrency, DNS/MAC toggles)
+- **`DiscoveredDevice`** — IP, hostname, MAC, response time, discovery method, status
+- **`NetworkScanResult`** — scanned range, duration, device count, cancellation state
+
+### How it works
+
+1. Resolves the target subnet — either from an explicit CIDR or auto-detected from the active network interface
+2. Enumerates all host addresses in the subnet (e.g. .1–.254 for a /24)
+3. Sends concurrent ICMP pings with `SemaphoreSlim` throttling
+4. Enriches responding hosts with MAC addresses from the OS ARP table and optional reverse DNS
+5. Returns results ordered by IP address
+
+### MAC Address Discovery
+
+MAC addresses are obtained from the OS ARP cache, which is populated by network traffic. This means:
+
+- The local machine's own MAC will typically **not** appear (it's not in its own ARP table)
+- Devices that haven't communicated recently may not have ARP entries
+- MAC visibility depends on being on the same Layer 2 segment
+- ARP table reading is platform-specific and isolated in `ArpTableReader` (Infrastructure layer)
+
+| Platform | Method |
+|---|---|
+| Windows | Parses `arp -a` output |
+| Linux | Reads `/proc/net/arp` |
+| macOS | Parses `arp -an` output |
+
+---
+
 ### Cross-Platform Notes
 
 | Concern | Behavior |
@@ -186,6 +242,8 @@ is complete. This is the same algorithm as `tracert`/`traceroute`, but implement
 | **TTL** | When set to `null`, uses the OS default (typically 128 on Windows, 64 on Linux/macOS). |
 | **DNS** | Uses `System.Net.Dns` — cross-platform, resolves via OS resolver (respects /etc/resolv.conf on Linux/macOS). |
 | **Traceroute** | Pure .NET ICMP-based implementation. No dependency on `tracert` or `traceroute` binaries. Some routers silently drop TTL-expired ICMP, causing `*` timeout hops — this is normal. |
+| **LAN Scan** | ICMP ping sweep works cross-platform. MAC discovery via ARP is platform-specific (Windows/Linux/macOS) and isolated in Infrastructure. Returns null MAC on unsupported platforms. |
+| **ARP Table** | Windows: `arp -a`; Linux: `/proc/net/arp`; macOS: `arp -an`. Own machine's MAC is not in its own ARP table. Devices must have communicated recently to appear. |
 
 ---
 
@@ -194,7 +252,7 @@ is complete. This is the same algorithm as `tracert`/`traceroute`, but implement
 - [x] **Phase 1** — Network information (interfaces, IPs, gateway, DNS, public IP, connection test)
 - [x] **Phase 2** — Ping / latency engine
 - [x] **Phase 3** — DNS / traceroute
-- [ ] Phase 4 — LAN scanner
+- [x] **Phase 4** — LAN scanner
 - [ ] Phase 5 — Monitoring engine
 - [ ] Phase 6 — SQLite history
 - [ ] Phase 7 — Desktop UI (Avalonia)
