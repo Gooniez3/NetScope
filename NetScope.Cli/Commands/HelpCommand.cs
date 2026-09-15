@@ -23,6 +23,8 @@ internal static class HelpCommand
         Console.WriteLine("  trace <target> [options]     Traceroute to a host");
         Console.WriteLine("  scan [options]               Scan the local network for devices");
         Console.WriteLine("  monitor [options]            Continuous network health monitoring");
+        Console.WriteLine("  history [options]            View saved monitoring sessions and measurements");
+        Console.WriteLine("  stats [options]              Show aggregate statistics from saved data");
         Console.WriteLine("  help                         Show this help message");
         Console.WriteLine();
         Console.WriteLine("Ping options:");
@@ -68,6 +70,27 @@ internal static class HelpCommand
         Console.WriteLine("  netscope monitor --target 1.1.1.1");
         Console.WriteLine("  netscope monitor --interval 5 --count 20");
         Console.WriteLine("  netscope monitor --target google.com --dns --count 10");
+        Console.WriteLine("  netscope monitor --save --count 5          Save measurements to database");
+        Console.WriteLine();
+        Console.WriteLine("History options:");
+        Console.WriteLine("  --session, -s <id>           View measurements for a specific session");
+        Console.WriteLine("  --recent, -r                 Show recent measurements across all sessions");
+        Console.WriteLine("  --limit, -l <n>              Number of items to show (default 20)");
+        Console.WriteLine("  --cleanup                    Delete old data");
+        Console.WriteLine("  --older-than <days>          Retention cutoff for cleanup (default 30)");
+        Console.WriteLine();
+        Console.WriteLine("Stats options:");
+        Console.WriteLine("  --session, -s <id>           Statistics for a specific session");
+        Console.WriteLine("  --hours, -h <n>              Time range in hours (default 24)");
+        Console.WriteLine();
+        Console.WriteLine("History/Stats examples:");
+        Console.WriteLine("  netscope history                           List recent sessions");
+        Console.WriteLine("  netscope history --session 1               View session #1 measurements");
+        Console.WriteLine("  netscope history --recent --limit 10       Recent measurements");
+        Console.WriteLine("  netscope history --cleanup --older-than 7  Delete data older than 7 days");
+        Console.WriteLine("  netscope stats                             Stats for last 24 hours");
+        Console.WriteLine("  netscope stats --session 1                 Stats for session #1");
+        Console.WriteLine("  netscope stats --hours 48                  Stats for last 48 hours");
 
         return Task.FromResult(error is null ? 0 : 1);
     }

@@ -1,5 +1,7 @@
 using NetScope.Core.Models;
+using NetScope.Core.Persistence;
 using NetScope.Infrastructure.Network;
+using NetScope.Infrastructure.Persistence;
 
 namespace NetScope.Cli.Commands;
 
@@ -7,13 +9,32 @@ internal static class MonitorCommand
 {
     public static async Task<int> RunAsync(string[] args)
     {
-        var options = ParseArgs(args);
+        var (options, save) = ParseArgs(args);
         options.Validate();
 
         var pingService = new PingService();
         var dnsService = new DnsService();
         var interfaceService = new NetworkInterfaceService();
         var monitor = new NetworkMonitorService(pingService, dnsService, interfaceService);
+
+        IMeasurementRepository? repo = null;
+        long sessionId = 0;
+
+        if (save)
+        {
+            repo = new SqliteMeasurementRepository();
+            await repo.InitializeAsync();
+            var session = await repo.CreateSessionAsync(new MonitoringSession
+            {
+                Id = 0,
+                StartedAt = DateTimeOffset.UtcNow,
+                Target = options.Target,
+                IntervalSeconds = options.IntervalSeconds,
+                ProbesPerMeasurement = options.ProbesPerMeasurement,
+                TimeoutMs = options.TimeoutMs
+            });
+            sessionId = session.Id;
+        }
 
         using var cts = new CancellationTokenSource();
         Console.CancelKeyPress += (_, e) =>
@@ -22,10 +43,11 @@ internal static class MonitorCommand
             cts.Cancel();
         };
 
-        PrintHeader(options);
+        PrintHeader(options, save);
         PrintTableHeader();
 
         var count = 0;
+        var cancelled = false;
 
         try
         {
@@ -33,20 +55,53 @@ internal static class MonitorCommand
             {
                 count++;
                 PrintMeasurement(m);
+
+                if (repo is not null)
+                {
+                    try
+                    {
+                        await repo.SaveMeasurementAsync(sessionId, m);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine($"  [warn] Failed to save measurement: {ex.Message}");
+                        Console.ResetColor();
+                    }
+                }
             }
         }
         catch (OperationCanceledException)
         {
-            // Expected on Ctrl+C
+            cancelled = true;
+        }
+
+        // Complete session
+        if (repo is not null)
+        {
+            try
+            {
+                await repo.CompleteSessionAsync(
+                    sessionId, DateTimeOffset.UtcNow, count, !cancelled);
+            }
+            catch
+            {
+                // Best-effort session completion
+            }
         }
 
         Console.WriteLine();
         Console.WriteLine($"  Monitoring complete. {count} measurement(s) collected.");
+        if (save)
+            Console.WriteLine($"  Session #{sessionId} saved to database.");
+
+        if (repo is not null)
+            await repo.DisposeAsync();
 
         return 0;
     }
 
-    private static MonitorOptions ParseArgs(string[] args)
+    private static (MonitorOptions Options, bool Save) ParseArgs(string[] args)
     {
         var target = "1.1.1.1";
         var intervalSeconds = 5;
@@ -56,6 +111,7 @@ internal static class MonitorCommand
         var measureDns = false;
         var measureGateway = false;
         string? gatewayAddress = null;
+        var save = false;
 
         for (var i = 0; i < args.Length; i++)
         {
@@ -84,6 +140,9 @@ internal static class MonitorCommand
                     if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
                         gatewayAddress = args[++i];
                     break;
+                case "--save":
+                    save = true;
+                    break;
                 default:
                     if (!args[i].StartsWith('-') && i == 0)
                         target = args[i];
@@ -91,7 +150,7 @@ internal static class MonitorCommand
             }
         }
 
-        return new MonitorOptions
+        var options = new MonitorOptions
         {
             Target = target,
             IntervalSeconds = intervalSeconds,
@@ -102,9 +161,11 @@ internal static class MonitorCommand
             MeasureGateway = measureGateway,
             GatewayAddress = gatewayAddress
         };
+
+        return (options, save);
     }
 
-    private static void PrintHeader(MonitorOptions options)
+    private static void PrintHeader(MonitorOptions options, bool save)
     {
         Console.WriteLine();
         Console.WriteLine($"  Monitoring {options.Target} every {options.IntervalSeconds}s " +
@@ -114,6 +175,9 @@ internal static class MonitorCommand
             Console.WriteLine($"  Cycles: {options.MaxCycles.Value}");
         else
             Console.WriteLine("  Cycles: unlimited (Ctrl+C to stop)");
+
+        if (save)
+            Console.WriteLine("  Persistence: enabled (SQLite)");
 
         Console.WriteLine();
     }

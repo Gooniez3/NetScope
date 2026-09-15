@@ -10,6 +10,8 @@ return await (command switch
     "trace" => TraceCommand.RunAsync(args[1..]),
     "scan" => ScanCommand.RunAsync(args[1..]),
     "monitor" => MonitorCommand.RunAsync(args[1..]),
+    "history" => HistoryCommand.RunAsync(args[1..]),
+    "stats" => StatsCommand.RunAsync(args[1..]),
     "help" or "--help" or "-h" => HelpCommand.Run(),
     _ => HelpCommand.Run($"Unknown command: {command}")
 });

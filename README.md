@@ -34,6 +34,8 @@ netscope <command> [options]
 | `trace <target> [options]` | Traceroute to a host |
 | `scan [options]` | Scan the local network for devices |
 | `monitor [options]` | Continuous network health monitoring |
+| `history [options]` | View saved monitoring sessions and measurements |
+| `stats [options]` | Show aggregate statistics from saved data |
 | `help` | Show help |
 
 ### Ping Options
@@ -82,8 +84,17 @@ dotnet run --project NetScope.Cli -- monitor --target 1.1.1.1 --count 5
 # Monitor — 10-second interval, include DNS timing
 dotnet run --project NetScope.Cli -- monitor --interval 10 --dns --count 10
 
+# Monitor with persistence
+dotnet run --project NetScope.Cli -- monitor --save --count 5
+
 # Monitor — indefinite until Ctrl+C
 dotnet run --project NetScope.Cli -- monitor --target 8.8.8.8
+
+# View saved sessions
+dotnet run --project NetScope.Cli -- history
+
+# Session statistics
+dotnet run --project NetScope.Cli -- stats --session 1
 ```
 
 ### Scan Options
@@ -265,6 +276,7 @@ The monitoring engine provides continuous, periodic network health measurement. 
 | `--count`, `-c` | unlimited | 1–100,000 | Number of cycles (omit for indefinite) |
 | `--dns` | off | — | Include DNS resolution timing |
 | `--gateway` | off | — | Include gateway latency (auto-detect or specify address) |
+| `--save` | off | — | Persist measurements to SQLite database |
 
 ### Health Classification
 
@@ -318,7 +330,105 @@ TIME       TARGET          LATENCY    LOSS     JITTER    STATUS
 - Health classification thresholds are currently hard-coded defaults. Future versions may make them configurable per-session.
 - Gateway auto-detection depends on the active interface reporting a gateway address.
 - DNS measurement timing may vary with OS resolver caching behavior.
-- The monitoring engine does not persist measurements to disk — this will be addressed in Phase 6 (SQLite history).
+- DNS measurement timing may vary with OS resolver caching behavior on first lookup.
+
+---
+
+## SQLite Persistence
+
+### Design
+
+Monitoring measurements can be persisted to a local SQLite database for historical analysis. Persistence is **opt-in** via the `--save` flag — existing monitoring behavior is unchanged without it.
+
+- **`IMeasurementRepository`** — Core interface (`IAsyncDisposable`) for saving/querying measurements and sessions
+- **`SqliteMeasurementRepository`** — Infrastructure implementation using raw `Microsoft.Data.Sqlite` ADO.NET
+- **`MonitoringSession`** — Core model representing a monitoring session with config and completion status
+- **`MeasurementAggregate`** — Core model for computed aggregate statistics
+
+### Database
+
+| Property | Value |
+|---|---|
+| **Location** | `~/.netscope/netscope.db` |
+| **Engine** | SQLite via `Microsoft.Data.Sqlite` |
+| **Journal mode** | WAL (better concurrent read performance) |
+| **Schema** | Auto-created on first use |
+| **Queries** | All parameterized (SQL injection safe) |
+
+### Schema
+
+```sql
+sessions (
+    id, started_at, ended_at, target, interval_sec,
+    probes, timeout_ms, measurement_cnt, completed
+)
+
+measurements (
+    id, session_id, timestamp, cycle_number, target, is_connected,
+    packets_sent, packets_recv, loss_pct,
+    min_latency, max_latency, avg_latency, jitter,
+    dns_ms, gateway_ms, health_status
+)
+```
+
+Indexes on `session_id` and `timestamp` for efficient queries.
+
+### Monitoring Sessions
+
+Each `--save` monitoring run creates a session record that tracks:
+- Start/end timestamps
+- Target and configuration (interval, probes, timeout)
+- Measurement count
+- Completion status (normal vs. cancelled/interrupted)
+
+Interrupted sessions (Ctrl+C) are safely marked as cancelled with the measurements collected so far.
+
+### History Command
+
+```sh
+# List recent sessions
+netscope history
+
+# View measurements for a session
+netscope history --session 1
+
+# Recent measurements across all sessions
+netscope history --recent --limit 10
+
+# Cleanup old data (default: 30 days)
+netscope history --cleanup --older-than 7
+```
+
+### Stats Command
+
+```sh
+# Aggregate stats for last 24 hours
+netscope stats
+
+# Stats for a specific session
+netscope stats --session 1
+
+# Stats for a custom time range
+netscope stats --hours 48
+```
+
+Stats include: measurement count, uptime %, latency (avg/min/max), jitter, packet loss, and health status breakdown.
+
+### Retention
+
+The `--cleanup` flag on the history command deletes measurements older than a specified number of days and removes empty sessions. This is manual — no automatic background cleanup.
+
+```sh
+netscope history --cleanup --older-than 30
+```
+
+### Persistence limitations
+
+- Persistence is opt-in (`--save`). Without it, measurements are not stored.
+- The database location (`~/.netscope/netscope.db`) is not yet configurable via CLI flag.
+- No automatic retention/cleanup — must be run manually.
+- Single-writer design — concurrent monitoring sessions writing to the same database may cause contention (WAL mode mitigates reads).
+- Aggregate statistics are computed in-memory from fetched measurements, not via SQL aggregation.
 
 ---
 
@@ -335,6 +445,7 @@ TIME       TARGET          LATENCY    LOSS     JITTER    STATUS
 | **Traceroute** | Pure .NET ICMP-based implementation. No dependency on `tracert` or `traceroute` binaries. Some routers silently drop TTL-expired ICMP, causing `*` timeout hops — this is normal. |
 | **LAN Scan** | ICMP ping sweep works cross-platform. MAC discovery via ARP is platform-specific (Windows/Linux/macOS) and isolated in Infrastructure. Returns null MAC on unsupported platforms. |
 | **ARP Table** | Windows: `arp -a`; Linux: `/proc/net/arp`; macOS: `arp -an`. Own machine's MAC is not in its own ARP table. Devices must have communicated recently to appear. |
+| **SQLite** | Uses `Microsoft.Data.Sqlite` with bundled native SQLite. Works on all platforms without external dependencies. Database stored in `~/.netscope/netscope.db`. |
 
 ---
 
@@ -345,7 +456,7 @@ TIME       TARGET          LATENCY    LOSS     JITTER    STATUS
 - [x] **Phase 3** — DNS / traceroute
 - [x] **Phase 4** — LAN scanner
 - [x] **Phase 5** — Monitoring engine
-- [ ] Phase 6 — SQLite history
+- [x] **Phase 6** — SQLite persistence & historical monitoring
 - [ ] Phase 7 — Desktop UI (Avalonia)
 - [ ] Phase 8 — AI diagnostics
 - [ ] Phase 9 — Testing, security, packaging
