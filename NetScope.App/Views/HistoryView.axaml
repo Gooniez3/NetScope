@@ -3,96 +3,141 @@
              xmlns:vm="using:NetScope.App.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="650"
+             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="700"
              x:Class="NetScope.App.Views.HistoryView"
              x:DataType="vm:HistoryViewModel">
 
-    <Grid RowDefinitions="Auto,*">
-        <StackPanel Grid.Row="0" Margin="12,8,12,4">
-            <DockPanel>
-                <TextBlock DockPanel.Dock="Left" Text="History" FontSize="22" FontWeight="Bold" Foreground="White"/>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8"
-                            HorizontalAlignment="Right">
-                    <Button Classes="primary" Content="↻  Refresh"
-                            Command="{Binding LoadSessionsCommand}"/>
-                    <Button Content="🗑  Cleanup (30d)"
-                            Command="{Binding CleanupCommand}"
-                            Padding="12,8" CornerRadius="6"/>
-                </StackPanel>
-            </DockPanel>
-            <TextBlock Classes="status-text" Text="{Binding StatusText}"/>
-        </StackPanel>
+    <Grid RowDefinitions="Auto,*" Margin="28,24,28,16">
 
-        <Grid Grid.Row="1" ColumnDefinitions="320,*" Margin="8,0">
-            <!-- Sessions list -->
-            <Border Grid.Column="0" Classes="card">
-                <StackPanel>
-                    <TextBlock Classes="section-title" Text="Sessions"/>
+        <!-- ═══ PAGE HEADER ═══ -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,20">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock Classes="page-title" Text="History"/>
+                <TextBlock Classes="page-subtitle" Text="{Binding StatusText}"/>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10"
+                        HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Button Classes="primary" Content="↻  Refresh"
+                        Command="{Binding LoadSessionsCommand}"/>
+                <Button Classes="ghost" Content="🗑  Cleanup (30d)"
+                        Command="{Binding CleanupCommand}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- ═══ CONTENT ═══ -->
+        <Grid Grid.Row="1" ColumnDefinitions="340,20,*">
+
+            <!-- ─── SESSIONS LIST ─── -->
+            <Border Grid.Column="0" Classes="card" Padding="0">
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top" Margin="20,16,20,0">
+                        <TextBlock Classes="section-title" Text="Sessions" Margin="0"/>
+                        <TextBlock DockPanel.Dock="Right" FontSize="11" Foreground="#475569"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} total">
+                                    <Binding Path="Sessions.Count"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </DockPanel>
+
+                    <Button DockPanel.Dock="Bottom" Classes="primary" Content="View Session Details"
+                            Command="{Binding SelectSessionCommand}"
+                            CommandParameter="{Binding SelectedSession}"
+                            Margin="12,8,12,12" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"/>
+
                     <DataGrid ItemsSource="{Binding Sessions}"
                               SelectedItem="{Binding SelectedSession}"
                               IsReadOnly="True" CanUserSortColumns="False"
                               HeadersVisibility="Column"
                               SelectionMode="Single"
-                              MaxHeight="500">
+                              Margin="8,8,8,0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="#" Binding="{Binding Id}" Width="36"/>
-                            <DataGridTextColumn Header="Started" Binding="{Binding Started}" Width="120"/>
-                            <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="90"/>
-                            <DataGridTextColumn Header="Cyc" Binding="{Binding Cycles}" Width="42"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40"/>
+                            <DataGridTextColumn Header="STARTED" Binding="{Binding Started}" Width="130"/>
+                            <DataGridTextColumn Header="TARGET" Binding="{Binding Target}" Width="90"/>
+                            <DataGridTextColumn Header="CYC" Binding="{Binding Cycles}" Width="50"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button Content="View Session" Margin="0,8,0,0"
-                            Command="{Binding SelectSessionCommand}"
-                            CommandParameter="{Binding SelectedSession}"
-                            Padding="12,6" CornerRadius="6"/>
-                </StackPanel>
+                </DockPanel>
             </Border>
 
-            <!-- Session detail -->
-            <StackPanel Grid.Column="1" Margin="4,0,0,0">
-                <!-- Aggregate -->
-                <Border Classes="card" Margin="4,4,4,4" IsVisible="{Binding HasAggregate}">
-                    <WrapPanel>
-                        <StackPanel Margin="0,0,24,4">
-                            <TextBlock Classes="metric-label" Text="MEASUREMENTS"/>
-                            <TextBlock Classes="metric-value" Text="{Binding AggMeasurements}" FontSize="18"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,24,4">
-                            <TextBlock Classes="metric-label" Text="UPTIME"/>
-                            <TextBlock Classes="metric-value" Text="{Binding AggUptime}" FontSize="18"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,24,4">
-                            <TextBlock Classes="metric-label" Text="AVG LATENCY"/>
-                            <TextBlock Classes="metric-value" Text="{Binding AggLatency}" FontSize="18"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,24,4">
-                            <TextBlock Classes="metric-label" Text="AVG JITTER"/>
-                            <TextBlock Classes="metric-value" Text="{Binding AggJitter}" FontSize="18"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,24,4">
-                            <TextBlock Classes="metric-label" Text="AVG LOSS"/>
-                            <TextBlock Classes="metric-value" Text="{Binding AggLoss}" FontSize="18"/>
-                        </StackPanel>
-                    </WrapPanel>
+            <!-- ─── DETAIL PANEL ─── -->
+            <StackPanel Grid.Column="2">
+
+                <!-- Aggregate Stats -->
+                <Border Classes="card-elevated" IsVisible="{Binding HasAggregate}" Margin="0,0,0,0" Padding="0">
+                    <Grid RowDefinitions="3,*">
+                        <Border Grid.Row="0" CornerRadius="12,12,0,0">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                                    <GradientStop Color="#3B82F6" Offset="0"/>
+                                    <GradientStop Color="#8B5CF6" Offset="0.5"/>
+                                    <GradientStop Color="#06B6D4" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <UniformGrid Grid.Row="1" Columns="5" Margin="8,12,8,16">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Classes="metric-label" HorizontalAlignment="Center" Text="MEASUREMENTS"/>
+                                <TextBlock Text="{Binding AggMeasurements}" FontSize="20" FontWeight="Bold"
+                                           Foreground="#E2E8F0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Classes="metric-label" HorizontalAlignment="Center" Text="UPTIME"/>
+                                <TextBlock Text="{Binding AggUptime}" FontSize="20" FontWeight="Bold"
+                                           Foreground="#10B981" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Classes="metric-label" HorizontalAlignment="Center" Text="AVG LATENCY"/>
+                                <TextBlock Text="{Binding AggLatency}" FontSize="20" FontWeight="Bold"
+                                           Foreground="#3B82F6" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Classes="metric-label" HorizontalAlignment="Center" Text="AVG JITTER"/>
+                                <TextBlock Text="{Binding AggJitter}" FontSize="20" FontWeight="Bold"
+                                           Foreground="#8B5CF6" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Classes="metric-label" HorizontalAlignment="Center" Text="AVG LOSS"/>
+                                <TextBlock Text="{Binding AggLoss}" FontSize="20" FontWeight="Bold"
+                                           Foreground="#F59E0B" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </UniformGrid>
+                    </Grid>
                 </Border>
 
-                <!-- Measurements -->
-                <Border Classes="card" Margin="4,0,4,4">
+                <!-- Session Measurements -->
+                <Border Classes="card" Padding="0">
                     <StackPanel>
-                        <TextBlock Classes="section-title" Text="Session Measurements"/>
+                        <TextBlock Classes="section-title" Margin="20,16,20,0" Text="Session Measurements"/>
                         <DataGrid ItemsSource="{Binding SessionMeasurements}"
                                   IsReadOnly="True" CanUserResizeColumns="True"
                                   CanUserSortColumns="False" HeadersVisibility="Column"
-                                  MaxHeight="400">
+                                  MaxHeight="420" Margin="8,8,8,8">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="80"/>
-                                <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="110"/>
-                                <DataGridTextColumn Header="Latency" Binding="{Binding Latency}" Width="80"/>
-                                <DataGridTextColumn Header="Loss" Binding="{Binding Loss}" Width="60"/>
-                                <DataGridTextColumn Header="Jitter" Binding="{Binding Jitter}" Width="80"/>
-                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
+                                <DataGridTextColumn Header="TIME" Binding="{Binding Time}" Width="90"/>
+                                <DataGridTextColumn Header="TARGET" Binding="{Binding Target}" Width="120"/>
+                                <DataGridTextColumn Header="LATENCY" Binding="{Binding Latency}" Width="90"/>
+                                <DataGridTextColumn Header="LOSS" Binding="{Binding Loss}" Width="70"/>
+                                <DataGridTextColumn Header="JITTER" Binding="{Binding Jitter}" Width="90"/>
+                                <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="90"/>
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <!-- Empty state -->
+                        <Border Classes="empty-state" Margin="12,0,12,12"
+                                IsVisible="{Binding !SessionMeasurements.Count}">
+                            <StackPanel HorizontalAlignment="Center" Spacing="6">
+                                <TextBlock Text="📋" FontSize="24" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Select a session to view details" FontSize="13"
+                                           Foreground="#64748B" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Click a session in the list, then press View Session Details"
+                                           FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Border>
             </StackPanel>

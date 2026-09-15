@@ -3,6 +3,9 @@
              x:Class="NetScope.App.App"
              xmlns:local="using:NetScope.App"
              RequestedThemeVariant="Dark">
+    <Application.Resources>
+        <SolidColorBrush x:Key="SystemRegionBrush" Color="#0B0E14"/>
+    </Application.Resources>
 
     <Application.DataTemplates>
         <local:ViewLocator />

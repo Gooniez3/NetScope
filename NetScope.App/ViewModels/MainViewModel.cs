@@ -9,7 +9,18 @@ public partial class MainViewModel : ViewModelBase
     public partial ViewModelBase CurrentPage { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDashboardActive))]
+    [NotifyPropertyChangedFor(nameof(IsMonitorActive))]
+    [NotifyPropertyChangedFor(nameof(IsHistoryActive))]
+    [NotifyPropertyChangedFor(nameof(IsDiagnosticsActive))]
+    [NotifyPropertyChangedFor(nameof(IsSettingsActive))]
     public partial string SelectedNav { get; set; } = "Dashboard";
+
+    public bool IsDashboardActive => SelectedNav == "Dashboard";
+    public bool IsMonitorActive => SelectedNav == "Monitor";
+    public bool IsHistoryActive => SelectedNav == "History";
+    public bool IsDiagnosticsActive => SelectedNav == "Diagnostics";
+    public bool IsSettingsActive => SelectedNav == "Settings";
 
     public DashboardViewModel Dashboard { get; } = new();
     public MonitorViewModel Monitor { get; } = new();

@@ -3,65 +3,117 @@
              xmlns:vm="using:NetScope.App.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="650"
+             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="700"
              x:Class="NetScope.App.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
 
-    <ScrollViewer>
-        <StackPanel Margin="12,8" MaxWidth="600">
-            <TextBlock Text="Settings" FontSize="22" FontWeight="Bold" Foreground="White" Margin="0,0,0,12"/>
+    <ScrollViewer Padding="28,24,28,16">
+        <StackPanel MaxWidth="640">
 
-            <Border Classes="card" Margin="0,0,0,8">
+            <!-- ═══ PAGE HEADER ═══ -->
+            <StackPanel Margin="0,0,0,24">
+                <TextBlock Classes="page-title" Text="Settings"/>
+                <TextBlock Classes="page-subtitle" Text="Configure monitoring defaults and application preferences"/>
+            </StackPanel>
+
+            <!-- ═══ MONITORING DEFAULTS ═══ -->
+            <Border Classes="card">
+                <StackPanel Spacing="20">
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Monitoring Defaults" Margin="0"/>
+                        <TextBlock Text="These values are used as defaults when starting a new monitoring session."
+                                   FontSize="12" Foreground="#475569" Margin="0,0,0,0"/>
+                    </StackPanel>
+
+                    <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Default target"
+                                   VerticalAlignment="Center" Foreground="#94A3B8" FontSize="13"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Classes="field"
+                                 Text="{Binding DefaultTarget}" MaxWidth="240" HorizontalAlignment="Left"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Interval (sec)"
+                                   VerticalAlignment="Center" Foreground="#94A3B8" FontSize="13" Margin="0,12,0,0"/>
+                        <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding DefaultInterval}"
+                                       Minimum="1" Maximum="300" Width="140" FontSize="13"
+                                       HorizontalAlignment="Left" Margin="0,12,0,0"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Probes / cycle"
+                                   VerticalAlignment="Center" Foreground="#94A3B8" FontSize="13" Margin="0,12,0,0"/>
+                        <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding DefaultProbes}"
+                                       Minimum="1" Maximum="20" Width="140" FontSize="13"
+                                       HorizontalAlignment="Left" Margin="0,12,0,0"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Timeout (ms)"
+                                   VerticalAlignment="Center" Foreground="#94A3B8" FontSize="13" Margin="0,12,0,0"/>
+                        <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding DefaultTimeout}"
+                                       Minimum="100" Maximum="30000" Width="140" FontSize="13"
+                                       HorizontalAlignment="Left" Margin="0,12,0,0"/>
+                    </Grid>
+
+                    <Button Classes="primary" Content="Save Defaults" Command="{Binding SaveDefaultsCommand}"
+                            HorizontalAlignment="Left" Margin="0,4,0,0"/>
+                    <TextBlock Classes="status-text" Text="{Binding StatusText}" Margin="0"
+                               IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ DATABASE ═══ -->
+            <Border Classes="card">
                 <StackPanel Spacing="12">
-                    <TextBlock Classes="section-title" Text="Monitoring Defaults"/>
-
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="Default target:" Width="120" VerticalAlignment="Center"
-                                   Foreground="#AAAAAA" FontSize="13"/>
-                        <TextBox Text="{Binding DefaultTarget}" Width="200" FontSize="13"/>
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Database" Margin="0"/>
+                        <TextBlock Text="SQLite database used for persisting monitoring sessions and measurements."
+                                   FontSize="12" Foreground="#475569"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="Interval (sec):" Width="120" VerticalAlignment="Center"
-                                   Foreground="#AAAAAA" FontSize="13"/>
-                        <NumericUpDown Value="{Binding DefaultInterval}" Minimum="1" Maximum="300"
-                                       Width="120" FontSize="13"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="Probes/cycle:" Width="120" VerticalAlignment="Center"
-                                   Foreground="#AAAAAA" FontSize="13"/>
-                        <NumericUpDown Value="{Binding DefaultProbes}" Minimum="1" Maximum="20"
-                                       Width="120" FontSize="13"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="Timeout (ms):" Width="120" VerticalAlignment="Center"
-                                   Foreground="#AAAAAA" FontSize="13"/>
-                        <NumericUpDown Value="{Binding DefaultTimeout}" Minimum="100" Maximum="30000"
-                                       Width="120" FontSize="13"/>
-                    </StackPanel>
+                    <Grid ColumnDefinitions="140,*">
+                        <TextBlock Grid.Column="0" Text="Path" VerticalAlignment="Center"
+                                   Foreground="#94A3B8" FontSize="13"/>
+                        <TextBox Grid.Column="1" Classes="field" Text="{Binding DatabasePath}"
+                                 FontSize="11" IsReadOnly="True" Foreground="#64748B"/>
+                    </Grid>
                 </StackPanel>
             </Border>
 
-            <Border Classes="card" Margin="0,0,0,8">
-                <StackPanel Spacing="12">
-                    <TextBlock Classes="section-title" Text="Database"/>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="Path:" Width="120" VerticalAlignment="Center"
-                                   Foreground="#AAAAAA" FontSize="13"/>
-                        <TextBox Text="{Binding DatabasePath}" Width="400" FontSize="12" IsReadOnly="True"/>
+            <!-- ═══ ABOUT ═══ -->
+            <Border Classes="card" Padding="0">
+                <Grid RowDefinitions="3,*">
+                    <Border Grid.Row="0" CornerRadius="12,12,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                                <GradientStop Color="#3B82F6" Offset="0"/>
+                                <GradientStop Color="#8B5CF6" Offset="0.5"/>
+                                <GradientStop Color="#06B6D4" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <StackPanel Grid.Row="1" Spacing="8" Margin="20,16,20,20">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="10" Height="10" Fill="#10B981" Margin="0,3,0,0"/>
+                            <TextBlock Text="NetScope" FontSize="18" FontWeight="Bold" Foreground="#E2E8F0"/>
+                        </StackPanel>
+                        <TextBlock Text="Network Diagnostics" Foreground="#94A3B8" FontSize="13"/>
+                        <Border Classes="separator"/>
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12" Foreground="#64748B">
+                                <Run Text="Version:  "/><Run Text="0.7.0" Foreground="#94A3B8"/>
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="#64748B">
+                                <Run Text="Phase:    "/><Run Text="7 — Avalonia Desktop UI" Foreground="#94A3B8"/>
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="#64748B">
+                                <Run Text="Runtime:  "/><Run Text=".NET 10" Foreground="#94A3B8"/>
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="#64748B">
+                                <Run Text="UI:       "/><Run Text="Avalonia 12" Foreground="#94A3B8"/>
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="#64748B">
+                                <Run Text="Arch:     "/><Run Text="Clean Architecture + MVVM" Foreground="#94A3B8"/>
+                            </TextBlock>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                </Grid>
             </Border>
 
-            <Border Classes="card" Margin="0,0,0,8">
-                <StackPanel Spacing="8">
-                    <TextBlock Classes="section-title" Text="About"/>
-                    <TextBlock Text="NetScope — Network Diagnostics" Foreground="#CCCCCC" FontSize="13"/>
-                    <TextBlock Text="Phase 7 • Avalonia Desktop UI" Foreground="#888888" FontSize="12"/>
-                    <TextBlock Text="Built with .NET 10, Avalonia 12, Clean Architecture" Foreground="#666666" FontSize="11"/>
-                </StackPanel>
-            </Border>
-
-            <TextBlock Classes="status-text" Text="{Binding StatusText}"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
