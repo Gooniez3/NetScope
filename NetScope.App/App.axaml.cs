@@ -17,9 +17,18 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var vm = new MainViewModel();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(),
+                DataContext = vm,
+            };
+
+            desktop.ShutdownRequested += (_, _) =>
+            {
+                if (vm.Dashboard.IsMonitoring)
+                    vm.Dashboard.StopMonitorCommand.Execute(null);
+                if (vm.Monitor.IsMonitoring)
+                    vm.Monitor.StopCommand.Execute(null);
             };
         }
 

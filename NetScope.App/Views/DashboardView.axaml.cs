@@ -27,7 +27,11 @@ public partial class DashboardView : UserControl
     protected override void OnDetachedFromVisualTree(Avalonia.VisualTreeAttachmentEventArgs e)
     {
         if (DataContext is DashboardViewModel vm)
+        {
             vm.ChartUpdated -= OnChartUpdated;
+            if (vm.IsMonitoring)
+                vm.StopMonitorCommand.Execute(null);
+        }
         base.OnDetachedFromVisualTree(e);
     }
 

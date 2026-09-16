@@ -39,7 +39,7 @@ public partial class DashboardViewModel : ViewModelBase
     public partial string HealthColor { get; set; } = "#484F58";
 
     [ObservableProperty]
-    public partial string MonitorTarget { get; set; } = "1.1.1.1";
+    public partial string MonitorTarget { get; set; } = AppDefaults.Target;
 
     [ObservableProperty]
     public partial bool IsMonitoring { get; set; }

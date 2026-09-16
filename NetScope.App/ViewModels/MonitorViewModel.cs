@@ -9,16 +9,16 @@ namespace NetScope.App.ViewModels;
 public partial class MonitorViewModel : ViewModelBase
 {
     [ObservableProperty]
-    public partial string Target { get; set; } = "1.1.1.1";
+    public partial string Target { get; set; } = AppDefaults.Target;
 
     [ObservableProperty]
-    public partial int IntervalSeconds { get; set; } = 5;
+    public partial int IntervalSeconds { get; set; } = AppDefaults.IntervalSeconds;
 
     [ObservableProperty]
-    public partial int ProbesPerCycle { get; set; } = 4;
+    public partial int ProbesPerCycle { get; set; } = AppDefaults.ProbesPerCycle;
 
     [ObservableProperty]
-    public partial int TimeoutMs { get; set; } = 3000;
+    public partial int TimeoutMs { get; set; } = AppDefaults.TimeoutMs;
 
     [ObservableProperty]
     public partial bool SaveToDatabase { get; set; } = true;

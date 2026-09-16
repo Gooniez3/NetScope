@@ -7,16 +7,16 @@ namespace NetScope.App.ViewModels;
 public partial class SettingsViewModel : ViewModelBase
 {
     [ObservableProperty]
-    public partial string DefaultTarget { get; set; } = "1.1.1.1";
+    public partial string DefaultTarget { get; set; } = AppDefaults.Target;
 
     [ObservableProperty]
-    public partial int DefaultInterval { get; set; } = 5;
+    public partial int DefaultInterval { get; set; } = AppDefaults.IntervalSeconds;
 
     [ObservableProperty]
-    public partial int DefaultProbes { get; set; } = 4;
+    public partial int DefaultProbes { get; set; } = AppDefaults.ProbesPerCycle;
 
     [ObservableProperty]
-    public partial int DefaultTimeout { get; set; } = 3000;
+    public partial int DefaultTimeout { get; set; } = AppDefaults.TimeoutMs;
 
     [ObservableProperty]
     public partial string DatabasePath { get; set; } = SqliteMeasurementRepository.GetDefaultDatabasePath();
@@ -27,6 +27,22 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void SaveDefaults()
     {
-        StatusText = "Settings are applied to new monitoring sessions.";
+        AppDefaults.Target = DefaultTarget;
+        AppDefaults.IntervalSeconds = DefaultInterval;
+        AppDefaults.ProbesPerCycle = DefaultProbes;
+        AppDefaults.TimeoutMs = DefaultTimeout;
+        StatusText = "Defaults saved. New monitoring sessions will use these values.";
     }
+}
+
+/// <summary>
+/// Simple in-memory defaults shared across ViewModels.
+/// Not persisted to disk — resets on app restart.
+/// </summary>
+public static class AppDefaults
+{
+    public static string Target { get; set; } = "1.1.1.1";
+    public static int IntervalSeconds { get; set; } = 5;
+    public static int ProbesPerCycle { get; set; } = 4;
+    public static int TimeoutMs { get; set; } = 3000;
 }

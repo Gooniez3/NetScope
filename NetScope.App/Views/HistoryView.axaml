@@ -26,6 +26,8 @@
 
             <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" ClipToBounds="True">
                 <TextBlock Classes="section-label" Text="SESSIONS" Margin="0,0,0,6"/>
+                <TextBlock Grid.Row="0" Text="Loading…" FontSize="12" Foreground="#6E7681"
+                           IsVisible="{Binding IsLoading}" Margin="0,0,0,4"/>
                 <DataGrid Grid.Row="1"
                           ItemsSource="{Binding Sessions}"
                           SelectedItem="{Binding SelectedSession}"
@@ -74,9 +76,12 @@
                     </StackPanel>
                 </Grid>
 
-                <Grid Grid.Row="1" RowDefinitions="Auto,*">
+                <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*">
                     <TextBlock Classes="section-label" Text="SESSION MEASUREMENTS" Margin="0,0,0,6"/>
-                    <DataGrid Grid.Row="1"
+                    <TextBlock Grid.Row="1" Text="Select a session to view its measurements."
+                               FontSize="12" Foreground="#30363D"
+                               IsVisible="{Binding !SessionMeasurements.Count}"/>
+                    <DataGrid Grid.Row="2"
                               ItemsSource="{Binding SessionMeasurements}"
                               IsReadOnly="True" CanUserResizeColumns="True"
                               CanUserSortColumns="False">

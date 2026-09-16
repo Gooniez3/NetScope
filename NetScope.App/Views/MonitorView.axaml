@@ -101,6 +101,9 @@
                     </TextBlock.Text>
                 </TextBlock>
             </DockPanel>
+            <TextBlock DockPanel.Dock="Bottom" Text="Start monitoring to collect measurements."
+                       FontSize="12" Foreground="#30363D" Margin="0,8,0,0"
+                       IsVisible="{Binding !Measurements.Count}"/>
             <DataGrid ItemsSource="{Binding Measurements}"
                       IsReadOnly="True" CanUserResizeColumns="True"
                       CanUserSortColumns="False">
