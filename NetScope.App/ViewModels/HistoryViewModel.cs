@@ -15,11 +15,14 @@ public partial class HistoryViewModel : ViewModelBase
     public partial string StatusText { get; set; } = "Select a session to view details.";
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(DeleteSessionCommand))]
     public partial SessionRow? SelectedSession { get; set; }
+
+    [ObservableProperty]
+    public partial bool ConfirmingClearAll { get; set; }
 
     private long _loadedSessionId = -1;
 
-    // Aggregate display
     [ObservableProperty]
     public partial bool HasAggregate { get; set; }
 
@@ -38,11 +41,125 @@ public partial class HistoryViewModel : ViewModelBase
     [ObservableProperty]
     public partial string AggLoss { get; set; } = "—";
 
+    [ObservableProperty]
+    public partial string DetailTitle { get; set; } = "No session selected";
+
     public ObservableCollection<SessionRow> Sessions { get; } = [];
     public ObservableCollection<MeasurementRow> SessionMeasurements { get; } = [];
 
     [RelayCommand]
     private async Task LoadSessionsAsync()
+    {
+        await ReloadSessionsAsync();
+        StatusText = Sessions.Count > 0
+            ? $"{Sessions.Count} session(s). Select one to inspect."
+            : "No sessions found. Enable Save on Monitor, then run a session.";
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDeleteSession))]
+    private async Task DeleteSessionAsync()
+    {
+        if (SelectedSession is null)
+            return;
+
+        var id = SelectedSession.Id;
+        IsLoading = true;
+        ConfirmingClearAll = false;
+        try
+        {
+            var measurements = await ServiceLocator.Repository.DeleteSessionAsync(id);
+            ResetDetail();
+            await ReloadSessionsAsync();
+            StatusText = $"Deleted session #{id} ({measurements} measurement(s)).";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Delete error: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ClearAllAsync()
+    {
+        if (Sessions.Count == 0)
+        {
+            StatusText = "Nothing to clear.";
+            return;
+        }
+
+        if (!ConfirmingClearAll)
+        {
+            ConfirmingClearAll = true;
+            StatusText = "Click Clear all again to permanently delete every session.";
+            return;
+        }
+
+        IsLoading = true;
+        try
+        {
+            var count = await ServiceLocator.Repository.DeleteAllAsync();
+            ConfirmingClearAll = false;
+            ResetDetail();
+            await ReloadSessionsAsync();
+            StatusText = $"Cleared {count} session(s).";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Clear error: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task CleanupAsync()
+    {
+        IsLoading = true;
+        ConfirmingClearAll = false;
+        try
+        {
+            var cutoff = DateTimeOffset.UtcNow.AddDays(-30);
+            var deleted = await ServiceLocator.Repository.DeleteMeasurementsOlderThanAsync(cutoff);
+            var sessions = await ServiceLocator.Repository.DeleteEmptySessionsAsync();
+            await ReloadSessionsAsync();
+            StatusText = deleted == 0 && sessions == 0
+                ? "Nothing older than 30 days. Use Delete session or Clear all for recent data."
+                : $"Removed {deleted} measurement(s) and {sessions} old session(s).";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Cleanup error: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    partial void OnSelectedSessionChanged(SessionRow? value)
+    {
+        ConfirmingClearAll = false;
+        if (value is null)
+        {
+            ResetDetail();
+            return;
+        }
+
+        if (value.Id == _loadedSessionId)
+            return;
+
+        _ = LoadDetailAsync(value);
+    }
+
+    private bool CanDeleteSession() => SelectedSession is not null;
+
+    private async Task ReloadSessionsAsync()
     {
         IsLoading = true;
         try
@@ -51,11 +168,8 @@ public partial class HistoryViewModel : ViewModelBase
             Sessions.Clear();
             foreach (var s in sessions)
                 Sessions.Add(new SessionRow(s));
-
-            StatusText = sessions.Count > 0
-                ? $"{sessions.Count} session(s) found."
-                : "No sessions found. Run a monitor with --save or enable persistence in Monitor tab.";
             _loadedSessionId = -1;
+            DeleteSessionCommand.NotifyCanExecuteChanged();
         }
         catch (Exception ex)
         {
@@ -67,36 +181,8 @@ public partial class HistoryViewModel : ViewModelBase
         }
     }
 
-    partial void OnSelectedSessionChanged(SessionRow? value)
+    private async Task LoadDetailAsync(SessionRow session)
     {
-        if (value is null)
-        {
-            SessionMeasurements.Clear();
-            HasAggregate = false;
-            _loadedSessionId = -1;
-            return;
-        }
-
-        if (value.Id == _loadedSessionId)
-            return;
-
-        _ = SelectSessionCommand.ExecuteAsync(value);
-    }
-
-    [RelayCommand]
-    private async Task SelectSessionAsync(SessionRow? session)
-    {
-        if (session is null)
-        {
-            SelectedSession = null;
-            return;
-        }
-
-        if (!ReferenceEquals(SelectedSession, session))
-            SelectedSession = session;
-        if (session.Id == _loadedSessionId && SessionMeasurements.Count > 0)
-            return;
-
         IsLoading = true;
         try
         {
@@ -121,7 +207,7 @@ public partial class HistoryViewModel : ViewModelBase
             }
 
             _loadedSessionId = session.Id;
-            StatusText = $"Session #{session.Id}: {measurements.Count} measurement(s)";
+            DetailTitle = $"Session #{session.Id}  ·  {session.Target}";
         }
         catch (Exception ex)
         {
@@ -133,26 +219,12 @@ public partial class HistoryViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
-    private async Task CleanupAsync()
+    private void ResetDetail()
     {
-        IsLoading = true;
-        try
-        {
-            var cutoff = DateTimeOffset.UtcNow.AddDays(-30);
-            var deleted = await ServiceLocator.Repository.DeleteMeasurementsOlderThanAsync(cutoff);
-            var sessions = await ServiceLocator.Repository.DeleteEmptySessionsAsync();
-            StatusText = $"Cleanup: {deleted} measurement(s) and {sessions} empty session(s) removed.";
-            await LoadSessionsAsync();
-        }
-        catch (Exception ex)
-        {
-            StatusText = $"Cleanup error: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        SessionMeasurements.Clear();
+        HasAggregate = false;
+        DetailTitle = "No session selected";
+        _loadedSessionId = -1;
     }
 }
 
@@ -160,20 +232,26 @@ public class SessionRow
 {
     public long Id { get; }
     public string Started { get; }
+    public string StartedShort { get; }
     public string Target { get; }
     public int Cycles { get; }
+    public string CyclesLabel { get; }
     public string Status { get; }
     public string StatusColor { get; }
     public string Config { get; }
+    public string Display { get; }
 
     public SessionRow(MonitoringSession s)
     {
         Id = s.Id;
         Started = s.StartedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+        StartedShort = s.StartedAt.ToLocalTime().ToString("MMM d HH:mm");
         Target = s.Target;
         Cycles = s.MeasurementCount;
+        CyclesLabel = $"{s.MeasurementCount}";
         Status = s.CompletedNormally ? "Complete" : s.EndedAt.HasValue ? "Cancelled" : "Running";
         StatusColor = s.CompletedNormally ? "#3FB950" : s.EndedAt.HasValue ? "#D29922" : "#58A6FF";
         Config = $"{s.IntervalSeconds}s / {s.ProbesPerMeasurement} probes";
+        Display = $"#{Id}  {Started}  {Target}";
     }
 }

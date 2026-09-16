@@ -23,19 +23,24 @@ internal static partial class ArpTableReader
     /// Returns a dictionary mapping IP address strings to MAC address strings.
     /// MAC addresses are formatted as XX:XX:XX:XX:XX:XX.
     /// </summary>
-    public static async Task<IReadOnlyDictionary<string, string>> ReadArpTableAsync()
+    public static async Task<IReadOnlyDictionary<string, string>> ReadArpTableAsync(
+        CancellationToken cancellationToken = default)
     {
         try
         {
             if (OperatingSystem.IsWindows())
-                return await ReadWindowsArpAsync();
+                return await ReadWindowsArpAsync(cancellationToken);
 
             if (OperatingSystem.IsLinux())
-                return await ReadLinuxArpAsync();
+                return await ReadLinuxArpAsync(cancellationToken);
 
             if (OperatingSystem.IsMacOS())
-                return await ReadMacOsArpAsync();
+                return await ReadMacOsArpAsync(cancellationToken);
 
+            return new Dictionary<string, string>();
+        }
+        catch (OperationCanceledException)
+        {
             return new Dictionary<string, string>();
         }
         catch
@@ -44,9 +49,10 @@ internal static partial class ArpTableReader
         }
     }
 
-    private static async Task<IReadOnlyDictionary<string, string>> ReadWindowsArpAsync()
+    private static async Task<IReadOnlyDictionary<string, string>> ReadWindowsArpAsync(
+        CancellationToken cancellationToken)
     {
-        var output = await RunProcessAsync("arp", "-a");
+        var output = await RunProcessAsync("arp", "-a", cancellationToken);
         var result = new Dictionary<string, string>();
 
         foreach (var line in output.Split('\n'))
@@ -64,13 +70,14 @@ internal static partial class ArpTableReader
         return result;
     }
 
-    private static async Task<IReadOnlyDictionary<string, string>> ReadLinuxArpAsync()
+    private static async Task<IReadOnlyDictionary<string, string>> ReadLinuxArpAsync(
+        CancellationToken cancellationToken)
     {
         var result = new Dictionary<string, string>();
 
         try
         {
-            var content = await File.ReadAllTextAsync("/proc/net/arp");
+            var content = await File.ReadAllTextAsync("/proc/net/arp", cancellationToken);
             foreach (var line in content.Split('\n').Skip(1)) // skip header
             {
                 var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -91,9 +98,10 @@ internal static partial class ArpTableReader
         return result;
     }
 
-    private static async Task<IReadOnlyDictionary<string, string>> ReadMacOsArpAsync()
+    private static async Task<IReadOnlyDictionary<string, string>> ReadMacOsArpAsync(
+        CancellationToken cancellationToken)
     {
-        var output = await RunProcessAsync("arp", "-an");
+        var output = await RunProcessAsync("arp", "-an", cancellationToken);
         var result = new Dictionary<string, string>();
 
         foreach (var line in output.Split('\n'))
@@ -122,7 +130,8 @@ internal static partial class ArpTableReader
         return string.Join(":", parts.Select(p => p.PadLeft(2, '0')));
     }
 
-    private static async Task<string> RunProcessAsync(string fileName, string arguments)
+    private static async Task<string> RunProcessAsync(
+        string fileName, string arguments, CancellationToken cancellationToken)
     {
         using var process = new Process
         {
@@ -137,9 +146,31 @@ internal static partial class ArpTableReader
         };
 
         process.Start();
-        var output = await process.StandardOutput.ReadToEndAsync();
-        await process.WaitForExitAsync();
-        return output;
+
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(5));
+
+        try
+        {
+            var output = await process.StandardOutput.ReadToEndAsync(timeout.Token);
+            await process.WaitForExitAsync(timeout.Token);
+            return output;
+        }
+        catch (OperationCanceledException)
+        {
+            try
+            {
+                if (!process.HasExited)
+                    process.Kill(entireProcessTree: true);
+            }
+            catch
+            {
+                // Best-effort stop if arp hangs.
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            return "";
+        }
     }
 
     // Windows: "  192.168.1.1          aa-bb-cc-dd-ee-ff     dynamic"

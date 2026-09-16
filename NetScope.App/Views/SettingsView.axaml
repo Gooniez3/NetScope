@@ -7,7 +7,7 @@
              x:Class="NetScope.App.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
 
-    <ScrollViewer Padding="24,18,24,14">
+    <ScrollViewer Padding="24,18,24,14" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="16" MaxWidth="520">
 
             <StackPanel>
@@ -43,6 +43,7 @@
                 </Grid>
                 <Button Classes="btn-primary" Content="Save" Command="{Binding SaveDefaultsCommand}"
                         HorizontalAlignment="Left" Margin="0,4,0,0"/>
+                <TextBlock Text="Defaults apply until the app is closed." FontSize="11" Foreground="#6E7681"/>
                 <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="#8B949E"
                            IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
             </StackPanel>
@@ -63,7 +64,7 @@
             <StackPanel Spacing="4">
                 <TextBlock Classes="section-label" Text="ABOUT"/>
                 <TextBlock Text="NetScope — Network Diagnostics" Foreground="#C9D1D9" FontSize="13"/>
-                <TextBlock Text="Version 0.7.1" Foreground="#6E7681" FontSize="12"/>
+                <TextBlock Text="Version 0.9.0" Foreground="#6E7681" FontSize="12"/>
                 <TextBlock Text=".NET 10 · Avalonia 12 · ScottPlot 5" Foreground="#6E7681" FontSize="11"/>
             </StackPanel>
 

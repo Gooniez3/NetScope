@@ -71,6 +71,14 @@ public partial class DiagnosticsViewModel : ViewModelBase
 
     private CancellationTokenSource? _cts;
 
+    private CancellationTokenSource ResetCts()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+        return _cts;
+    }
+
     // --- Ping Commands ---
 
     [RelayCommand]
@@ -81,7 +89,7 @@ public partial class DiagnosticsViewModel : ViewModelBase
         PingResults.Clear();
         PingSummary = "";
         PingStatus = "Pinging…";
-        _cts = new CancellationTokenSource();
+        ResetCts();
 
         try
         {
@@ -98,7 +106,7 @@ public partial class DiagnosticsViewModel : ViewModelBase
                 PingResults.Add(new PingResultRow(r));
             });
 
-            var (_, stats) = await ServiceLocator.PingService.PingAsync(options, progress, _cts.Token);
+            var (_, stats) = await ServiceLocator.PingService.PingAsync(options, progress, _cts!.Token);
             PingSummary = $"Sent: {stats.Sent}  Recv: {stats.Received}  Loss: {stats.PacketLossPercent:F0}%  " +
                           $"Avg: {stats.AvgRoundTripMs?.ToString("F1") ?? "—"} ms  " +
                           $"Jitter: {stats.JitterMs?.ToString("F1") ?? "—"} ms";
@@ -127,10 +135,11 @@ public partial class DiagnosticsViewModel : ViewModelBase
         IsResolving = true;
         DnsResults.Clear();
         DnsStatus = "Resolving…";
+        ResetCts();
 
         try
         {
-            var result = await ServiceLocator.DnsService.ResolveAsync(DnsHostname);
+            var result = await ServiceLocator.DnsService.ResolveAsync(DnsHostname, _cts!.Token);
             if (result.Success)
             {
                 foreach (var addr in result.Addresses)
@@ -161,7 +170,7 @@ public partial class DiagnosticsViewModel : ViewModelBase
         IsTracing = true;
         TraceHops.Clear();
         TraceStatus = "Tracing…";
-        _cts = new CancellationTokenSource();
+        ResetCts();
 
         try
         {
@@ -177,7 +186,7 @@ public partial class DiagnosticsViewModel : ViewModelBase
                 TraceHops.Add(new TraceHopRow(hop));
             });
 
-            var result = await ServiceLocator.TracerouteService.TraceAsync(options, progress, _cts.Token);
+            var result = await ServiceLocator.TracerouteService.TraceAsync(options, progress, _cts!.Token);
             TraceStatus = result.DestinationReached
                 ? $"Reached {result.Target} in {result.Hops.Count} hop(s) — {result.TotalDurationMs:F0} ms"
                 : $"Did not reach destination ({result.Hops.Count} hops)";
@@ -205,7 +214,7 @@ public partial class DiagnosticsViewModel : ViewModelBase
         IsScanning = true;
         ScannedDevices.Clear();
         ScanStatus = "Scanning…";
-        _cts = new CancellationTokenSource();
+        ResetCts();
 
         try
         {
@@ -221,7 +230,7 @@ public partial class DiagnosticsViewModel : ViewModelBase
                 ScannedDevices.Add(new DeviceRow(d));
             });
 
-            var result = await ServiceLocator.ScannerService.ScanAsync(options, progress, _cts.Token);
+            var result = await ServiceLocator.ScannerService.ScanAsync(options, progress, _cts!.Token);
             ScanStatus = $"Found {result.Devices.Count} device(s) in {result.ScannedRange} — {result.Duration.TotalSeconds:F1}s";
         }
         catch (OperationCanceledException)
@@ -242,6 +251,21 @@ public partial class DiagnosticsViewModel : ViewModelBase
     private void CancelOperation()
     {
         _cts?.Cancel();
+    }
+
+    /// <summary>
+    /// Pre-fills ping/DNS/traceroute with the analyzed target and shows the Ping tab.
+    /// </summary>
+    public void PrepareTarget(string target)
+    {
+        if (string.IsNullOrWhiteSpace(target))
+            return;
+
+        PingTarget = target;
+        TraceTarget = target;
+        DnsHostname = target;
+        SelectedTabIndex = 0;
+        SelectedTool = "Ping";
     }
 }
 

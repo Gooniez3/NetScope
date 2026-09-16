@@ -16,6 +16,7 @@ namespace NetScope.Infrastructure.Persistence;
 public sealed class SqliteMeasurementRepository : IMeasurementRepository
 {
     private readonly SqliteConnection _connection;
+    private readonly string _databasePath;
     private bool _disposed;
 
     /// <summary>
@@ -28,10 +29,12 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
     public SqliteMeasurementRepository(string? databasePath = null)
     {
         var path = databasePath ?? GetDefaultDatabasePath();
+        _databasePath = path;
         var connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = path,
-            Mode = path == ":memory:" ? SqliteOpenMode.Memory : SqliteOpenMode.ReadWriteCreate
+            Mode = path == ":memory:" ? SqliteOpenMode.Memory : SqliteOpenMode.ReadWriteCreate,
+            DefaultTimeout = 5
         }.ToString();
 
         _connection = new SqliteConnection(connectionString);
@@ -49,6 +52,23 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
         return Path.Combine(dir, "netscope.db");
     }
 
+    private static void RestrictDatabasePermissions(string dbPath)
+    {
+        if (OperatingSystem.IsWindows() || dbPath == ":memory:" || !File.Exists(dbPath))
+            return;
+
+        try
+        {
+            File.SetUnixFileMode(
+                dbPath,
+                UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        }
+        catch
+        {
+            // Best-effort; location under the user profile is already private on most systems.
+        }
+    }
+
     public async Task InitializeAsync(CancellationToken ct = default)
     {
         await EnsureOpenAsync(ct);
@@ -56,6 +76,8 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
         await using var cmd = _connection.CreateCommand();
         cmd.CommandText = """
             PRAGMA journal_mode=WAL;
+            PRAGMA foreign_keys=ON;
+            PRAGMA busy_timeout=5000;
 
             CREATE TABLE IF NOT EXISTS sessions (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,6 +117,7 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
                 ON measurements(timestamp);
             """;
         await cmd.ExecuteNonQueryAsync(ct);
+        RestrictDatabasePermissions(_databasePath);
     }
 
     // --- Sessions ---
@@ -144,6 +167,7 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
         int limit = 10, CancellationToken ct = default)
     {
         await EnsureOpenAsync(ct);
+        var take = ClampLimit(limit);
 
         await using var cmd = _connection.CreateCommand();
         cmd.CommandText = """
@@ -151,7 +175,7 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
                    measurement_cnt, completed
             FROM sessions ORDER BY started_at DESC LIMIT $limit;
             """;
-        cmd.Parameters.AddWithValue("$limit", limit);
+        cmd.Parameters.AddWithValue("$limit", take);
 
         var sessions = new List<MonitoringSession>();
         await using var reader = await cmd.ExecuteReaderAsync(ct);
@@ -207,8 +231,8 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
         await EnsureOpenAsync(ct);
 
         await using var cmd = _connection.CreateCommand();
-        cmd.CommandText = $"SELECT * FROM measurements ORDER BY timestamp DESC LIMIT $limit;";
-        cmd.Parameters.AddWithValue("$limit", limit);
+        cmd.CommandText = "SELECT * FROM measurements ORDER BY timestamp DESC LIMIT $limit;";
+        cmd.Parameters.AddWithValue("$limit", ClampLimit(limit));
 
         return await ReadMeasurementsAsync(cmd, ct);
     }
@@ -284,6 +308,53 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
         return await cmd.ExecuteNonQueryAsync(ct);
     }
 
+    public async Task<int> DeleteSessionAsync(long sessionId, CancellationToken ct = default)
+    {
+        await EnsureOpenAsync(ct);
+
+        await using var tx = (SqliteTransaction)await _connection.BeginTransactionAsync(ct);
+
+        await using var meas = _connection.CreateCommand();
+        meas.Transaction = tx;
+        meas.CommandText = "DELETE FROM measurements WHERE session_id = $id;";
+        meas.Parameters.AddWithValue("$id", sessionId);
+        var removed = await meas.ExecuteNonQueryAsync(ct);
+
+        await using var sess = _connection.CreateCommand();
+        sess.Transaction = tx;
+        sess.CommandText = "DELETE FROM sessions WHERE id = $id;";
+        sess.Parameters.AddWithValue("$id", sessionId);
+        await sess.ExecuteNonQueryAsync(ct);
+
+        await tx.CommitAsync(ct);
+        return removed;
+    }
+
+    public async Task<int> DeleteAllAsync(CancellationToken ct = default)
+    {
+        await EnsureOpenAsync(ct);
+
+        await using var tx = (SqliteTransaction)await _connection.BeginTransactionAsync(ct);
+
+        await using var countCmd = _connection.CreateCommand();
+        countCmd.Transaction = tx;
+        countCmd.CommandText = "SELECT COUNT(*) FROM sessions;";
+        var count = Convert.ToInt32(await countCmd.ExecuteScalarAsync(ct));
+
+        await using var meas = _connection.CreateCommand();
+        meas.Transaction = tx;
+        meas.CommandText = "DELETE FROM measurements;";
+        await meas.ExecuteNonQueryAsync(ct);
+
+        await using var sess = _connection.CreateCommand();
+        sess.Transaction = tx;
+        sess.CommandText = "DELETE FROM sessions;";
+        await sess.ExecuteNonQueryAsync(ct);
+
+        await tx.CommitAsync(ct);
+        return count;
+    }
+
     // --- Disposal ---
 
     public async ValueTask DisposeAsync()
@@ -297,9 +368,26 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
 
     private async Task EnsureOpenAsync(CancellationToken ct)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (_connection.State != System.Data.ConnectionState.Open)
+        {
             await _connection.OpenAsync(ct);
+            await using var pragma = _connection.CreateCommand();
+            pragma.CommandText = "PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;";
+            await pragma.ExecuteNonQueryAsync(ct);
+        }
     }
+
+    private static int ClampLimit(int limit) => Math.Clamp(limit, 1, 10_000);
+
+    private static DateTimeOffset ParseTimestamp(string value) =>
+        DateTimeOffset.TryParse(value, out var parsed) ? parsed : DateTimeOffset.UnixEpoch;
+
+    private static NetworkHealthStatus ReadHealthStatus(int raw) =>
+        Enum.IsDefined(typeof(NetworkHealthStatus), raw)
+            ? (NetworkHealthStatus)raw
+            : NetworkHealthStatus.Disconnected;
 
     private static void AddNullableDouble(SqliteCommand cmd, string name, double? value)
     {
@@ -314,14 +402,16 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
 
     private static MonitoringSession ReadSession(SqliteDataReader reader)
     {
-        var endedStr = reader.IsDBNull(reader.GetOrdinal("ended_at"))
-            ? null : reader.GetString(reader.GetOrdinal("ended_at"));
+        var startedAt = ParseTimestamp(reader.GetString(reader.GetOrdinal("started_at")));
+        DateTimeOffset? endedAt = null;
+        if (!reader.IsDBNull(reader.GetOrdinal("ended_at")))
+            endedAt = ParseTimestamp(reader.GetString(reader.GetOrdinal("ended_at")));
 
         return new MonitoringSession
         {
             Id = reader.GetInt64(reader.GetOrdinal("id")),
-            StartedAt = DateTimeOffset.Parse(reader.GetString(reader.GetOrdinal("started_at"))),
-            EndedAt = endedStr is not null ? DateTimeOffset.Parse(endedStr) : null,
+            StartedAt = startedAt,
+            EndedAt = endedAt,
             Target = reader.GetString(reader.GetOrdinal("target")),
             IntervalSeconds = reader.GetInt32(reader.GetOrdinal("interval_sec")),
             ProbesPerMeasurement = reader.GetInt32(reader.GetOrdinal("probes")),
@@ -335,7 +425,7 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
     {
         return new NetworkMeasurement
         {
-            Timestamp = DateTimeOffset.Parse(reader.GetString(reader.GetOrdinal("timestamp"))),
+            Timestamp = ParseTimestamp(reader.GetString(reader.GetOrdinal("timestamp"))),
             CycleNumber = reader.GetInt32(reader.GetOrdinal("cycle_number")),
             Target = reader.GetString(reader.GetOrdinal("target")),
             IsConnected = reader.GetInt32(reader.GetOrdinal("is_connected")) == 1,
@@ -348,7 +438,7 @@ public sealed class SqliteMeasurementRepository : IMeasurementRepository
             JitterMs = ReadNullableDouble(reader, "jitter"),
             DnsResolutionMs = ReadNullableDouble(reader, "dns_ms"),
             GatewayLatencyMs = ReadNullableDouble(reader, "gateway_ms"),
-            HealthStatus = (NetworkHealthStatus)reader.GetInt32(reader.GetOrdinal("health_status"))
+            HealthStatus = ReadHealthStatus(reader.GetInt32(reader.GetOrdinal("health_status")))
         };
     }
 

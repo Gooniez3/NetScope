@@ -9,6 +9,9 @@ namespace NetScope.Core.Networking;
 /// </summary>
 public static class SubnetHelper
 {
+    /// <summary>Largest host list <see cref="GetHostAddresses"/> will allocate (/16).</summary>
+    public const int MaxHostAddresses = 65_534;
+
     /// <summary>
     /// Parses a CIDR notation string (e.g. "192.168.1.0/24") into a network address and prefix length.
     /// </summary>
@@ -79,10 +82,14 @@ public static class SubnetHelper
         var netUint = ToHostOrder(networkAddress.GetAddressBytes());
         var broadUint = ToHostOrder(GetBroadcastAddress(networkAddress, prefixLength).GetAddressBytes());
 
-        var count = (int)(broadUint - netUint - 1);
+        var count = (long)broadUint - netUint - 1;
         if (count <= 0) return [];
+        if (count > MaxHostAddresses)
+            throw new ArgumentOutOfRangeException(
+                nameof(prefixLength),
+                $"Subnet has {count} hosts; maximum is {MaxHostAddresses} (/16 or narrower).");
 
-        var addresses = new List<IPAddress>(count);
+        var addresses = new List<IPAddress>((int)count);
         for (var i = netUint + 1; i < broadUint; i++)
         {
             addresses.Add(new IPAddress(ToNetworkOrder(i)));

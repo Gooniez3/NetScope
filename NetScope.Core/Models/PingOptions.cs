@@ -1,3 +1,5 @@
+using NetScope.Core.Networking;
+
 namespace NetScope.Core.Models;
 
 /// <summary>
@@ -46,8 +48,7 @@ public sealed class PingOptions
     /// </summary>
     public void Validate()
     {
-        if (string.IsNullOrWhiteSpace(Target))
-            throw new ArgumentException("Target must not be empty.", nameof(Target));
+        HostTarget.Validate(Target);
 
         ValidateRange(Count, MinCount, MaxCount, nameof(Count));
         ValidateRange(IntervalMs, MinIntervalMs, MaxIntervalMs, nameof(IntervalMs));

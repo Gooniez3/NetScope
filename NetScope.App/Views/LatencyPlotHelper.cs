@@ -27,7 +27,7 @@ internal static class LatencyPlotHelper
         plt.Axes.Right.IsVisible = false;
         plt.Axes.Top.IsVisible = false;
         plt.Legend.IsVisible = false;
-        plt.Axes.Margins(0.02, 0.14);
+        plt.Axes.Margins(0.08, 0.18);
         chart.Refresh();
     }
 
@@ -54,7 +54,10 @@ internal static class LatencyPlotHelper
         }
 
         plt.Axes.AutoScale();
-        plt.Axes.Margins(0.02, 0.14);
+        plt.Axes.Margins(0.08, 0.18);
+        var limits = plt.Axes.GetLimits();
+        var rightPad = Math.Max((limits.Right - limits.Left) * 0.04, 12.0 / 86_400.0);
+        plt.Axes.SetLimitsX(limits.Left, limits.Right + rightPad);
 
         plt.FigureBackground.Color = Color.FromHex("#0D1117");
         plt.DataBackground.Color = Color.FromHex("#0D1117");

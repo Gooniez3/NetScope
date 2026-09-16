@@ -135,10 +135,11 @@
         <Setter Property="Foreground" Value="#6E7681"/>
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="Padding" Value="6,5"/>
         <Setter Property="SeparatorBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="BorderBrush" Value="#21262D"/>
+        <Setter Property="MinHeight" Value="28"/>
     </Style>
     <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
         <Setter Property="Fill" Value="#161B22"/>
@@ -182,6 +183,20 @@
     <Style Selector="NumericUpDown:focus">
         <Setter Property="BorderBrush" Value="#388BFD"/>
     </Style>
+
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="#010409"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="BorderBrush" Value="#30363D"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="8,4"/>
+    </Style>
+    <Style Selector="ComboBox:pointerover">
+        <Setter Property="BorderBrush" Value="#388BFD"/>
+    </Style>
     <Style Selector="NumericUpDown /template/ TextBox#PART_TextBox">
         <Setter Property="Foreground" Value="#E6EDF3"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -194,13 +209,36 @@
         <Setter Property="Padding" Value="10,6"/>
         <Setter Property="Margin" Value="0,0,2,0"/>
     </Style>
+    <Style Selector="ListBox.session-list">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+    <Style Selector="ListBox.session-list ListBoxItem">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="2,0,0,0"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="CornerRadius" Value="0"/>
+    </Style>
+    <Style Selector="ListBox.session-list ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#161B22"/>
+    </Style>
+    <Style Selector="ListBox.session-list ListBoxItem:selected">
+        <Setter Property="Background" Value="#161B22"/>
+        <Setter Property="BorderBrush" Value="#388BFD"/>
+    </Style>
+    <Style Selector="ListBox.session-list ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#161B22"/>
+    </Style>
+
     <Style Selector="TabItem:selected">
         <Setter Property="Foreground" Value="#E6EDF3"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-    </Style>
-
-    <Style Selector="ScrollViewer">
-        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
     </Style>
 
 </Styles>

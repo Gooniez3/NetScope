@@ -1,3 +1,4 @@
+using NetScope.Cli;
 using NetScope.Core.Models;
 using NetScope.Infrastructure.Persistence;
 
@@ -8,6 +9,8 @@ internal static class HistoryCommand
     public static async Task<int> RunAsync(string[] args)
     {
         var (mode, sessionId, limit, olderThanDays) = ParseArgs(args);
+        if (limit < 0)
+            return 1;
 
         await using var repo = new SqliteMeasurementRepository();
         await repo.InitializeAsync();
@@ -182,19 +185,25 @@ internal static class HistoryCommand
             {
                 case "--session" or "-s" when i + 1 < args.Length:
                     mode = "session";
-                    sessionId = long.Parse(args[++i]);
+                    if (!CliParse.TryLong(args[++i], "session id", out var id))
+                        return ("error", null, -1, 30);
+                    if (id < 1)
+                        return ("error", null, -1, 30);
+                    sessionId = id;
                     break;
                 case "--recent" or "-r":
                     mode = "recent";
                     break;
                 case "--limit" or "-l" when i + 1 < args.Length:
-                    limit = int.Parse(args[++i]);
+                    if (!CliParse.TryInt(args[++i], "limit", out limit) || limit < 1)
+                        return ("error", null, -1, 30);
                     break;
                 case "--cleanup":
                     mode = "cleanup";
                     break;
                 case "--older-than" when i + 1 < args.Length:
-                    olderThanDays = int.Parse(args[++i]);
+                    if (!CliParse.TryInt(args[++i], "older-than", out olderThanDays) || olderThanDays < 1)
+                        return ("error", null, -1, 30);
                     break;
             }
         }

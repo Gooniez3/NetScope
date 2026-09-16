@@ -1,0 +1,19 @@
+using Avalonia.Controls;
+using NetScope.App.ViewModels;
+
+namespace NetScope.App.Views;
+
+public partial class AnalysisView : UserControl
+{
+    public AnalysisView()
+    {
+        InitializeComponent();
+    }
+
+    protected override async void OnAttachedToVisualTree(Avalonia.VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        if (DataContext is AnalysisViewModel vm)
+            await vm.LoadSessionsCommand.ExecuteAsync(null);
+    }
+}

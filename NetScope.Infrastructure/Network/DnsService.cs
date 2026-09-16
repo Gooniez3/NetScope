@@ -28,6 +28,20 @@ public sealed class DnsService : IDnsService
             };
         }
 
+        if (hostname.Length > HostTarget.MaxLength || hostname.Contains('\0'))
+        {
+            return new DnsQueryResult
+            {
+                Hostname = hostname,
+                Success = false,
+                ResolutionMs = 0,
+                Timestamp = DateTimeOffset.UtcNow,
+                ErrorMessage = hostname.Contains('\0')
+                    ? "Hostname must not contain null characters."
+                    : $"Hostname must be at most {HostTarget.MaxLength} characters."
+            };
+        }
+
         var timestamp = DateTimeOffset.UtcNow;
         var sw = Stopwatch.StartNew();
 

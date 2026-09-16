@@ -8,7 +8,7 @@ A cross-platform desktop application for monitoring, diagnosing, and understandi
 
 | Project | Purpose |
 |---|---|
-| **NetScope.Core** | Models and service interfaces — zero implementation dependencies |
+| **NetScope.Core** | Models, service interfaces, and the diagnostic analyzer — zero OS/network I/O |
 | **NetScope.Infrastructure** | Implementations that hit the OS, network, and external APIs |
 | **NetScope.App** | Avalonia UI desktop application (Phase 7) |
 | **NetScope.Cli** | Console diagnostic runner for verifying the engine |
@@ -36,6 +36,7 @@ netscope <command> [options]
 | `monitor [options]` | Continuous network health monitoring |
 | `history [options]` | View saved monitoring sessions and measurements |
 | `stats [options]` | Show aggregate statistics from saved data |
+| `analyze [options]` | Explain saved measurements (rule-based diagnostics) |
 | `help` | Show help |
 
 ### Ping Options
@@ -95,13 +96,16 @@ dotnet run --project NetScope.Cli -- history
 
 # Session statistics
 dotnet run --project NetScope.Cli -- stats --session 1
+
+# Explain a saved session
+dotnet run --project NetScope.Cli -- analyze --session 1
 ```
 
 ### Scan Options
 
 | Option | Default | Range | Description |
 |---|---|---|---|
-| `--subnet`, `-s` | Auto-detect | CIDR | Subnet to scan (e.g. `192.168.1.0/24`) |
+| `--subnet`, `-s` | Auto-detect | CIDR `/16`–`/30` | Subnet to scan (e.g. `192.168.1.0/24`). Prefixes wider than `/16` are rejected. |
 | `--timeout`, `-t` | 500 | 100–10,000 ms | Timeout per ping probe |
 | `--concurrency`, `-c` | 32 | 1–256 | Max concurrent probes |
 | `--no-dns` | (off) | — | Skip reverse DNS lookups |
@@ -449,6 +453,80 @@ netscope history --cleanup --older-than 30
 
 ---
 
+## Diagnostic Analyzer
+
+### Design
+
+The analyzer turns raw monitoring numbers into an explanation a person can act on. It is a **rule-based engine in Core** — deterministic, offline, and fully unit-tested. It does not call an external language-model API.
+
+Instead of only:
+
+```
+Packet loss: 8.4%
+```
+
+it reports:
+
+```
+Possible network instability detected.
+Packet loss increased from 0.2% to 8.4% during the last 10 minutes.
+Average latency rose from 12.0 ms to 90.0 ms.
+Gateway latency is elevated (55.0 ms). The issue appears closer to the local network than the destination.
+```
+
+Then it suggests **Run Diagnostics** (ping, DNS, traceroute) when the report is not healthy.
+
+- **`IDiagnosticAnalyzer`** — Core interface, no I/O
+- **`DiagnosticAnalyzer`** — pure rule engine (same layer as `HealthClassifier`)
+- **`DiagnosticReport`** — headline, summary paragraph, findings, suggested actions
+- **`DiagnosticFinding`** — stable code, title, detail, severity, category
+- **`DiagnosticAction`** — `RunDiagnostics`, `CheckLocalNetwork`, `ReviewHistory`
+
+### How it works
+
+1. Sorts measurements by timestamp
+2. Splits the series in half to compare earlier vs later windows (trends need ≥ 8 samples spanning at least 2 minutes)
+3. Detects packet-loss, latency, and jitter trends against fixed deltas
+4. Classifies snapshot severity (elevated loss/latency/jitter, outages, intermittent drops)
+5. Uses gateway RTT (when present) and optional traceroute hops to decide **local vs upstream**
+6. Emits suggested actions the UI can bind (e.g. open Diagnostics with the analyzed target)
+
+### Locality
+
+| Evidence | Conclusion |
+|---|---|
+| Gateway RTT ≥ 50 ms while the destination is unhealthy | Closer to the local network |
+| Gateway RTT < 20 ms while the destination is unhealthy | Closer to the destination or upstream path |
+| First traceroute hop times out | Local adapter, link, or gateway |
+| Trace leaves the LAN but does not reach the destination | Upstream path |
+
+### CLI
+
+```sh
+# Explain a saved session
+dotnet run --project NetScope.Cli -- analyze --session 1
+
+# Explain the last 6 hours
+dotnet run --project NetScope.Cli -- analyze --hours 6
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--session`, `-s` | (off) | Analyze a specific monitoring session |
+| `--hours`, `-h` | 24 | Time range when `--session` is omitted |
+
+### Why not an API model for v1
+
+The original direction listed an optional API-based assistant. The engine that produces the explanation is local so that:
+
+- Results are reproducible in tests
+- Analysis works offline and without API keys
+- The UI stays an engineering tool, not a chat panel
+
+A remote narrator can wrap `DiagnosticReport` later without changing the analyzer.
+
+---
+
 ## Desktop Application (Avalonia UI)
 
 ### Running
@@ -467,6 +545,7 @@ The application opens a dark-themed professional desktop window with sidebar nav
 | **Monitor** | Configurable monitoring (target, interval, probes, timeout), start/stop, save-to-DB, live metrics, latency chart, measurement table |
 | **Diagnostics** | Ping, DNS, and Traceroute tools |
 | **LAN Discovery** | LAN scan (same Diagnostics engine, LAN Scan tab) |
+| **Analysis** | Explain saved sessions or recent hours; findings; Run Diagnostics |
 | **History** | Browse saved SQLite sessions, session measurements, aggregate statistics, cleanup |
 | **Settings** | Monitoring defaults, database path, about information |
 
@@ -483,6 +562,7 @@ NetScope.App/
 │   ├── MonitorViewModel.cs       — configurable monitoring, persistence, latency history
 │   ├── HistoryViewModel.cs       — session browsing, aggregates, cleanup
 │   ├── DiagnosticsViewModel.cs   — ping, DNS, traceroute, LAN scan
+│   ├── AnalysisViewModel.cs      — session/time-range analysis, Run Diagnostics
 │   └── SettingsViewModel.cs      — defaults and about
 ├── Views/
 │   ├── MainWindow.axaml          — sidebar + content shell
@@ -490,6 +570,7 @@ NetScope.App/
 │   ├── MonitorView.axaml         — monitoring page
 │   ├── HistoryView.axaml         — history page
 │   ├── DiagnosticsView.axaml     — diagnostics tabs
+│   ├── AnalysisView.axaml        — diagnostic analysis page
 │   └── SettingsView.axaml        — settings page
 ├── Styles/
 │   └── AppStyles.axaml           — cards, metrics, navigation, typography
@@ -505,14 +586,30 @@ NetScope.App/
 - **Async everywhere** — no UI thread blocking
 - **Cancellation support** — all long-running operations support stop/cancel
 - **Graceful error handling** — network/DB errors shown in status text, never crash
-- **Reuses all existing services** — `IPingService`, `IDnsService`, `ITracerouteService`, `INetworkScannerService`, `INetworkMonitorService`, `IMeasurementRepository`
+- **Reuses all existing services** — `IPingService`, `IDnsService`, `ITracerouteService`, `INetworkScannerService`, `INetworkMonitorService`, `IMeasurementRepository`, `IDiagnosticAnalyzer`
 
 ### UI limitations
 
-- No real-time line charts (latency history uses a simple bar visualization)
 - Settings are in-memory only (not persisted to a config file)
 - Theme is dark-only (no light theme toggle)
 - No system tray or background monitoring when the window is closed
+
+---
+
+## Security and privacy
+
+NetScope is a local diagnostic tool. It does not require an account or API key.
+
+| Topic | Behavior |
+|---|---|
+| **Data stored** | Optional monitoring history in `~/.netscope/netscope.db` (SQLite). No cloud sync. |
+| **Network** | ICMP ping, DNS, traceroute, LAN ICMP sweep, and a public-IP lookup. All user-initiated. |
+| **Public IP** | Looked up via ip-api.com (HTTP, free tier) with HTTPS fallback to icanhazip.com. Timeout 5 seconds. |
+| **LAN scan** | Explicit CIDR must be `/16` or narrower (~65k hosts max). Auto-detect clamps wide prefixes to `/24`. |
+| **SQL** | All queries are parameterized. |
+| **Secrets** | None. Do not put API keys in this repo. |
+
+ICMP on Linux may require `net.ipv4.ping_group_range` or `CAP_NET_RAW`. Windows ICMP is available to standard users.
 
 ---
 
@@ -525,8 +622,8 @@ NetScope.App/
 - [x] **Phase 5** — Monitoring engine
 - [x] **Phase 6** — SQLite persistence & historical monitoring
 - [x] **Phase 7** — Desktop UI (Avalonia)
-- [ ] Phase 8 — AI diagnostics
-- [ ] Phase 9 — Testing, security, packaging
+- [x] **Phase 8** — AI diagnostics
+- [x] **Phase 9** — Security, hardening, and release readiness
 - [ ] Phase 10 — Portfolio presentation
 
 ---
@@ -535,7 +632,10 @@ NetScope.App/
 
 ```sh
 dotnet build NetScope.slnx
+dotnet build NetScope.slnx --configuration Release
 ```
+
+Current version: **0.9.0**. No installer is produced in this phase.
 
 ## Running the Desktop App
 

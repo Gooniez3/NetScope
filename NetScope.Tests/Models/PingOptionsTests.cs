@@ -1,4 +1,5 @@
 using NetScope.Core.Models;
+using NetScope.Core.Networking;
 
 namespace NetScope.Tests.Models;
 
@@ -212,5 +213,21 @@ public class PingOptionsTests
     {
         var options = new PingOptions { Target = "1.1.1.1", Ttl = PingOptions.MaxTtl + 1 };
         Assert.Throws<ArgumentException>(() => options.Validate());
+    }
+
+    [Fact]
+    public void Validate_TargetLongerThanMax_Throws()
+    {
+        var options = new PingOptions { Target = new string('a', HostTarget.MaxLength + 1) };
+        var ex = Assert.Throws<ArgumentException>(() => options.Validate());
+        Assert.Equal("Target", ex.ParamName);
+    }
+
+    [Fact]
+    public void Validate_TargetWithNullChar_Throws()
+    {
+        var options = new PingOptions { Target = "host\0name" };
+        var ex = Assert.Throws<ArgumentException>(() => options.Validate());
+        Assert.Equal("Target", ex.ParamName);
     }
 }

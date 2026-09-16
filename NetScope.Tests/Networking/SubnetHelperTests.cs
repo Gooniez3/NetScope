@@ -163,6 +163,13 @@ public class SubnetHelperTests
         Assert.Equal(IPAddress.Parse("192.168.1.254"), hosts[^1]);
     }
 
+    [Fact]
+    public void GetHostAddresses_Slash8_Throws()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => SubnetHelper.GetHostAddresses(IPAddress.Parse("10.0.0.0"), 8));
+    }
+
     // --- ToCidrString ---
 
     [Fact]

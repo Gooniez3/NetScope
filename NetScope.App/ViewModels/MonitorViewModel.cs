@@ -121,6 +121,11 @@ public partial class MonitorViewModel : ViewModelBase
             }
         }
         catch (OperationCanceledException) { }
+        catch (ArgumentException ex)
+        {
+            StatusText = $"Invalid settings: {ex.Message}";
+            return;
+        }
         finally
         {
             if (SaveToDatabase && _sessionId > 0)
@@ -128,13 +133,14 @@ public partial class MonitorViewModel : ViewModelBase
                 try
                 {
                     await ServiceLocator.Repository.CompleteSessionAsync(
-                        _sessionId, DateTimeOffset.UtcNow, CycleCount, !_cts.IsCancellationRequested);
+                        _sessionId, DateTimeOffset.UtcNow, CycleCount, !_cts!.IsCancellationRequested);
                 }
                 catch { }
             }
 
             IsMonitoring = false;
-            StatusText = $"Stopped — {CycleCount} cycle(s)";
+            if (!StatusText.StartsWith("Invalid settings", StringComparison.Ordinal))
+                StatusText = $"Stopped — {CycleCount} cycle(s)";
         }
     }
 

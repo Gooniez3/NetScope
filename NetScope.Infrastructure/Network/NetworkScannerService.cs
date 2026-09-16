@@ -38,20 +38,27 @@ public sealed class NetworkScannerService : INetworkScannerService
 
         // Pre-fetch ARP table so we can enrich results without per-device lookups.
         var arpTable = options.ResolveMacAddresses
-            ? await ArpTableReader.ReadArpTableAsync()
+            ? await ArpTableReader.ReadArpTableAsync(cancellationToken)
             : (IReadOnlyDictionary<string, string>)new Dictionary<string, string>();
 
-        var tasks = new List<Task>(hosts.Count);
+        var tasks = new List<Task>(Math.Min(hosts.Count, 1024));
 
-        foreach (var host in hosts)
+        try
         {
-            if (cancellationToken.IsCancellationRequested)
-                break;
+            foreach (var host in hosts)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
 
-            await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-            tasks.Add(ProbeHostAsync(
-                host, options, arpTable, semaphore, discovered, progress, cancellationToken));
+                tasks.Add(ProbeHostAsync(
+                    host, options, arpTable, semaphore, discovered, progress, cancellationToken));
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Partial results — wait for in-flight probes below.
         }
 
         // Wait for all in-flight probes to complete (or cancel).
@@ -96,7 +103,7 @@ public sealed class NetworkScannerService : INetworkScannerService
 
             using var ping = new Ping();
             var sw = Stopwatch.StartNew();
-            var reply = await ping.SendPingAsync(host, options.TimeoutMs);
+            var reply = await ping.SendPingAsync(host, options.TimeoutMs).WaitAsync(ct);
             sw.Stop();
 
             if (reply.Status != IPStatus.Success)
@@ -160,7 +167,18 @@ public sealed class NetworkScannerService : INetworkScannerService
             throw new InvalidOperationException(
                 $"Could not determine subnet for {ipStr}. Specify a subnet explicitly with --subnet.");
 
-        return info.Value;
+        var (network, prefix) = info.Value;
+        if (prefix < ScanOptions.MinPrefixLength)
+        {
+            // Wide DHCP prefixes (e.g. /8) must not trigger a multi-million-host sweep.
+            if (!IPAddress.TryParse(ipStr, out var ip))
+                throw new InvalidOperationException(
+                    $"Could not determine subnet for {ipStr}. Specify a subnet explicitly with --subnet.");
+            prefix = 24;
+            network = SubnetHelper.GetNetworkAddress(ip, prefix);
+        }
+
+        return (network, prefix);
     }
 
     private static async Task<string?> TryReverseDnsAsync(string ip, CancellationToken ct)

@@ -1,3 +1,4 @@
+using NetScope.Core.Diagnostics;
 using NetScope.Core.Networking;
 using NetScope.Core.Persistence;
 using NetScope.Infrastructure.Network;
@@ -37,6 +38,9 @@ public static class ServiceLocator
             return repo;
         });
 
+    private static readonly Lazy<IDiagnosticAnalyzer> _diagnosticAnalyzer =
+        new(() => new DiagnosticAnalyzer());
+
     public static INetworkInterfaceService InterfaceService => _interfaceService.Value;
     public static IPingService PingService => _pingService.Value;
     public static IDnsService DnsService => _dnsService.Value;
@@ -44,4 +48,5 @@ public static class ServiceLocator
     public static INetworkScannerService ScannerService => _scannerService.Value;
     public static INetworkMonitorService MonitorService => _monitorService.Value;
     public static IMeasurementRepository Repository => _repository.Value;
+    public static IDiagnosticAnalyzer DiagnosticAnalyzer => _diagnosticAnalyzer.Value;
 }

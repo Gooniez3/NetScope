@@ -23,7 +23,8 @@ public sealed class ConnectionTestService : IConnectionTestService
         {
             using var ping = new Ping();
             var sw = Stopwatch.StartNew();
-            var reply = await ping.SendPingAsync(probeTarget, timeoutMs);
+            var reply = await ping.SendPingAsync(probeTarget, timeoutMs)
+                .WaitAsync(cancellationToken);
             sw.Stop();
 
             if (reply.Status == IPStatus.Success)
@@ -64,7 +65,7 @@ public sealed class ConnectionTestService : IConnectionTestService
             try
             {
                 using var ping = new Ping();
-                var reply = await ping.SendPingAsync(fallback, timeoutMs);
+                var reply = await ping.SendPingAsync(fallback, timeoutMs).WaitAsync(ct);
 
                 if (reply.Status == IPStatus.Success)
                 {

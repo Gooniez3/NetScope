@@ -101,12 +101,20 @@
                         <TextBlock Text="{Binding TraceStatus}" FontSize="12" Foreground="#6E7681"/>
                     </StackPanel>
                     <DataGrid ItemsSource="{Binding TraceHops}" IsReadOnly="True"
-                              CanUserSortColumns="False" Margin="0,8,0,0">
+                              CanUserSortColumns="False" CanUserResizeColumns="True"
+                              Margin="0,8,0,0" HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Hop" Binding="{Binding Hop}" Width="50"/>
-                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="140"/>
-                            <DataGridTextColumn Header="Hostname" Binding="{Binding Hostname}" Width="200"/>
-                            <DataGridTemplateColumn Header="RTT" Width="100">
+                            <DataGridTextColumn Header="Hop" Binding="{Binding Hop}" Width="56" MinWidth="56"/>
+                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="150"/>
+                            <DataGridTemplateColumn Header="Hostname" Width="280">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:TraceHopRow">
+                                        <TextBlock Text="{Binding Hostname}" TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="RTT" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate x:DataType="vm:TraceHopRow">
                                         <TextBlock Text="{Binding Rtt}" TextAlignment="Right"
@@ -139,12 +147,20 @@
                         <TextBlock Text="{Binding ScanStatus}" FontSize="12" Foreground="#6E7681"/>
                     </StackPanel>
                     <DataGrid ItemsSource="{Binding ScannedDevices}" IsReadOnly="True"
-                              CanUserSortColumns="False" Margin="0,8,0,0">
+                              CanUserSortColumns="False" CanUserResizeColumns="True"
+                              Margin="0,8,0,0" HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="IP" Binding="{Binding Ip}" Width="130"/>
-                            <DataGridTextColumn Header="Hostname" Binding="{Binding Hostname}" Width="170"/>
-                            <DataGridTextColumn Header="MAC" Binding="{Binding Mac}" Width="140"/>
-                            <DataGridTemplateColumn Header="Response" Width="110">
+                            <DataGridTemplateColumn Header="Hostname" Width="160">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:DeviceRow">
+                                        <TextBlock Text="{Binding Hostname}" TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="MAC" Binding="{Binding Mac}" Width="168"/>
+                            <DataGridTemplateColumn Header="Response" Width="96">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate x:DataType="vm:DeviceRow">
                                         <TextBlock Text="{Binding ResponseTime}" TextAlignment="Right"
@@ -152,7 +168,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>

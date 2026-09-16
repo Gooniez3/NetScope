@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetScope.Core.Models;
 using NetScope.Infrastructure.Persistence;
 
 namespace NetScope.App.ViewModels;
@@ -27,6 +28,22 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void SaveDefaults()
     {
+        try
+        {
+            new MonitorOptions
+            {
+                Target = DefaultTarget,
+                IntervalSeconds = DefaultInterval,
+                ProbesPerMeasurement = DefaultProbes,
+                TimeoutMs = DefaultTimeout
+            }.Validate();
+        }
+        catch (ArgumentException ex)
+        {
+            StatusText = ex.Message;
+            return;
+        }
+
         AppDefaults.Target = DefaultTarget;
         AppDefaults.IntervalSeconds = DefaultInterval;
         AppDefaults.ProbesPerCycle = DefaultProbes;

@@ -42,7 +42,17 @@ public sealed class PingService : IPingService
             if (cancellationToken.IsCancellationRequested)
                 break;
 
-            var result = await SendProbeAsync(options.Target, seq, options.TimeoutMs, payload, systemOptions);
+            PingResult result;
+            try
+            {
+                result = await SendProbeAsync(
+                    options.Target, seq, options.TimeoutMs, payload, systemOptions, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+
             results.Add(result);
             progress?.Report(result);
 
@@ -69,7 +79,8 @@ public sealed class PingService : IPingService
         int sequenceNumber,
         int timeoutMs,
         byte[] payload,
-        SystemPingOptions systemOptions)
+        SystemPingOptions systemOptions,
+        CancellationToken cancellationToken)
     {
         var timestamp = DateTimeOffset.UtcNow;
 
@@ -77,7 +88,8 @@ public sealed class PingService : IPingService
         {
             using var ping = new Ping();
             var sw = Stopwatch.StartNew();
-            var reply = await ping.SendPingAsync(target, timeoutMs, payload, systemOptions);
+            var reply = await ping.SendPingAsync(target, timeoutMs, payload, systemOptions)
+                .WaitAsync(cancellationToken);
             sw.Stop();
 
             if (reply.Status == IPStatus.Success)

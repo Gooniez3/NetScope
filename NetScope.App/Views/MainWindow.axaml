@@ -8,7 +8,7 @@
         x:DataType="vm:MainViewModel"
         Title="NetScope — Network Diagnostics"
         Width="1100" Height="700"
-        MinWidth="900" MinHeight="550"
+        MinWidth="980" MinHeight="550"
         Background="#0D1117">
 
     <Grid ColumnDefinitions="196,*">
@@ -20,7 +20,7 @@
                     <TextBlock Text="Network Diagnostics" FontSize="11" Foreground="#6E7681" Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <TextBlock DockPanel.Dock="Bottom" Text="v0.7.1" FontSize="10" Foreground="#30363D"
+                <TextBlock DockPanel.Dock="Bottom" Text="v0.9.0" FontSize="10" Foreground="#30363D"
                            Margin="14,8,14,12"/>
 
                 <StackPanel Margin="0,8,0,0">
@@ -39,6 +39,9 @@
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsLanDiscoveryActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="LanDiscovery"
                             Content="LAN Discovery"/>
+                    <Button Classes="nav-btn" Classes.nav-active="{Binding IsAnalysisActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="Analysis"
+                            Content="Analysis"/>
 
                     <TextBlock Classes="nav-section" Text="DATA"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsHistoryActive}"

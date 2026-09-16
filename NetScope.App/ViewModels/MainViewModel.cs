@@ -14,6 +14,7 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsHistoryActive))]
     [NotifyPropertyChangedFor(nameof(IsDiagnosticsActive))]
     [NotifyPropertyChangedFor(nameof(IsLanDiscoveryActive))]
+    [NotifyPropertyChangedFor(nameof(IsAnalysisActive))]
     [NotifyPropertyChangedFor(nameof(IsSettingsActive))]
     public partial string SelectedNav { get; set; } = "Dashboard";
 
@@ -22,16 +23,23 @@ public partial class MainViewModel : ViewModelBase
     public bool IsHistoryActive => SelectedNav == "History";
     public bool IsDiagnosticsActive => SelectedNav == "Diagnostics";
     public bool IsLanDiscoveryActive => SelectedNav == "LanDiscovery";
+    public bool IsAnalysisActive => SelectedNav == "Analysis";
     public bool IsSettingsActive => SelectedNav == "Settings";
 
     public DashboardViewModel Dashboard { get; } = new();
     public MonitorViewModel Monitor { get; } = new();
     public HistoryViewModel History { get; } = new();
     public DiagnosticsViewModel Diagnostics { get; } = new();
+    public AnalysisViewModel Analysis { get; }
     public SettingsViewModel Settings { get; } = new();
 
     public MainViewModel()
     {
+        Analysis = new AnalysisViewModel(target =>
+        {
+            Diagnostics.PrepareTarget(target);
+            Navigate("Diagnostics");
+        });
         CurrentPage = Dashboard;
     }
 
@@ -46,6 +54,7 @@ public partial class MainViewModel : ViewModelBase
             "History" => History,
             "Diagnostics" => OpenDiagnostics(0),
             "LanDiscovery" => OpenDiagnostics(3),
+            "Analysis" => Analysis,
             "Settings" => Settings,
             _ => Dashboard
         };

@@ -548,6 +548,40 @@ public class SqliteMeasurementRepositoryTests : IAsyncDisposable
         Assert.Equal(0, deleted);
     }
 
+    [Fact]
+    public async Task DeleteSessionAsync_RemovesSessionAndMeasurements()
+    {
+        await _repo.InitializeAsync();
+        var keep = await _repo.CreateSessionAsync(MakeSession("1.1.1.1"));
+        var drop = await _repo.CreateSessionAsync(MakeSession("8.8.8.8"));
+        await _repo.SaveMeasurementAsync(keep.Id, MakeHealthy(1, "1.1.1.1"));
+        await _repo.SaveMeasurementAsync(drop.Id, MakeHealthy(1, "8.8.8.8"));
+        await _repo.SaveMeasurementAsync(drop.Id, MakeHealthy(2, "8.8.8.8"));
+
+        var removed = await _repo.DeleteSessionAsync(drop.Id);
+        Assert.Equal(2, removed);
+
+        var sessions = await _repo.GetRecentSessionsAsync();
+        Assert.Single(sessions);
+        Assert.Equal(keep.Id, sessions[0].Id);
+        Assert.Empty(await _repo.GetMeasurementsBySessionAsync(drop.Id));
+    }
+
+    [Fact]
+    public async Task DeleteAllAsync_RemovesEverything()
+    {
+        await _repo.InitializeAsync();
+        var s1 = await _repo.CreateSessionAsync(MakeSession());
+        var s2 = await _repo.CreateSessionAsync(MakeSession("8.8.8.8"));
+        await _repo.SaveMeasurementAsync(s1.Id, MakeHealthy());
+        await _repo.SaveMeasurementAsync(s2.Id, MakeHealthy(1, "8.8.8.8"));
+
+        var sessionsDeleted = await _repo.DeleteAllAsync();
+        Assert.Equal(2, sessionsDeleted);
+        Assert.Empty(await _repo.GetRecentSessionsAsync());
+        Assert.Empty(await _repo.GetRecentMeasurementsAsync());
+    }
+
     // ===============================
     // Multiple sessions
     // ===============================
@@ -612,5 +646,24 @@ public class SqliteMeasurementRepositoryTests : IAsyncDisposable
         Assert.Equal(10, s.IntervalSeconds);
         Assert.Equal(8, s.ProbesPerMeasurement);
         Assert.Equal(5000, s.TimeoutMs);
+    }
+
+    [Fact]
+    public async Task GetRecentSessionsAsync_ZeroLimit_ClampsToAtLeastOne()
+    {
+        await _repo.InitializeAsync();
+        await _repo.CreateSessionAsync(MakeSession());
+        await _repo.CreateSessionAsync(MakeSession("8.8.8.8"));
+
+        var sessions = await _repo.GetRecentSessionsAsync(0);
+        Assert.Single(sessions);
+    }
+
+    [Fact]
+    public async Task UseAfterDispose_ThrowsObjectDisposedException()
+    {
+        await _repo.InitializeAsync();
+        await _repo.DisposeAsync();
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => _repo.GetRecentSessionsAsync());
     }
 }

@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:NetScope.App.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="700"
+             x:Class="NetScope.App.Views.AnalysisView"
+             x:DataType="vm:AnalysisViewModel">
+
+    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,*" ClipToBounds="True">
+
+        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Classes="page-title" Text="Analysis"/>
+                <TextBlock Classes="page-subtitle" Text="{Binding PageIntro}"/>
+                <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="#6E7681" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Button Grid.Column="1" Classes="btn-secondary" Content="Refresh"
+                    Command="{Binding LoadSessionsCommand}" VerticalAlignment="Top"/>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,12,Auto,12,Auto" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock Classes="field-label" Text="Source"/>
+                <ComboBox Width="180" ItemsSource="{Binding Scopes}"
+                          SelectedItem="{Binding SelectedScope}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" IsVisible="{Binding IsSessionScope}">
+                <TextBlock Classes="field-label" Text="Session"/>
+                <ComboBox Width="280" ItemsSource="{Binding Sessions}"
+                          SelectedItem="{Binding SelectedSession}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SessionRow">
+                            <TextBlock Text="{Binding Display}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+            <Button Grid.Column="4" Classes="btn-primary" Content="Analyze"
+                    Command="{Binding AnalyzeCommand}"
+                    VerticalAlignment="Bottom"/>
+        </Grid>
+
+        <TextBlock Grid.Row="2" Text="Select a session or time range, then click Analyze."
+                   FontSize="12" Foreground="#30363D"
+                   IsVisible="{Binding !HasReport}"/>
+
+        <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,*" IsVisible="{Binding HasReport}">
+            <StackPanel Margin="0,0,0,14">
+                <TextBlock Classes="health-value" Text="{Binding Headline}"
+                           Foreground="{Binding SeverityColor}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding MetaLine}" FontSize="12" Foreground="#6E7681" Margin="0,6,0,0"/>
+            </StackPanel>
+
+            <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,16" IsVisible="{Binding HasMetrics}">
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Latency"/>
+                    <TextBlock Classes="metric-value" FontSize="16" Text="{Binding MetricLatency}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Packet Loss"/>
+                    <TextBlock Classes="metric-value" FontSize="16" Text="{Binding MetricLoss}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Jitter"/>
+                    <TextBlock Classes="metric-value" FontSize="16" Text="{Binding MetricJitter}" Margin="0,2,0,0"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,0,0,16"
+                        IsVisible="{Binding CanRunDiagnostics}">
+                <Button Classes="btn-primary" Content="Run Diagnostics"
+                        Command="{Binding RunDiagnosticsCommand}"/>
+                <TextBlock Text="{Binding RunDiagnosticsReason}" FontSize="12" Foreground="#8B949E"
+                           VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="480"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="3" Margin="0,4,0,16" IsVisible="{Binding HasOutcomeNote}" MaxWidth="640"
+                        HorizontalAlignment="Left">
+                <TextBlock Classes="section-label" Text="WHAT THIS MEANS" Margin="0,0,0,8"/>
+                <TextBlock Text="{Binding OutcomeNote}" FontSize="13" Foreground="#8B949E"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Grid Grid.Row="4" RowDefinitions="Auto,*" IsVisible="{Binding HasFindings}">
+                <TextBlock Classes="section-label" Text="FINDINGS" Margin="0,0,0,8"/>
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding Findings}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FindingRow">
+                                    <Grid ColumnDefinitions="88,*" Margin="0,0,0,12">
+                                        <TextBlock Text="{Binding Severity}" FontSize="12"
+                                                   Foreground="{Binding SeverityColor}"
+                                                   VerticalAlignment="Top" Margin="0,1,0,0"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding Title}" FontSize="13"
+                                                       FontWeight="SemiBold" Foreground="#E6EDF3"/>
+                                            <TextBlock Text="{Binding Detail}" FontSize="12"
+                                                       Foreground="#8B949E" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{Binding LocalNetworkHint}" FontSize="12" Foreground="#8B949E"
+                                   TextWrapping="Wrap" Margin="0,4,0,0"
+                                   IsVisible="{Binding ShowLocalNetworkHint}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

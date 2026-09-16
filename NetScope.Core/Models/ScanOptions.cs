@@ -1,3 +1,5 @@
+using NetScope.Core.Networking;
+
 namespace NetScope.Core.Models;
 
 /// <summary>
@@ -31,6 +33,12 @@ public sealed class ScanOptions
     public const int MaxConcurrency = 256;
 
     /// <summary>
+    /// Widest CIDR prefix allowed for an explicit scan (~65k hosts for /16).
+    /// Wider ranges are rejected to avoid memory and network exhaustion.
+    /// </summary>
+    public const int MinPrefixLength = 16;
+
+    /// <summary>
     /// Validates configurable options and throws <see cref="ArgumentException"/>
     /// if any value falls outside the allowed bounds.
     /// </summary>
@@ -45,5 +53,21 @@ public sealed class ScanOptions
             throw new ArgumentException(
                 $"Concurrency must be between {MinConcurrency} and {MaxConcurrency}, but was {Concurrency}.",
                 nameof(Concurrency));
+
+        if (Subnet is null)
+            return;
+
+        try
+        {
+            var (_, prefix) = SubnetHelper.ParseCidr(Subnet);
+            if (prefix < MinPrefixLength)
+                throw new ArgumentException(
+                    $"Subnet prefix must be /{MinPrefixLength} or narrower (maximum ~65,534 hosts).",
+                    nameof(Subnet));
+        }
+        catch (FormatException ex)
+        {
+            throw new ArgumentException(ex.Message, nameof(Subnet), ex);
+        }
     }
 }

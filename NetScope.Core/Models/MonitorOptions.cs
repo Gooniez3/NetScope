@@ -1,3 +1,5 @@
+using NetScope.Core.Networking;
+
 namespace NetScope.Core.Models;
 
 /// <summary>
@@ -49,8 +51,10 @@ public sealed class MonitorOptions
     /// </summary>
     public void Validate()
     {
-        if (string.IsNullOrWhiteSpace(Target))
-            throw new ArgumentException("Target must not be empty.", nameof(Target));
+        HostTarget.Validate(Target);
+
+        if (!string.IsNullOrWhiteSpace(GatewayAddress))
+            HostTarget.Validate(GatewayAddress, nameof(GatewayAddress));
 
         ValidateRange(IntervalSeconds, MinIntervalSeconds, MaxIntervalSeconds, nameof(IntervalSeconds));
         ValidateRange(TimeoutMs, MinTimeoutMs, MaxTimeoutMs, nameof(TimeoutMs));

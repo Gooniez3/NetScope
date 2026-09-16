@@ -25,6 +25,7 @@ internal static class HelpCommand
         Console.WriteLine("  monitor [options]            Continuous network health monitoring");
         Console.WriteLine("  history [options]            View saved monitoring sessions and measurements");
         Console.WriteLine("  stats [options]              Show aggregate statistics from saved data");
+        Console.WriteLine("  analyze [options]            Explain saved measurements (rule-based diagnostics)");
         Console.WriteLine("  help                         Show this help message");
         Console.WriteLine();
         Console.WriteLine("Ping options:");
@@ -40,7 +41,7 @@ internal static class HelpCommand
         Console.WriteLine("  --no-dns                     Skip reverse DNS on hops");
         Console.WriteLine();
         Console.WriteLine("Scan options:");
-        Console.WriteLine("  --subnet, -s <cidr>          Subnet to scan (default: auto-detect)");
+        Console.WriteLine("  --subnet, -s <cidr>          Subnet to scan (/16 or narrower, default: auto-detect)");
         Console.WriteLine("  --timeout, -t <ms>           Timeout per probe (100–10000, default 500)");
         Console.WriteLine("  --concurrency, -c <n>        Max concurrent probes (1–256, default 32)");
         Console.WriteLine("  --no-dns                     Skip reverse DNS on devices");
@@ -83,6 +84,10 @@ internal static class HelpCommand
         Console.WriteLine("  --session, -s <id>           Statistics for a specific session");
         Console.WriteLine("  --hours, -h <n>              Time range in hours (default 24)");
         Console.WriteLine();
+        Console.WriteLine("Analyze options:");
+        Console.WriteLine("  --session, -s <id>           Analyze a specific session");
+        Console.WriteLine("  --hours, -h <n>              Time range in hours (default 24)");
+        Console.WriteLine();
         Console.WriteLine("History/Stats examples:");
         Console.WriteLine("  netscope history                           List recent sessions");
         Console.WriteLine("  netscope history --session 1               View session #1 measurements");
@@ -91,6 +96,8 @@ internal static class HelpCommand
         Console.WriteLine("  netscope stats                             Stats for last 24 hours");
         Console.WriteLine("  netscope stats --session 1                 Stats for session #1");
         Console.WriteLine("  netscope stats --hours 48                  Stats for last 48 hours");
+        Console.WriteLine("  netscope analyze --session 1               Explain session #1");
+        Console.WriteLine("  netscope analyze --hours 6                 Explain last 6 hours");
 
         return Task.FromResult(error is null ? 0 : 1);
     }

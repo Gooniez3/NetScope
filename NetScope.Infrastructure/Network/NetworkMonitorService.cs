@@ -155,7 +155,7 @@ public sealed class NetworkMonitorService : INetworkMonitorService
         {
             using var ping = new Ping();
             var sw = Stopwatch.StartNew();
-            var reply = await ping.SendPingAsync(gateway, timeoutMs);
+            var reply = await ping.SendPingAsync(gateway, timeoutMs).WaitAsync(ct);
             sw.Stop();
 
             if (reply.Status == IPStatus.Success)

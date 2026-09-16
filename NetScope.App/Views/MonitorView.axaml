@@ -106,11 +106,12 @@
                        IsVisible="{Binding !Measurements.Count}"/>
             <DataGrid ItemsSource="{Binding Measurements}"
                       IsReadOnly="True" CanUserResizeColumns="True"
-                      CanUserSortColumns="False">
+                      CanUserSortColumns="False"
+                      HorizontalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="88"/>
-                    <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120"/>
-                    <DataGridTemplateColumn Header="Latency" Width="90">
+                    <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="92" MinWidth="92"/>
+                    <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120" MinWidth="100"/>
+                    <DataGridTemplateColumn Header="Latency" Width="96" MinWidth="96">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:MeasurementRow">
                                 <TextBlock Text="{Binding Latency}" TextAlignment="Right"
@@ -118,7 +119,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Loss" Width="88">
+                    <DataGridTemplateColumn Header="Loss" Width="72" MinWidth="72">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:MeasurementRow">
                                 <TextBlock Text="{Binding Loss}" TextAlignment="Right"
@@ -126,7 +127,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Jitter" Width="88">
+                    <DataGridTemplateColumn Header="Jitter" Width="88" MinWidth="88">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:MeasurementRow">
                                 <TextBlock Text="{Binding Jitter}" TextAlignment="Right"

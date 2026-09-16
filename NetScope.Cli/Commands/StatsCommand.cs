@@ -1,3 +1,4 @@
+using NetScope.Cli;
 using NetScope.Core.Models;
 using NetScope.Infrastructure.Persistence;
 
@@ -8,6 +9,8 @@ internal static class StatsCommand
     public static async Task<int> RunAsync(string[] args)
     {
         var (sessionId, hours) = ParseArgs(args);
+        if (hours < 0)
+            return 1;
 
         await using var repo = new SqliteMeasurementRepository();
         await repo.InitializeAsync();
@@ -119,10 +122,21 @@ internal static class StatsCommand
             switch (args[i].ToLowerInvariant())
             {
                 case "--session" or "-s" when i + 1 < args.Length:
-                    sessionId = long.Parse(args[++i]);
+                    if (!CliParse.TryLong(args[++i], "session id", out var id))
+                        return (null, -1);
+                    if (id < 1)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Error.WriteLine("Session id must be a positive integer.");
+                        Console.ResetColor();
+                        return (null, -1);
+                    }
+                    sessionId = id;
                     break;
                 case "--hours" or "-h" when i + 1 < args.Length:
-                    hours = int.Parse(args[++i]);
+                    if (!CliParse.TryInt(args[++i], "hours", out hours))
+                        return (null, -1);
+                    hours = CliParse.ClampHours(hours);
                     break;
             }
         }

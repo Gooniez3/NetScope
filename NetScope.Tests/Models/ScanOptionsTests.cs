@@ -89,4 +89,27 @@ public class ScanOptionsTests
         };
         options.Validate();
     }
+
+    [Fact]
+    public void Validate_Slash16_Accepted()
+    {
+        var options = new ScanOptions { Subnet = "10.0.0.0/16" };
+        options.Validate();
+    }
+
+    [Fact]
+    public void Validate_Slash8_Throws()
+    {
+        var options = new ScanOptions { Subnet = "10.0.0.0/8" };
+        var ex = Assert.Throws<ArgumentException>(() => options.Validate());
+        Assert.Equal("Subnet", ex.ParamName);
+    }
+
+    [Fact]
+    public void Validate_InvalidCidr_Throws()
+    {
+        var options = new ScanOptions { Subnet = "not-a-cidr" };
+        var ex = Assert.Throws<ArgumentException>(() => options.Validate());
+        Assert.Equal("Subnet", ex.ParamName);
+    }
 }

@@ -1,3 +1,4 @@
+using NetScope.Cli;
 using NetScope.Core.Models;
 using NetScope.Core.Persistence;
 using NetScope.Infrastructure.Network;
@@ -9,8 +10,23 @@ internal static class MonitorCommand
 {
     public static async Task<int> RunAsync(string[] args)
     {
-        var (options, save) = ParseArgs(args);
-        options.Validate();
+        var parsed = ParseArgs(args);
+        if (parsed is null)
+            return 1;
+
+        var (options, save) = parsed.Value;
+
+        try
+        {
+            options.Validate();
+        }
+        catch (ArgumentException ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.WriteLine($"Invalid option: {ex.Message}");
+            Console.ResetColor();
+            return 1;
+        }
 
         var pingService = new PingService();
         var dnsService = new DnsService();
@@ -101,7 +117,7 @@ internal static class MonitorCommand
         return 0;
     }
 
-    private static (MonitorOptions Options, bool Save) ParseArgs(string[] args)
+    private static (MonitorOptions Options, bool Save)? ParseArgs(string[] args)
     {
         var target = "1.1.1.1";
         var intervalSeconds = 5;
@@ -121,16 +137,21 @@ internal static class MonitorCommand
                     target = args[++i];
                     break;
                 case "--interval" or "-i" when i + 1 < args.Length:
-                    intervalSeconds = int.Parse(args[++i]);
+                    if (!CliParse.TryInt(args[++i], "interval", out intervalSeconds))
+                        return null;
                     break;
                 case "--timeout" or "-t" when i + 1 < args.Length:
-                    timeoutMs = int.Parse(args[++i]);
+                    if (!CliParse.TryInt(args[++i], "timeout", out timeoutMs))
+                        return null;
                     break;
                 case "--probes" or "-p" when i + 1 < args.Length:
-                    probes = int.Parse(args[++i]);
+                    if (!CliParse.TryInt(args[++i], "probes", out probes))
+                        return null;
                     break;
                 case "--count" or "-c" when i + 1 < args.Length:
-                    maxCycles = int.Parse(args[++i]);
+                    if (!CliParse.TryInt(args[++i], "count", out var cycles))
+                        return null;
+                    maxCycles = cycles;
                     break;
                 case "--dns":
                     measureDns = true;

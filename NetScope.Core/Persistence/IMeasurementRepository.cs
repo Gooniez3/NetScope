@@ -62,4 +62,10 @@ public interface IMeasurementRepository : IAsyncDisposable
 
     /// <summary>Deletes sessions with no remaining measurements. Returns number deleted.</summary>
     Task<int> DeleteEmptySessionsAsync(CancellationToken ct = default);
+
+    /// <summary>Deletes a session and all of its measurements. Returns measurements removed.</summary>
+    Task<int> DeleteSessionAsync(long sessionId, CancellationToken ct = default);
+
+    /// <summary>Deletes all sessions and measurements. Returns sessions removed.</summary>
+    Task<int> DeleteAllAsync(CancellationToken ct = default);
 }

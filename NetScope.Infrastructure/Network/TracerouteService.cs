@@ -139,7 +139,8 @@ public sealed class TracerouteService : ITracerouteService
             using var ping = new Ping();
             var pingOptions = new System.Net.NetworkInformation.PingOptions(ttl, dontFragment: true);
             var sw = Stopwatch.StartNew();
-            var reply = await ping.SendPingAsync(targetAddress, options.TimeoutMs, Payload, pingOptions);
+            var reply = await ping.SendPingAsync(targetAddress, options.TimeoutMs, Payload, pingOptions)
+                .WaitAsync(cancellationToken);
             sw.Stop();
 
             if (reply.Status is IPStatus.Success or IPStatus.TtlExpired)
