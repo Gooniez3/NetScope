@@ -41,9 +41,14 @@
                     VerticalAlignment="Bottom"/>
         </Grid>
 
-        <TextBlock Grid.Row="2" Text="Select a session or time range, then click Analyze."
-                   FontSize="12" Foreground="#30363D"
-                   IsVisible="{Binding !HasReport}"/>
+        <Border Grid.Row="2" Classes="empty-state" VerticalAlignment="Top"
+                IsVisible="{Binding !HasReport}">
+            <StackPanel Spacing="4">
+                <TextBlock Text="No analysis yet" Classes="primary-text" FontWeight="SemiBold"/>
+                <TextBlock Text="Select a saved session, then Analyze. Dashboard is the latest ping; this page grades the whole run."
+                           Classes="muted" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
 
         <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,*" IsVisible="{Binding HasReport}">
             <StackPanel Margin="0,0,0,14">

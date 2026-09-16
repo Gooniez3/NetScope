@@ -15,6 +15,7 @@ try
         "history" => HistoryCommand.RunAsync(args[1..]),
         "stats" => StatsCommand.RunAsync(args[1..]),
         "analyze" => AnalyzeCommand.RunAsync(args[1..]),
+        "port" => PortCommand.RunAsync(args[1..]),
         "help" or "--help" or "-h" => HelpCommand.Run(),
         _ => HelpCommand.Run($"Unknown command: {command}")
     });

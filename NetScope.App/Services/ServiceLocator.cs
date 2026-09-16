@@ -38,6 +38,9 @@ public static class ServiceLocator
             return repo;
         });
 
+    private static readonly Lazy<IPortTestService> _portTestService =
+        new(() => new PortTestService());
+
     private static readonly Lazy<IDiagnosticAnalyzer> _diagnosticAnalyzer =
         new(() => new DiagnosticAnalyzer());
 
@@ -48,5 +51,6 @@ public static class ServiceLocator
     public static INetworkScannerService ScannerService => _scannerService.Value;
     public static INetworkMonitorService MonitorService => _monitorService.Value;
     public static IMeasurementRepository Repository => _repository.Value;
+    public static IPortTestService PortTestService => _portTestService.Value;
     public static IDiagnosticAnalyzer DiagnosticAnalyzer => _diagnosticAnalyzer.Value;
 }

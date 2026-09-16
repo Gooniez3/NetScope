@@ -40,8 +40,8 @@ flowchart TB
 
 | Project | Role |
 |---|---|
-| **NetScope.Core** | Models, option validation, `IPingService` and friends, `HealthClassifier`, `DiagnosticAnalyzer`, `SubnetHelper`. Zero sockets, zero SQLite. |
-| **NetScope.Infrastructure** | `System.Net.NetworkInformation.Ping`, `System.Net.Dns`, ICMP traceroute, LAN sweep, ARP table, public-IP HTTP lookup, SQLite repository. |
+| **NetScope.Core** | Models, option validation, `IPingService` / `IPortTestService` and friends, `HealthClassifier`, `DiagnosticAnalyzer`, `SubnetHelper`. Zero sockets, zero SQLite. |
+| **NetScope.Infrastructure** | `System.Net.NetworkInformation.Ping`, `System.Net.Dns`, ICMP traceroute, TCP connect, LAN sweep, ARP table, public-IP HTTP lookup, SQLite repository. |
 | **NetScope.App** | Avalonia desktop. ViewModels call Core interfaces. `ServiceLocator` wires implementations. |
 | **NetScope.Cli** | Same engines from the console. |
 | **NetScope.Tests** | xUnit against Core (pure) and Infrastructure (SQLite, option bounds). |
@@ -63,10 +63,10 @@ NetScope.App/
 |---|---|
 | Dashboard | `INetworkInterfaceService`, `INetworkMonitorService` |
 | Monitor | `INetworkMonitorService`, `IMeasurementRepository` |
-| Diagnostics | `IPingService`, `IDnsService`, `ITracerouteService`, `INetworkScannerService` |
+| Diagnostics | `IPingService`, `IDnsService`, `ITracerouteService`, `IPortTestService`, `INetworkScannerService` |
 | History | `IMeasurementRepository` |
 | Analysis | `IMeasurementRepository`, `IDiagnosticAnalyzer` |
-| Settings | defaults in memory; DB path from the repository |
+| Settings | defaults in `~/.netscope/settings.json`; DB path from the repository |
 
 Charts use ScottPlot.Avalonia. They plot numbers the ViewModel already has. They do not ping.
 

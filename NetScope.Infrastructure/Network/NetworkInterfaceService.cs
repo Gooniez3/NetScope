@@ -72,8 +72,27 @@ public sealed class NetworkInterfaceService : INetworkInterfaceService
                 .ToList(),
 
             DhcpServer = GetDhcpServer(ipProps),
-            IsDhcpEnabled = GetDhcpServer(ipProps) is not null
+            IsDhcpEnabled = GetDhcpServer(ipProps) is not null,
+            BytesReceived = TryGetBytes(nic, sent: false),
+            BytesSent = TryGetBytes(nic, sent: true)
         };
+    }
+
+    private static long? TryGetBytes(NetworkInterface nic, bool sent)
+    {
+        try
+        {
+            var stats = nic.GetIPStatistics();
+            return sent ? stats.BytesSent : stats.BytesReceived;
+        }
+        catch (NetworkInformationException)
+        {
+            return null;
+        }
+        catch (PlatformNotSupportedException)
+        {
+            return null;
+        }
     }
 
     /// <summary>

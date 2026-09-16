@@ -18,7 +18,16 @@
                     Command="{Binding LoadSessionsCommand}" VerticalAlignment="Top"/>
         </Grid>
 
-        <Grid Grid.Row="1" ColumnDefinitions="300,20,*">
+        <Border Grid.Row="1" Classes="empty-state" VerticalAlignment="Top"
+                IsVisible="{Binding !HasSessions}">
+            <StackPanel Spacing="4">
+                <TextBlock Text="No saved sessions" Classes="primary-text" FontWeight="SemiBold"/>
+                <TextBlock Text="On Monitor, leave Save to database checked, then start a session. History stores those runs locally in SQLite."
+                           Classes="muted" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="300,20,*" IsVisible="{Binding HasSessions}">
 
             <DockPanel>
                 <Grid DockPanel.Dock="Top" ColumnDefinitions="28,100,*,28" Margin="10,0,8,4">
@@ -44,8 +53,6 @@
                             HorizontalContentAlignment="Center"
                             IsVisible="{Binding ConfirmingClearAll}"/>
                 </StackPanel>
-                <TextBlock Text="No saved sessions." FontSize="12" Foreground="#30363D"
-                           Margin="10,8,0,0" IsVisible="{Binding !Sessions.Count}"/>
                 <ListBox Classes="session-list"
                          ItemsSource="{Binding Sessions}"
                          SelectedItem="{Binding SelectedSession}">
@@ -68,7 +75,7 @@
                 </ListBox>
             </DockPanel>
 
-            <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*">
+            <Grid Grid.Column="2" RowDefinitions="Auto,Auto,Auto">
                 <DockPanel Margin="0,0,0,12">
                     <TextBlock Classes="page-title" FontSize="14" Text="{Binding DetailTitle}"
                                VerticalAlignment="Center"/>
@@ -101,16 +108,24 @@
                     </StackPanel>
                 </UniformGrid>
 
-                <Grid Grid.Row="2" RowDefinitions="Auto,Auto,*">
-                    <TextBlock Classes="section-label" Text="MEASUREMENTS" Margin="0,0,0,6"/>
-                    <TextBlock Grid.Row="1" Text="Select a session from the left."
-                               FontSize="12" Foreground="#30363D"
-                               IsVisible="{Binding !SessionMeasurements.Count}"/>
-                    <DataGrid Grid.Row="2"
+                <DockPanel Grid.Row="2" LastChildFill="False">
+                    <TextBlock DockPanel.Dock="Top" Classes="section-label" Text="MEASUREMENTS" Margin="0,0,0,6"/>
+                    <Border DockPanel.Dock="Top" Classes="empty-state"
+                            IsVisible="{Binding !HasMeasurements}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Select a session" Classes="primary-text" FontWeight="SemiBold"/>
+                            <TextBlock Text="Pick a run on the left to inspect its samples."
+                                       Classes="muted" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    <DataGrid DockPanel.Dock="Top"
                               ItemsSource="{Binding SessionMeasurements}"
+                              IsVisible="{Binding HasMeasurements}"
+                              Height="{Binding SessionMeasurements.Count, Converter={StaticResource RowListHeight}}"
                               IsReadOnly="True"
                               CanUserResizeColumns="True"
-                              CanUserSortColumns="False">
+                              CanUserSortColumns="False"
+                              VerticalAlignment="Top">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="100"/>
                             <DataGridTemplateColumn Header="Latency" Width="100">
@@ -144,7 +159,7 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </Grid>
+                </DockPanel>
             </Grid>
         </Grid>
     </Grid>

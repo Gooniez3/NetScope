@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NetScope.App.Services;
@@ -24,38 +24,31 @@ public partial class DashboardViewModel : ViewModelBase
     public partial string ConnectionStatusColor { get; set; } = "#6E7681";
 
     [ObservableProperty]
-    public partial string LatencyDisplay { get; set; } = "—";
+    public partial string DownRateDisplay { get; set; } = "—";
 
     [ObservableProperty]
-    public partial string PacketLossDisplay { get; set; } = "—";
-
-    [ObservableProperty]
-    public partial string JitterDisplay { get; set; } = "—";
-
-    [ObservableProperty]
-    public partial string HealthStatus { get; set; } = "Unknown";
-
-    [ObservableProperty]
-    public partial string HealthColor { get; set; } = "#484F58";
-
-    [ObservableProperty]
-    public partial string MonitorTarget { get; set; } = AppDefaults.Target;
-
-    [ObservableProperty]
-    public partial bool IsMonitoring { get; set; }
+    public partial string UpRateDisplay { get; set; } = "—";
 
     [ObservableProperty]
     public partial bool IsLoading { get; set; } = true;
 
-    public ObservableCollection<MeasurementRow> RecentMeasurements { get; } = [];
+    public MonitorViewModel Monitor { get; }
 
-    private readonly List<double> _chartTimestamps = [];
-    private readonly List<double> _chartLatencies = [];
-    public IReadOnlyList<double> ChartTimestamps => _chartTimestamps;
-    public IReadOnlyList<double> ChartLatencies => _chartLatencies;
-    public event Action? ChartUpdated;
+    private readonly Action _openMonitor;
+    private CancellationTokenSource? _throughputCts;
+    private long? _prevRx;
+    private long? _prevTx;
+    private DateTimeOffset? _prevSampleAt;
+    private string? _throughputNicId;
 
-    private CancellationTokenSource? _cts;
+    public DashboardViewModel(MonitorViewModel monitor, Action openMonitor)
+    {
+        Monitor = monitor;
+        _openMonitor = openMonitor;
+    }
+
+    [RelayCommand]
+    private void OpenMonitor() => _openMonitor();
 
     [RelayCommand]
     private async Task LoadAsync()
@@ -95,70 +88,101 @@ public partial class DashboardViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
-    private async Task StartQuickMonitorAsync()
+    public void StartThroughput()
     {
-        if (IsMonitoring) return;
-        IsMonitoring = true;
+        StopThroughput();
+        _throughputCts = new CancellationTokenSource();
+        _ = SampleThroughputAsync(_throughputCts.Token);
+    }
 
-        _cts = new CancellationTokenSource();
-        var options = new MonitorOptions
-        {
-            Target = MonitorTarget,
-            IntervalSeconds = 3,
-            ProbesPerMeasurement = 4,
-            TimeoutMs = 3000
-        };
+    public void StopThroughput()
+    {
+        _throughputCts?.Cancel();
+        _throughputCts?.Dispose();
+        _throughputCts = null;
+        _prevRx = null;
+        _prevTx = null;
+        _prevSampleAt = null;
+        _throughputNicId = null;
+    }
 
+    private async Task SampleThroughputAsync(CancellationToken ct)
+    {
         try
         {
-            await foreach (var m in ServiceLocator.MonitorService.MonitorAsync(options, _cts.Token))
+            while (!ct.IsCancellationRequested)
             {
-                UpdateFromMeasurement(m);
+                SampleThroughputOnce();
+                await Task.Delay(1000, ct);
             }
         }
-        catch (OperationCanceledException) { }
-        finally
+        catch (OperationCanceledException)
         {
-            IsMonitoring = false;
         }
     }
 
-    [RelayCommand]
-    private void StopMonitor()
+    private void SampleThroughputOnce()
     {
-        _cts?.Cancel();
+        try
+        {
+            var active = ServiceLocator.InterfaceService.GetActiveInterface();
+            Dispatcher.UIThread.Post(() => ApplyThroughputSample(active));
+        }
+        catch
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                DownRateDisplay = "—";
+                UpRateDisplay = "—";
+            });
+        }
     }
 
-    private void UpdateFromMeasurement(NetworkMeasurement m)
+    private void ApplyThroughputSample(Core.Models.NetworkInterfaceInfo? active)
     {
-        LatencyDisplay = m.AvgLatencyMs.HasValue ? $"{m.AvgLatencyMs.Value:F1} ms" : "—";
-        PacketLossDisplay = $"{m.PacketLossPercent:F0}%";
-        JitterDisplay = m.JitterMs.HasValue ? $"{m.JitterMs.Value:F1} ms" : "—";
-        HealthStatus = m.HealthStatus.ToString();
-        HealthColor = m.HealthStatus switch
+        if (active is null || active.BytesReceived is null || active.BytesSent is null)
         {
-            NetworkHealthStatus.Healthy => "#3FB950",
-            NetworkHealthStatus.Degraded => "#D29922",
-            NetworkHealthStatus.Unstable => "#F85149",
-            NetworkHealthStatus.Disconnected => "#F85149",
-            _ => "#484F58"
-        };
-        ConnectionStatus = m.IsConnected ? "Connected" : "Disconnected";
-        ConnectionStatusColor = m.IsConnected ? "#8B949E" : "#F85149";
-
-        RecentMeasurements.Insert(0, new MeasurementRow(m));
-        while (RecentMeasurements.Count > 50)
-            RecentMeasurements.RemoveAt(RecentMeasurements.Count - 1);
-
-        _chartTimestamps.Add(m.Timestamp.LocalDateTime.ToOADate());
-        _chartLatencies.Add(m.AvgLatencyMs ?? 0);
-        while (_chartTimestamps.Count > 120)
-        {
-            _chartTimestamps.RemoveAt(0);
-            _chartLatencies.RemoveAt(0);
+            DownRateDisplay = "—";
+            UpRateDisplay = "—";
+            _prevRx = null;
+            _prevTx = null;
+            _prevSampleAt = null;
+            return;
         }
-        ChartUpdated?.Invoke();
+
+        var now = DateTimeOffset.UtcNow;
+        if (_throughputNicId != active.Id)
+        {
+            _throughputNicId = active.Id;
+            _prevRx = active.BytesReceived;
+            _prevTx = active.BytesSent;
+            _prevSampleAt = now;
+            DownRateDisplay = "—";
+            UpRateDisplay = "—";
+            return;
+        }
+
+        if (_prevRx is long prevRx && _prevTx is long prevTx && _prevSampleAt is DateTimeOffset prevAt)
+        {
+            var seconds = Math.Max((now - prevAt).TotalSeconds, 0.001);
+            var down = Math.Max(0, active.BytesReceived.Value - prevRx) / seconds;
+            var up = Math.Max(0, active.BytesSent.Value - prevTx) / seconds;
+            DownRateDisplay = FormatRate(down);
+            UpRateDisplay = FormatRate(up);
+        }
+
+        _prevRx = active.BytesReceived;
+        _prevTx = active.BytesSent;
+        _prevSampleAt = now;
+    }
+
+    private static string FormatRate(double bytesPerSecond)
+    {
+        if (bytesPerSecond >= 1_000_000)
+            return $"{bytesPerSecond / 1_000_000:F1} MB/s";
+        if (bytesPerSecond >= 1_000)
+            return $"{bytesPerSecond / 1_000:F0} KB/s";
+        return $"{bytesPerSecond:F0} B/s";
     }
 }
 

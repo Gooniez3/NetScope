@@ -69,6 +69,26 @@ public partial class DiagnosticsViewModel : ViewModelBase
 
     public ObservableCollection<DeviceRow> ScannedDevices { get; } = [];
 
+    // --- Ports ---
+    [ObservableProperty]
+    public partial string PortHost { get; set; } = "1.1.1.1";
+
+    [ObservableProperty]
+    public partial int PortNumber { get; set; } = 443;
+
+    [ObservableProperty]
+    public partial string SelectedPortPreset { get; set; } = "https";
+
+    [ObservableProperty]
+    public partial bool IsTestingPort { get; set; }
+
+    [ObservableProperty]
+    public partial string PortStatus { get; set; } = "Ready";
+
+    public IReadOnlyList<string> PortPresets { get; } = ["http", "https", "ssh", "dns", "smtp", "rdp"];
+
+    public ObservableCollection<PortResultRow> PortResults { get; } = [];
+
     private CancellationTokenSource? _cts;
 
     private CancellationTokenSource ResetCts()
@@ -247,6 +267,50 @@ public partial class DiagnosticsViewModel : ViewModelBase
         }
     }
 
+    partial void OnSelectedPortPresetChanged(string value)
+    {
+        if (PortTestOptions.TryResolvePreset(value, out var port))
+            PortNumber = port;
+    }
+
+    [RelayCommand]
+    private async Task RunPortTestAsync()
+    {
+        if (IsTestingPort) return;
+        IsTestingPort = true;
+        PortStatus = $"Connecting to {PortHost}:{PortNumber}…";
+        ResetCts();
+
+        try
+        {
+            var options = new PortTestOptions
+            {
+                Host = PortHost,
+                Port = PortNumber,
+                TimeoutMs = 3000
+            };
+            var result = await ServiceLocator.PortTestService.TestAsync(options, _cts!.Token);
+            PortResults.Insert(0, new PortResultRow(result));
+            while (PortResults.Count > 50)
+                PortResults.RemoveAt(PortResults.Count - 1);
+            PortStatus = result.IsReachable
+                ? $"Open — {result.ConnectMs:F1} ms"
+                : $"Closed — {result.ErrorMessage}";
+        }
+        catch (OperationCanceledException)
+        {
+            PortStatus = "Cancelled";
+        }
+        catch (Exception ex)
+        {
+            PortStatus = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsTestingPort = false;
+        }
+    }
+
     [RelayCommand]
     private void CancelOperation()
     {
@@ -264,6 +328,7 @@ public partial class DiagnosticsViewModel : ViewModelBase
         PingTarget = target;
         TraceTarget = target;
         DnsHostname = target;
+        PortHost = target;
         SelectedTabIndex = 0;
         SelectedTool = "Ping";
     }
@@ -330,5 +395,25 @@ public class DeviceRow
         Mac = d.MacAddress ?? "—";
         ResponseTime = $"{d.ResponseTimeMs:F1} ms";
         Status = d.Status;
+    }
+}
+
+public class PortResultRow
+{
+    public string Host { get; }
+    public string Port { get; }
+    public string Status { get; }
+    public string ConnectTime { get; }
+    public string Detail { get; }
+    public string StatusColor { get; }
+
+    public PortResultRow(PortTestResult r)
+    {
+        Host = r.Host;
+        Port = r.Port.ToString();
+        Status = r.IsReachable ? "Open" : "Closed";
+        ConnectTime = r.ConnectMs.HasValue ? $"{r.ConnectMs.Value:F1} ms" : "—";
+        Detail = r.ErrorMessage ?? "";
+        StatusColor = r.IsReachable ? "#3FB950" : "#F85149";
     }
 }

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="NetScope.App/Assets/netscope.png" width="128" alt="NetScope">
+</p>
+
 # NetScope
 
 **Network visibility. Diagnostics. Intelligence.**
@@ -19,9 +23,9 @@ The engines live in a Core layer with no sockets and no database. Avalonia and t
 
 | Capability | What it provides |
 |---|---|
-| **Dashboard** | Active interface, gateway, health, live latency chart, recent samples. |
+| **Dashboard** | Active interface, gateway, health, live Down/Up NIC rates, latency chart, recent samples. |
 | **Monitor** | Continuous probes, configurable interval, optional SQLite save, ScottPlot chart. |
-| **Diagnostics** | Ping, DNS lookup, and ICMP traceroute. |
+| **Diagnostics** | Ping, DNS lookup, ICMP traceroute, TCP port tester. |
 | **LAN Discovery** | ICMP sweep with hostname and MAC when the ARP cache has them. |
 | **History** | Saved sessions, per-session stats, delete one / clear all / drop data older than 30 days. |
 | **Analysis** | Offline explanation of a saved run. Trends need at least 8 samples over 2 minutes. |
@@ -63,7 +67,7 @@ flowchart LR
   App["App · Avalonia MVVM"]
   Cli["CLI"]
   Core["Core · models, interfaces, rules"]
-  Infra["Infrastructure · ICMP, DNS, ARP, SQLite"]
+  Infra["Infrastructure · ICMP, DNS, ARP, TCP, SQLite"]
   App --> Core
   Cli --> Core
   Infra --> Core
@@ -71,7 +75,7 @@ flowchart LR
   Cli --> Infra
 ```
 
-**Core has no sockets and no database.** ViewModels talk to `IPingService`, `IDnsService`, `ITracerouteService`, `INetworkScannerService`, `INetworkMonitorService`, `IMeasurementRepository`, and `IDiagnosticAnalyzer`. `ServiceLocator` is the only place that constructs Infrastructure types.
+**Core has no sockets and no database.** ViewModels talk to `IPingService`, `IDnsService`, `ITracerouteService`, `IPortTestService`, `INetworkScannerService`, `INetworkMonitorService`, `IMeasurementRepository`, and `IDiagnosticAnalyzer`. `ServiceLocator` is the only place that constructs Infrastructure types.
 
 Layering, data flow, and trust boundaries: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -81,18 +85,18 @@ Layering, data flow, and trust boundaries: [docs/ARCHITECTURE.md](docs/ARCHITECT
 |---|---|
 | **Rule-based Analysis** | Reproducible in tests, works offline, no API key. A remote narrator can wrap `DiagnosticReport` later. |
 | **Clean Architecture** | Same ping/monitor/analyzer for desktop and CLI. UI cannot grow hidden network code. |
-| **GitHub Dark** | Engineering tool palette (`#0D1117` / `#161B22` / `#388BFD`). No light theme in v0.9. |
+| **GitHub Dark** | Dark-only engineering palette. Charts, tables, and chrome are designed for it. |
 | **Local SQLite** | Opt-in history in `~/.netscope/netscope.db`. WAL, parameterized SQL, no cloud. |
-| **Portable exe** | `scripts/publish-win.ps1` → self-contained win-x64. Not an installer. |
+| **Portable exe + installer** | `scripts/publish-win.ps1` for a self-contained exe; Inno Setup via `scripts/build-installer.ps1`. |
 | **Scan bounds** | Explicit CIDR must be `/16` or narrower. Auto-detect clamps wider prefixes to `/24`. |
 
 Health is a pure function (`HealthClassifier`): Healthy / Degraded / Unstable / Disconnected from loss, RTT, and jitter.
 
-## v0.9 scope
+## v1.0 scope
 
-**In:** network snapshot, ping, DNS, traceroute, LAN scan, live monitor, SQLite history, rule-based analysis, Avalonia desktop, CLI, hardening, Windows exe.
+**In:** network snapshot, ping, DNS, traceroute, TCP port tester, LAN scan, live monitor, NIC Down/Up rates, SQLite history, rule-based analysis, Avalonia desktop (GitHub Dark, optional close-to-tray), persisted settings, CLI, hardening, Windows portable exe and Inno Setup installer.
 
-**Not in:** TCP port/service tester, throughput / download-upload meters, LLM assistant, installer, settings file on disk, light theme, tray icon / background monitor after close.
+**Not in:** LLM assistant, throughput speed-test against a CDN, settings roaming/sync.
 
 ## Quick start
 
@@ -107,18 +111,28 @@ powershell -File scripts/publish-win.ps1
 .\publish\win-x64\NetScope.exe
 ```
 
+Windows installer (requires [Inno Setup 6](https://jrsoftware.org/isinfo.php)):
+
+```powershell
+powershell -File scripts/build-installer.ps1
+```
+
+The compiled setup is `installer/output/NetScope-Setup-1.0.0.exe` (gitignored).
+
 CLI:
 
 ```sh
 dotnet run --project NetScope.Cli -- info
 dotnet run --project NetScope.Cli -- ping 1.1.1.1
 dotnet run --project NetScope.Cli -- analyze --session 1
+dotnet run --project NetScope.Cli -- port 1.1.1.1 --port 443
 ```
 
 | Command | What it does |
 |---|---|
 | `info` | Interfaces, connection, public IP |
 | `ping` / `dns` / `trace` | Probe a host |
+| `port` | TCP connect test (`--port` or `--preset https`) |
 | `scan` | LAN ICMP sweep |
 | `monitor` | Continuous health (`--save` writes SQLite) |
 | `history` / `stats` | Saved sessions |
@@ -136,7 +150,7 @@ dotnet build NetScope.slnx --configuration Release
 dotnet test NetScope.slnx
 ```
 
-Current version: **0.9.0**.
+Current version: **1.0.0**.
 
 ## Security and privacy
 
@@ -144,8 +158,8 @@ Local diagnostic tool. No account. No API key.
 
 | Topic | Behavior |
 |---|---|
-| **Data stored** | Optional monitoring history in `~/.netscope/netscope.db`. No cloud sync. |
-| **Network** | ICMP, DNS, traceroute, LAN ICMP sweep, public-IP lookup. User-initiated. |
+| **Data stored** | Optional monitoring history in `~/.netscope/netscope.db`. App settings in `~/.netscope/settings.json`. No cloud sync. |
+| **Network** | ICMP, DNS, traceroute, TCP connect, LAN ICMP sweep, public-IP lookup. User-initiated. |
 | **Public IP** | ip-api.com (HTTP) with HTTPS fallback to icanhazip.com. 5s timeout. |
 | **LAN scan** | `/16` or narrower (~65k hosts max). Auto-detect clamps to `/24`. |
 | **SQL** | Parameterized. |

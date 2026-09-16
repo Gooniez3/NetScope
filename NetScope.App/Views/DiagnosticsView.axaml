@@ -10,13 +10,13 @@
     <DockPanel Margin="24,18,24,14">
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
             <TextBlock Classes="page-title" Text="Diagnostics"/>
-            <TextBlock Classes="page-subtitle" Text="Run ping, DNS, traceroute, and LAN discovery against live hosts."/>
+            <TextBlock Classes="page-subtitle" Text="Run ping, DNS, traceroute, TCP ports, and LAN discovery against live hosts."/>
         </StackPanel>
 
         <TabControl SelectedIndex="{Binding SelectedTabIndex}">
 
             <TabItem Header="Ping">
-                <DockPanel Margin="0,10,0,0">
+                <DockPanel Margin="0,10,0,0" LastChildFill="False">
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,4">
@@ -39,8 +39,18 @@
                         <TextBlock Text="{Binding PingSummary}" FontSize="12" Foreground="#8B949E"
                                    IsVisible="{Binding PingSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                     </StackPanel>
+                    <Border Classes="empty-state" IsVisible="{Binding !PingResults.Count}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="No ping results yet" Classes="primary-text" FontWeight="SemiBold"/>
+                            <TextBlock Text="Run Ping to measure round-trip time, loss, and jitter to a host."
+                                       Classes="muted" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
                     <DataGrid ItemsSource="{Binding PingResults}" IsReadOnly="True"
-                              CanUserSortColumns="False" Margin="0,8,0,0">
+                              CanUserSortColumns="False" Margin="0,8,0,0"
+                              IsVisible="{Binding PingResults.Count}"
+                              Height="{Binding PingResults.Count, Converter={StaticResource RowListHeight}}"
+                              VerticalAlignment="Top">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="#" Binding="{Binding Seq}" Width="50"/>
                             <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="140"/>
@@ -59,7 +69,7 @@
             </TabItem>
 
             <TabItem Header="DNS">
-                <DockPanel Margin="0,10,0,0">
+                <DockPanel Margin="0,10,0,0" LastChildFill="False">
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,4">
@@ -73,8 +83,18 @@
                         </WrapPanel>
                         <TextBlock Text="{Binding DnsStatus}" FontSize="12" Foreground="#6E7681"/>
                     </StackPanel>
+                    <Border Classes="empty-state" IsVisible="{Binding !DnsResults.Count}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="No DNS records yet" Classes="primary-text" FontWeight="SemiBold"/>
+                            <TextBlock Text="Resolve a hostname to the addresses your resolver returns."
+                                       Classes="muted" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
                     <DataGrid ItemsSource="{Binding DnsResults}" IsReadOnly="True"
-                              CanUserSortColumns="False" Margin="0,8,0,0">
+                              CanUserSortColumns="False" Margin="0,8,0,0"
+                              IsVisible="{Binding DnsResults.Count}"
+                              Height="{Binding DnsResults.Count, Converter={StaticResource RowListHeight}}"
+                              VerticalAlignment="Top">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="280"/>
                             <DataGridTextColumn Header="Family" Binding="{Binding Family}" Width="90"/>
@@ -84,7 +104,7 @@
             </TabItem>
 
             <TabItem Header="Traceroute">
-                <DockPanel Margin="0,10,0,0">
+                <DockPanel Margin="0,10,0,0" LastChildFill="False">
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,4">
@@ -100,9 +120,19 @@
                         </WrapPanel>
                         <TextBlock Text="{Binding TraceStatus}" FontSize="12" Foreground="#6E7681"/>
                     </StackPanel>
+                    <Border Classes="empty-state" IsVisible="{Binding !TraceHops.Count}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="No hops yet" Classes="primary-text" FontWeight="SemiBold"/>
+                            <TextBlock Text="Trace the ICMP path to a host. Timeouts show as *."
+                                       Classes="muted" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
                     <DataGrid ItemsSource="{Binding TraceHops}" IsReadOnly="True"
                               CanUserSortColumns="False" CanUserResizeColumns="True"
-                              Margin="0,8,0,0" HorizontalScrollBarVisibility="Auto">
+                              Margin="0,8,0,0" HorizontalScrollBarVisibility="Auto"
+                              IsVisible="{Binding TraceHops.Count}"
+                              Height="{Binding TraceHops.Count, Converter={StaticResource RowListHeight}}"
+                              VerticalAlignment="Top">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Hop" Binding="{Binding Hop}" Width="56" MinWidth="56"/>
                             <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="150"/>
@@ -128,8 +158,66 @@
                 </DockPanel>
             </TabItem>
 
+            <TabItem Header="Ports">
+                <DockPanel Margin="0,10,0,0" LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Host"/>
+                                <TextBox Classes="field" Text="{Binding PortHost}" Width="180"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Port"/>
+                                <NumericUpDown Value="{Binding PortNumber}" Minimum="1" Maximum="65535"
+                                               Width="148"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Preset"/>
+                                <ComboBox Width="140" ItemsSource="{Binding PortPresets}"
+                                          SelectedItem="{Binding SelectedPortPreset}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="0,0,0,4">
+                                <Button Classes="btn-primary" Content="Test Port" Command="{Binding RunPortTestCommand}"
+                                        IsEnabled="{Binding !IsTestingPort}"/>
+                                <Button Classes="btn-secondary" Content="Cancel" Command="{Binding CancelOperationCommand}"
+                                        IsVisible="{Binding IsTestingPort}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding PortStatus}" FontSize="12" Classes="muted"/>
+                    </StackPanel>
+                    <Border Classes="empty-state" IsVisible="{Binding !PortResults.Count}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="No port tests yet" Classes="primary-text" FontWeight="SemiBold"/>
+                            <TextBlock Text="TCP connect to a host and port. Presets fill common services."
+                                       Classes="muted" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    <DataGrid ItemsSource="{Binding PortResults}" IsReadOnly="True"
+                              CanUserSortColumns="False" Margin="0,8,0,0"
+                              IsVisible="{Binding PortResults.Count}"
+                              Height="{Binding PortResults.Count, Converter={StaticResource RowListHeight}}"
+                              VerticalAlignment="Top">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Host" Binding="{Binding Host}" Width="160"/>
+                            <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="80"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"/>
+                            <DataGridTemplateColumn Header="Connect" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:PortResultRow">
+                                        <TextBlock Text="{Binding ConnectTime}" TextAlignment="Right"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"
+                                                   Foreground="{Binding StatusColor}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Detail" Binding="{Binding Detail}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
             <TabItem Header="LAN Scan">
-                <DockPanel Margin="0,10,0,0">
+                <DockPanel Margin="0,10,0,0" LastChildFill="False">
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,4">
@@ -146,9 +234,19 @@
                         </WrapPanel>
                         <TextBlock Text="{Binding ScanStatus}" FontSize="12" Foreground="#6E7681"/>
                     </StackPanel>
+                    <Border Classes="empty-state" IsVisible="{Binding !ScannedDevices.Count}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="No devices yet" Classes="primary-text" FontWeight="SemiBold"/>
+                            <TextBlock Text="Scan the local subnet. Auto-detect uses the active interface and clamps wide prefixes to /24."
+                                       Classes="muted" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
                     <DataGrid ItemsSource="{Binding ScannedDevices}" IsReadOnly="True"
                               CanUserSortColumns="False" CanUserResizeColumns="True"
-                              Margin="0,8,0,0" HorizontalScrollBarVisibility="Auto">
+                              Margin="0,8,0,0" HorizontalScrollBarVisibility="Auto"
+                              IsVisible="{Binding ScannedDevices.Count}"
+                              Height="{Binding ScannedDevices.Count, Converter={StaticResource RowListHeight}, ConverterParameter=520}"
+                              VerticalAlignment="Top">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="IP" Binding="{Binding Ip}" Width="130"/>
                             <DataGridTemplateColumn Header="Hostname" Width="160">

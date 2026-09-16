@@ -8,7 +8,7 @@
              x:Class="NetScope.App.Views.MonitorView"
              x:DataType="vm:MonitorViewModel">
 
-    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,Auto,*,2*">
+    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,Auto,*,Auto">
 
         <DockPanel Grid.Row="0" Margin="0,0,0,12">
             <StackPanel DockPanel.Dock="Left">
@@ -90,7 +90,7 @@
             <sp:AvaPlot x:Name="LatencyChart" MinHeight="110"/>
         </DockPanel>
 
-        <DockPanel Grid.Row="4">
+        <DockPanel Grid.Row="4" LastChildFill="False">
             <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                 <TextBlock Classes="section-label" Text="MEASUREMENTS"/>
                 <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" FontSize="11" Foreground="#6E7681">
@@ -101,13 +101,22 @@
                     </TextBlock.Text>
                 </TextBlock>
             </DockPanel>
-            <TextBlock DockPanel.Dock="Bottom" Text="Start monitoring to collect measurements."
-                       FontSize="12" Foreground="#30363D" Margin="0,8,0,0"
-                       IsVisible="{Binding !Measurements.Count}"/>
-            <DataGrid ItemsSource="{Binding Measurements}"
+            <Border DockPanel.Dock="Top" Classes="empty-state"
+                    IsVisible="{Binding !Measurements.Count}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Waiting for the first cycle" Classes="primary-text" FontWeight="SemiBold"/>
+                    <TextBlock Text="Set the target and interval, then Start Monitoring. This is the only place a session is started."
+                               Classes="muted" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+            <DataGrid DockPanel.Dock="Top"
+                      ItemsSource="{Binding Measurements}"
+                      IsVisible="{Binding Measurements.Count}"
+                      Height="{Binding Measurements.Count, Converter={StaticResource RowListHeight}}"
                       IsReadOnly="True" CanUserResizeColumns="True"
                       CanUserSortColumns="False"
-                      HorizontalScrollBarVisibility="Auto">
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalAlignment="Top">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="92" MinWidth="92"/>
                     <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120" MinWidth="100"/>

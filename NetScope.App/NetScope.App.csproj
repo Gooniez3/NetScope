@@ -5,6 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\netscope.ico</ApplicationIcon>
+    <AssemblyName>NetScope</AssemblyName>
+    <Title>NetScope</Title>
+    <AssemblyTitle>NetScope</AssemblyTitle>
+    <Product>NetScope</Product>
+    <PackageId>NetScope.App</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

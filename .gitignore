@@ -48,3 +48,6 @@ appsettings.Development.json
 *.log
 .netscope/
 
+## Installer output
+installer/output/
+

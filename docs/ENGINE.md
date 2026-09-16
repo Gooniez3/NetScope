@@ -21,6 +21,7 @@ netscope <command> [options]
 | `history [options]` | View saved monitoring sessions and measurements |
 | `stats [options]` | Show aggregate statistics from saved data |
 | `analyze [options]` | Explain saved measurements (rule-based diagnostics) |
+| `port <host> [options]` | Test whether a TCP port accepts a connection |
 | `help` | Show help |
 
 ### Ping Options
@@ -32,6 +33,14 @@ netscope <command> [options]
 | `--timeout`, `-t` | 3000 | 100–30,000 ms | Timeout per probe |
 | `--size`, `-s` | 32 | 0–65,500 bytes | ICMP payload size |
 | `--ttl` | OS default | 1–255 | Time to live (hop limit) |
+
+### Port Options
+
+| Option | Default | Range | Description |
+|---|---|---|---|
+| `--port`, `-p` | 443 | 1–65535 | TCP port to connect |
+| `--preset` | (off) | http, https, ssh, dns, smtp, rdp | Named service port |
+| `--timeout`, `-t` | 3000 | 100–30,000 ms | Connect timeout |
 
 ### Examples
 
@@ -50,6 +59,9 @@ dotnet run --project NetScope.Cli -- ping 8.8.8.8 -c 20 -s 64 --ttl 64
 
 # DNS lookup
 dotnet run --project NetScope.Cli -- dns google.com
+
+# TCP port test
+dotnet run --project NetScope.Cli -- port 1.1.1.1 --port 443
 
 # Traceroute
 dotnet run --project NetScope.Cli -- trace 1.1.1.1
@@ -574,8 +586,8 @@ NetScope.App/
 
 ### UI limitations
 
-- Settings are in-memory only (not persisted to a config file)
-- Theme is dark-only (no light theme toggle)
+- Settings persist to `~/.netscope/settings.json` (monitor defaults, close-to-tray)
+- UI is GitHub Dark only — no light theme
 - No system tray or background monitoring when the window is closed
 
 ---

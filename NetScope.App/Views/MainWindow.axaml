@@ -7,20 +7,25 @@
         x:Class="NetScope.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="NetScope — Network Diagnostics"
+        Icon="/Assets/netscope.ico"
         Width="1100" Height="700"
         MinWidth="980" MinHeight="550"
-        Background="#0D1117">
+        Background="{DynamicResource NsWindowBg}">
 
     <Grid ColumnDefinitions="196,*">
 
-        <Border Grid.Column="0" Background="#010409" BorderBrush="#21262D" BorderThickness="0,0,1,0">
+        <Border Grid.Column="0" Background="{DynamicResource NsSidebarBg}"
+                BorderBrush="{DynamicResource NsBorder}" BorderThickness="0,0,1,0">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Margin="14,16,14,4">
-                    <TextBlock Text="NetScope" FontSize="14" FontWeight="SemiBold" Foreground="#E6EDF3"/>
-                    <TextBlock Text="Network Diagnostics" FontSize="11" Foreground="#6E7681" Margin="0,2,0,0"/>
+                    <TextBlock Text="NetScope" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource NsText}"/>
+                    <TextBlock Text="Network Diagnostics" FontSize="11"
+                               Foreground="{DynamicResource NsTextMuted}" Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <TextBlock DockPanel.Dock="Bottom" Text="v0.9.0" FontSize="10" Foreground="#30363D"
+                <TextBlock DockPanel.Dock="Bottom" Text="v1.0.0" FontSize="10"
+                           Foreground="{DynamicResource NsTextFaint}"
                            Margin="14,8,14,12"/>
 
                 <StackPanel Margin="0,8,0,0">

@@ -2,11 +2,49 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="NetScope.App.App"
              xmlns:local="using:NetScope.App"
+             xmlns:converters="using:NetScope.App.Converters"
              RequestedThemeVariant="Dark">
 
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <converters:RowListHeightConverter x:Key="RowListHeight"/>
+            <SolidColorBrush x:Key="NsWindowBg" Color="#0D1117"/>
+            <SolidColorBrush x:Key="NsSidebarBg" Color="#010409"/>
+            <SolidColorBrush x:Key="NsSurface" Color="#161B22"/>
+            <SolidColorBrush x:Key="NsHover" Color="#161B22"/>
+            <SolidColorBrush x:Key="NsSelected" Color="#1C2128"/>
+            <SolidColorBrush x:Key="NsBorder" Color="#21262D"/>
+            <SolidColorBrush x:Key="NsBorderStrong" Color="#30363D"/>
+            <SolidColorBrush x:Key="NsText" Color="#E6EDF3"/>
+            <SolidColorBrush x:Key="NsTextPrimary" Color="#C9D1D9"/>
+            <SolidColorBrush x:Key="NsTextSecondary" Color="#8B949E"/>
+            <SolidColorBrush x:Key="NsTextMuted" Color="#6E7681"/>
+            <SolidColorBrush x:Key="NsTextFaint" Color="#484F58"/>
+            <SolidColorBrush x:Key="NsAccent" Color="#388BFD"/>
+            <SolidColorBrush x:Key="NsAccentFill" Color="#1F6FEB"/>
+            <SolidColorBrush x:Key="NsInputBg" Color="#010409"/>
+            <SolidColorBrush x:Key="NsDangerHover" Color="#3D1213"/>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/netscope.ico" ToolTipText="NetScope" Clicked="OnTrayClicked">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Show" Click="OnTrayShow"/>
+                        <NativeMenuItem Header="Dashboard" Click="OnTrayDashboard"/>
+                        <NativeMenuItemSeparator/>
+                        <NativeMenuItem Header="Exit" Click="OnTrayExit"/>
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 
     <Application.Styles>
         <FluentTheme />

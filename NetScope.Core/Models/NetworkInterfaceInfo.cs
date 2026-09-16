@@ -26,6 +26,12 @@ public sealed class NetworkInterfaceInfo
     public string? DhcpServer { get; init; }
     public bool IsDhcpEnabled { get; init; }
 
+    /// <summary>IPv4 bytes received, or null when the adapter does not report statistics.</summary>
+    public long? BytesReceived { get; init; }
+
+    /// <summary>IPv4 bytes sent, or null when the adapter does not report statistics.</summary>
+    public long? BytesSent { get; init; }
+
     public bool IsUp => Status == OperationalStatus.Up;
 
     public string SpeedDisplay => SpeedBitsPerSecond switch

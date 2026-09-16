@@ -1,7 +1,7 @@
 namespace NetScope.Core.Networking;
 
 /// <summary>
-/// Shared validation for hostnames and IP literals passed to ping, DNS, traceroute, and monitor.
+/// Shared validation for hostnames and IP literals passed to ping, DNS, traceroute, monitor, and TCP port tests.
 /// </summary>
 public static class HostTarget
 {

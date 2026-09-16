@@ -8,6 +8,15 @@ namespace NetScope.App.ViewModels;
 
 public partial class HistoryViewModel : ViewModelBase
 {
+    public HistoryViewModel()
+    {
+        Sessions.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasSessions));
+        SessionMeasurements.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasMeasurements));
+    }
+
+    public bool HasSessions => Sessions.Count > 0;
+    public bool HasMeasurements => SessionMeasurements.Count > 0;
+
     [ObservableProperty]
     public partial bool IsLoading { get; set; }
 

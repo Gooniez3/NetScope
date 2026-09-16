@@ -20,7 +20,13 @@ public partial class SettingsViewModel : ViewModelBase
     public partial int DefaultTimeout { get; set; } = AppDefaults.TimeoutMs;
 
     [ObservableProperty]
+    public partial bool CloseToTray { get; set; } = AppDefaults.CloseToTray;
+
+    [ObservableProperty]
     public partial string DatabasePath { get; set; } = SqliteMeasurementRepository.GetDefaultDatabasePath();
+
+    [ObservableProperty]
+    public partial string SettingsPath { get; set; } = Services.AppSettingsStore.GetDefaultPath();
 
     [ObservableProperty]
     public partial string StatusText { get; set; } = "";
@@ -48,18 +54,8 @@ public partial class SettingsViewModel : ViewModelBase
         AppDefaults.IntervalSeconds = DefaultInterval;
         AppDefaults.ProbesPerCycle = DefaultProbes;
         AppDefaults.TimeoutMs = DefaultTimeout;
-        StatusText = "Defaults saved. New monitoring sessions will use these values.";
+        AppDefaults.CloseToTray = CloseToTray;
+        AppDefaults.Save();
+        StatusText = "Saved to disk. New monitoring sessions will use these values.";
     }
-}
-
-/// <summary>
-/// Simple in-memory defaults shared across ViewModels.
-/// Not persisted to disk — resets on app restart.
-/// </summary>
-public static class AppDefaults
-{
-    public static string Target { get; set; } = "1.1.1.1";
-    public static int IntervalSeconds { get; set; } = 5;
-    public static int ProbesPerCycle { get; set; } = 4;
-    public static int TimeoutMs { get; set; } = 3000;
 }

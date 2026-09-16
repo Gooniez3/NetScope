@@ -21,10 +21,17 @@ dotnet publish $app `
 
 Get-ChildItem $Output -Filter "*.pdb" -ErrorAction SilentlyContinue | Remove-Item -Force
 
-$appExe = Join-Path $Output "NetScope.App.exe"
+$legacy = Join-Path $Output "NetScope.App.exe"
 $named = Join-Path $Output "NetScope.exe"
-if (Test-Path $appExe) {
-    Move-Item $appExe $named -Force
+if ((Test-Path $legacy) -and -not (Test-Path $named)) {
+    Move-Item $legacy $named -Force
+}
+elseif (Test-Path $legacy) {
+    Remove-Item $legacy -Force -ErrorAction SilentlyContinue
+}
+
+if (-not (Test-Path $named)) {
+    throw "Publish did not produce NetScope.exe"
 }
 
 Write-Host "Published: $named"

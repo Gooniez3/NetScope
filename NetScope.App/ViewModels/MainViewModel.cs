@@ -26,8 +26,8 @@ public partial class MainViewModel : ViewModelBase
     public bool IsAnalysisActive => SelectedNav == "Analysis";
     public bool IsSettingsActive => SelectedNav == "Settings";
 
-    public DashboardViewModel Dashboard { get; } = new();
-    public MonitorViewModel Monitor { get; } = new();
+    public DashboardViewModel Dashboard { get; }
+    public MonitorViewModel Monitor { get; }
     public HistoryViewModel History { get; } = new();
     public DiagnosticsViewModel Diagnostics { get; } = new();
     public AnalysisViewModel Analysis { get; }
@@ -35,6 +35,8 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
+        Monitor = new MonitorViewModel();
+        Dashboard = new DashboardViewModel(Monitor, () => Navigate("Monitor"));
         Analysis = new AnalysisViewModel(target =>
         {
             Diagnostics.PrepareTarget(target);
@@ -53,7 +55,7 @@ public partial class MainViewModel : ViewModelBase
             "Monitor" => Monitor,
             "History" => History,
             "Diagnostics" => OpenDiagnostics(0),
-            "LanDiscovery" => OpenDiagnostics(3),
+            "LanDiscovery" => OpenDiagnostics(4),
             "Analysis" => Analysis,
             "Settings" => Settings,
             _ => Dashboard

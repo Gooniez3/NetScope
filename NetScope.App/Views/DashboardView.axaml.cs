@@ -18,9 +18,11 @@ public partial class DashboardView : UserControl
 
         if (DataContext is DashboardViewModel vm)
         {
-            vm.ChartUpdated += OnChartUpdated;
+            vm.Monitor.ChartUpdated += OnChartUpdated;
+            vm.Monitor.ChartCleared += OnChartCleared;
+            vm.StartThroughput();
             await vm.LoadCommand.ExecuteAsync(null);
-            LatencyPlotHelper.Render(LatencyChart, vm.ChartTimestamps, vm.ChartLatencies);
+            LatencyPlotHelper.Render(LatencyChart, vm.Monitor.ChartTimestamps, vm.Monitor.ChartLatencies);
         }
     }
 
@@ -28,9 +30,9 @@ public partial class DashboardView : UserControl
     {
         if (DataContext is DashboardViewModel vm)
         {
-            vm.ChartUpdated -= OnChartUpdated;
-            if (vm.IsMonitoring)
-                vm.StopMonitorCommand.Execute(null);
+            vm.Monitor.ChartUpdated -= OnChartUpdated;
+            vm.Monitor.ChartCleared -= OnChartCleared;
+            vm.StopThroughput();
         }
         base.OnDetachedFromVisualTree(e);
     }
@@ -40,7 +42,12 @@ public partial class DashboardView : UserControl
         Dispatcher.UIThread.Post(() =>
         {
             if (DataContext is DashboardViewModel vm)
-                LatencyPlotHelper.Render(LatencyChart, vm.ChartTimestamps, vm.ChartLatencies);
+                LatencyPlotHelper.Render(LatencyChart, vm.Monitor.ChartTimestamps, vm.Monitor.ChartLatencies);
         });
+    }
+
+    private void OnChartCleared()
+    {
+        Dispatcher.UIThread.Post(() => LatencyPlotHelper.Clear(LatencyChart));
     }
 }

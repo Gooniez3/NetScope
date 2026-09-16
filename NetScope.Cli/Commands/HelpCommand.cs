@@ -26,6 +26,7 @@ internal static class HelpCommand
         Console.WriteLine("  history [options]            View saved monitoring sessions and measurements");
         Console.WriteLine("  stats [options]              Show aggregate statistics from saved data");
         Console.WriteLine("  analyze [options]            Explain saved measurements (rule-based diagnostics)");
+        Console.WriteLine("  port <host> [options]        Test whether a TCP port accepts connections");
         Console.WriteLine("  help                         Show this help message");
         Console.WriteLine();
         Console.WriteLine("Ping options:");
@@ -88,6 +89,11 @@ internal static class HelpCommand
         Console.WriteLine("  --session, -s <id>           Analyze a specific session");
         Console.WriteLine("  --hours, -h <n>              Time range in hours (default 24)");
         Console.WriteLine();
+        Console.WriteLine("Port options:");
+        Console.WriteLine("  --port, -p <n>               TCP port (1–65535, default 443)");
+        Console.WriteLine("  --preset <name>              http, https, ssh, dns, smtp, rdp");
+        Console.WriteLine("  --timeout, -t <ms>           Timeout (100–30000, default 3000)");
+        Console.WriteLine();
         Console.WriteLine("History/Stats examples:");
         Console.WriteLine("  netscope history                           List recent sessions");
         Console.WriteLine("  netscope history --session 1               View session #1 measurements");
@@ -98,6 +104,8 @@ internal static class HelpCommand
         Console.WriteLine("  netscope stats --hours 48                  Stats for last 48 hours");
         Console.WriteLine("  netscope analyze --session 1               Explain session #1");
         Console.WriteLine("  netscope analyze --hours 6                 Explain last 6 hours");
+        Console.WriteLine("  netscope port 1.1.1.1 --port 443");
+        Console.WriteLine("  netscope port google.com --preset https");
 
         return Task.FromResult(error is null ? 0 : 1);
     }

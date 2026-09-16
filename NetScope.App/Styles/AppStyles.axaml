@@ -1,17 +1,16 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Sidebar navigation: text rows, not pills -->
     <Style Selector="TextBlock.nav-section">
         <Setter Property="FontSize" Value="10"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="#484F58"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextFaint}"/>
         <Setter Property="Margin" Value="14,14,12,4"/>
     </Style>
 
     <Style Selector="Button.nav-btn">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#8B949E"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextSecondary}"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="Padding" Value="12,6"/>
@@ -22,45 +21,44 @@
         <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
     <Style Selector="Button.nav-btn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#161B22"/>
-        <Setter Property="Foreground" Value="#C9D1D9"/>
+        <Setter Property="Background" Value="{DynamicResource NsHover}"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextPrimary}"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
     <Style Selector="Button.nav-active">
-        <Setter Property="Background" Value="#161B22"/>
-        <Setter Property="Foreground" Value="#E6EDF3"/>
-        <Setter Property="BorderBrush" Value="#388BFD"/>
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsAccent}"/>
     </Style>
     <Style Selector="Button.nav-active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#161B22"/>
-        <Setter Property="Foreground" Value="#E6EDF3"/>
-        <Setter Property="BorderBrush" Value="#388BFD"/>
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsAccent}"/>
     </Style>
 
-    <!-- Typography -->
     <Style Selector="TextBlock.page-title">
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
     </Style>
     <Style Selector="TextBlock.page-subtitle">
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Foreground" Value="#6E7681"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextMuted}"/>
         <Setter Property="Margin" Value="0,2,0,0"/>
     </Style>
     <Style Selector="TextBlock.section-label">
         <Setter Property="FontSize" Value="10"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="#6E7681"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextMuted}"/>
     </Style>
     <Style Selector="TextBlock.metric-caption">
         <Setter Property="FontSize" Value="11"/>
-        <Setter Property="Foreground" Value="#8B949E"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextSecondary}"/>
     </Style>
     <Style Selector="TextBlock.metric-value">
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
     </Style>
     <Style Selector="TextBlock.health-value">
         <Setter Property="FontSize" Value="22"/>
@@ -68,23 +66,29 @@
     </Style>
     <Style Selector="TextBlock.field-label">
         <Setter Property="FontSize" Value="11"/>
-        <Setter Property="Foreground" Value="#8B949E"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextSecondary}"/>
         <Setter Property="Margin" Value="0,0,0,4"/>
     </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource NsTextMuted}"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="TextBlock.primary-text">
+        <Setter Property="Foreground" Value="{DynamicResource NsTextPrimary}"/>
+    </Style>
 
-    <!-- Buttons: restrained accent, not web-green -->
     <Style Selector="Button.btn-primary">
-        <Setter Property="Background" Value="#1F6FEB"/>
+        <Setter Property="Background" Value="{DynamicResource NsAccentFill}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="14,6"/>
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="#388BFD"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsAccent}"/>
     </Style>
     <Style Selector="Button.btn-primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#388BFD"/>
+        <Setter Property="Background" Value="{DynamicResource NsAccent}"/>
     </Style>
     <Style Selector="Button.btn-primary:disabled /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Opacity" Value="0.45"/>
@@ -101,51 +105,50 @@
         <Setter Property="BorderBrush" Value="#F85149"/>
     </Style>
     <Style Selector="Button.btn-danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#3D1213"/>
+        <Setter Property="Background" Value="{DynamicResource NsDangerHover}"/>
         <Setter Property="Foreground" Value="#FF7B72"/>
     </Style>
 
     <Style Selector="Button.btn-secondary">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#C9D1D9"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextPrimary}"/>
         <Setter Property="Padding" Value="12,6"/>
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="#30363D"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorderStrong}"/>
     </Style>
     <Style Selector="Button.btn-secondary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#161B22"/>
+        <Setter Property="Background" Value="{DynamicResource NsHover}"/>
     </Style>
 
-    <!-- DataGrid -->
     <Style Selector="DataGrid">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-        <Setter Property="HorizontalGridLinesBrush" Value="#21262D"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource NsBorder}"/>
         <Setter Property="RowBackground" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#C9D1D9"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextPrimary}"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="RowHeight" Value="28"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
     </Style>
     <Style Selector="DataGridColumnHeader">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#6E7681"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextMuted}"/>
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Padding" Value="6,5"/>
         <Setter Property="SeparatorBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="BorderBrush" Value="#21262D"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorder}"/>
         <Setter Property="MinHeight" Value="28"/>
     </Style>
     <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
-        <Setter Property="Fill" Value="#161B22"/>
+        <Setter Property="Fill" Value="{DynamicResource NsHover}"/>
     </Style>
     <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
-        <Setter Property="Fill" Value="#1C2128"/>
+        <Setter Property="Fill" Value="{DynamicResource NsSelected}"/>
     </Style>
     <Style Selector="DataGridCell">
         <Setter Property="Padding" Value="8,3"/>
@@ -153,24 +156,23 @@
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
-    <!-- Inputs -->
     <Style Selector="TextBox.field">
-        <Setter Property="Background" Value="#010409"/>
-        <Setter Property="BorderBrush" Value="#30363D"/>
+        <Setter Property="Background" Value="{DynamicResource NsInputBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorderStrong}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="Padding" Value="8,5"/>
-        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
         <Setter Property="FontSize" Value="13"/>
     </Style>
     <Style Selector="TextBox.field:focus">
-        <Setter Property="BorderBrush" Value="#388BFD"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsAccent}"/>
     </Style>
 
     <Style Selector="NumericUpDown">
-        <Setter Property="Background" Value="#010409"/>
-        <Setter Property="Foreground" Value="#E6EDF3"/>
-        <Setter Property="BorderBrush" Value="#30363D"/>
+        <Setter Property="Background" Value="{DynamicResource NsInputBg}"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorderStrong}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="Padding" Value="8,4"/>
@@ -181,13 +183,13 @@
         <Setter Property="FormatString" Value="0"/>
     </Style>
     <Style Selector="NumericUpDown:focus">
-        <Setter Property="BorderBrush" Value="#388BFD"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsAccent}"/>
     </Style>
 
     <Style Selector="ComboBox">
-        <Setter Property="Background" Value="#010409"/>
-        <Setter Property="Foreground" Value="#E6EDF3"/>
-        <Setter Property="BorderBrush" Value="#30363D"/>
+        <Setter Property="Background" Value="{DynamicResource NsInputBg}"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorderStrong}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="FontSize" Value="13"/>
@@ -195,17 +197,17 @@
         <Setter Property="Padding" Value="8,4"/>
     </Style>
     <Style Selector="ComboBox:pointerover">
-        <Setter Property="BorderBrush" Value="#388BFD"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsAccent}"/>
     </Style>
     <Style Selector="NumericUpDown /template/ TextBox#PART_TextBox">
-        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Padding" Value="8,4"/>
     </Style>
 
     <Style Selector="TabItem">
         <Setter Property="FontSize" Value="13"/>
-        <Setter Property="Foreground" Value="#8B949E"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsTextSecondary}"/>
         <Setter Property="Padding" Value="10,6"/>
         <Setter Property="Margin" Value="0,0,2,0"/>
     </Style>
@@ -226,19 +228,44 @@
         <Setter Property="CornerRadius" Value="0"/>
     </Style>
     <Style Selector="ListBox.session-list ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#161B22"/>
+        <Setter Property="Background" Value="{DynamicResource NsHover}"/>
     </Style>
     <Style Selector="ListBox.session-list ListBoxItem:selected">
-        <Setter Property="Background" Value="#161B22"/>
-        <Setter Property="BorderBrush" Value="#388BFD"/>
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsAccent}"/>
     </Style>
     <Style Selector="ListBox.session-list ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#161B22"/>
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
     </Style>
 
     <Style Selector="TabItem:selected">
-        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="Foreground" Value="{DynamicResource NsText}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource NsTextPrimary}"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Border.empty-state">
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="16,14"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="MaxWidth" Value="520"/>
+        <Setter Property="Margin" Value="0,8,0,0"/>
+    </Style>
+
+    <Style Selector="Border.settings-card">
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="16,14"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
     </Style>
 
 </Styles>
