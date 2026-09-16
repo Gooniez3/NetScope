@@ -21,19 +21,19 @@ public partial class DashboardViewModel : ViewModelBase
     public partial string ConnectionStatus { get; set; } = "Checking…";
 
     [ObservableProperty]
-    public partial string LatencyDisplay { get; set; } = "— ms";
+    public partial string LatencyDisplay { get; set; } = "—";
 
     [ObservableProperty]
-    public partial string PacketLossDisplay { get; set; } = "— %";
+    public partial string PacketLossDisplay { get; set; } = "—";
 
     [ObservableProperty]
-    public partial string JitterDisplay { get; set; } = "— ms";
+    public partial string JitterDisplay { get; set; } = "—";
 
     [ObservableProperty]
     public partial string HealthStatus { get; set; } = "Unknown";
 
     [ObservableProperty]
-    public partial string HealthColor { get; set; } = "#888888";
+    public partial string HealthColor { get; set; } = "#484F58";
 
     [ObservableProperty]
     public partial string MonitorTarget { get; set; } = "1.1.1.1";
@@ -45,6 +45,12 @@ public partial class DashboardViewModel : ViewModelBase
     public partial bool IsLoading { get; set; } = true;
 
     public ObservableCollection<MeasurementRow> RecentMeasurements { get; } = [];
+
+    private readonly List<double> _chartTimestamps = [];
+    private readonly List<double> _chartLatencies = [];
+    public IReadOnlyList<double> ChartTimestamps => _chartTimestamps;
+    public IReadOnlyList<double> ChartLatencies => _chartLatencies;
+    public event Action? ChartUpdated;
 
     private CancellationTokenSource? _cts;
 
@@ -76,7 +82,7 @@ public partial class DashboardViewModel : ViewModelBase
         }
         catch
         {
-            ConnectionStatus = "Error detecting network";
+            ConnectionStatus = "Error";
         }
         finally
         {
@@ -121,23 +127,32 @@ public partial class DashboardViewModel : ViewModelBase
 
     private void UpdateFromMeasurement(NetworkMeasurement m)
     {
-        LatencyDisplay = m.AvgLatencyMs.HasValue ? $"{m.AvgLatencyMs.Value:F1} ms" : "— ms";
-        PacketLossDisplay = $"{m.PacketLossPercent:F0} %";
-        JitterDisplay = m.JitterMs.HasValue ? $"{m.JitterMs.Value:F1} ms" : "— ms";
+        LatencyDisplay = m.AvgLatencyMs.HasValue ? $"{m.AvgLatencyMs.Value:F1} ms" : "—";
+        PacketLossDisplay = $"{m.PacketLossPercent:F0}%";
+        JitterDisplay = m.JitterMs.HasValue ? $"{m.JitterMs.Value:F1} ms" : "—";
         HealthStatus = m.HealthStatus.ToString();
         HealthColor = m.HealthStatus switch
         {
-            NetworkHealthStatus.Healthy => "#4CAF50",
-            NetworkHealthStatus.Degraded => "#FF9800",
-            NetworkHealthStatus.Unstable => "#F44336",
-            NetworkHealthStatus.Disconnected => "#B71C1C",
-            _ => "#888888"
+            NetworkHealthStatus.Healthy => "#3FB950",
+            NetworkHealthStatus.Degraded => "#D29922",
+            NetworkHealthStatus.Unstable => "#F85149",
+            NetworkHealthStatus.Disconnected => "#F85149",
+            _ => "#484F58"
         };
         ConnectionStatus = m.IsConnected ? "Connected" : "Disconnected";
 
         RecentMeasurements.Insert(0, new MeasurementRow(m));
-        while (RecentMeasurements.Count > 20)
+        while (RecentMeasurements.Count > 50)
             RecentMeasurements.RemoveAt(RecentMeasurements.Count - 1);
+
+        _chartTimestamps.Add(m.Timestamp.LocalDateTime.ToOADate());
+        _chartLatencies.Add(m.AvgLatencyMs ?? 0);
+        while (_chartTimestamps.Count > 120)
+        {
+            _chartTimestamps.RemoveAt(0);
+            _chartLatencies.RemoveAt(0);
+        }
+        ChartUpdated?.Invoke();
     }
 }
 
@@ -149,7 +164,6 @@ public class MeasurementRow
     public string Loss { get; }
     public string Jitter { get; }
     public string Status { get; }
-    public string StatusColor { get; }
 
     public MeasurementRow(NetworkMeasurement m)
     {
@@ -159,13 +173,5 @@ public class MeasurementRow
         Loss = $"{m.PacketLossPercent:F0}%";
         Jitter = m.JitterMs.HasValue ? $"{m.JitterMs.Value:F1} ms" : "—";
         Status = m.HealthStatus.ToString();
-        StatusColor = m.HealthStatus switch
-        {
-            NetworkHealthStatus.Healthy => "#4CAF50",
-            NetworkHealthStatus.Degraded => "#FF9800",
-            NetworkHealthStatus.Unstable => "#F44336",
-            NetworkHealthStatus.Disconnected => "#B71C1C",
-            _ => "#888888"
-        };
     }
 }

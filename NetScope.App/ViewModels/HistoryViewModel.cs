@@ -150,7 +150,7 @@ public class SessionRow
         Target = s.Target;
         Cycles = s.MeasurementCount;
         Status = s.CompletedNormally ? "Complete" : s.EndedAt.HasValue ? "Cancelled" : "Running";
-        StatusColor = s.CompletedNormally ? "#4CAF50" : s.EndedAt.HasValue ? "#FF9800" : "#2196F3";
+        StatusColor = s.CompletedNormally ? "#3FB950" : s.EndedAt.HasValue ? "#D29922" : "#58A6FF";
         Config = $"{s.IntervalSeconds}s / {s.ProbesPerMeasurement} probes";
     }
 }

@@ -3,44 +3,41 @@
         xmlns:vm="using:NetScope.App.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
         x:Class="NetScope.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="NetScope — Network Diagnostics"
-        Width="1100" Height="720"
+        Width="1100" Height="700"
         MinWidth="900" MinHeight="550"
-        Background="#0B0E14">
+        Background="#0D1117">
 
-    <Grid ColumnDefinitions="200,*">
+    <Grid ColumnDefinitions="180,*">
 
-        <Border Grid.Column="0" Background="#0D1117" BorderBrush="#151B26" BorderThickness="0,0,1,0">
+        <Border Grid.Column="0" Background="#010409" BorderBrush="#21262D" BorderThickness="0,0,1,0">
             <DockPanel>
-
-                <StackPanel DockPanel.Dock="Top" Margin="20,24,20,0">
-                    <TextBlock Text="NetScope" FontSize="17" FontWeight="Bold" Foreground="#E2E8F0"/>
-                    <TextBlock Text="Network Diagnostics" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>
+                <StackPanel DockPanel.Dock="Top" Margin="16,16,16,12">
+                    <TextBlock Text="NetScope" FontSize="15" FontWeight="SemiBold" Foreground="#C9D1D9"/>
+                    <TextBlock Text="Network Diagnostics" FontSize="10" Foreground="#484F58" Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <Border DockPanel.Dock="Top" Height="1" Background="#151B26" Margin="20,20,20,8"/>
+                <Border DockPanel.Dock="Top" Height="1" Background="#21262D" Margin="12,0,12,8"/>
 
-                <StackPanel DockPanel.Dock="Bottom" Margin="20,0,20,16">
-                    <Border Height="1" Background="#151B26" Margin="0,0,0,12"/>
-                    <TextBlock Text="v0.7.0" FontSize="10" Foreground="#334155"/>
-                </StackPanel>
+                <TextBlock DockPanel.Dock="Bottom" Text="v0.7.1" FontSize="10" Foreground="#30363D"
+                           Margin="16,8,16,12"/>
 
-                <StackPanel Margin="0,4,0,0">
+                <StackPanel Margin="4,0">
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsDashboardActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Dashboard"
                             Content="Dashboard"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsMonitorActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Monitor"
                             Content="Monitor"/>
-                    <Button Classes="nav-btn" Classes.nav-active="{Binding IsHistoryActive}"
-                            Command="{Binding NavigateCommand}" CommandParameter="History"
-                            Content="History"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsDiagnosticsActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"
                             Content="Diagnostics"/>
+                    <Button Classes="nav-btn" Classes.nav-active="{Binding IsHistoryActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="History"
+                            Content="History"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsSettingsActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Settings"
                             Content="Settings"/>
@@ -48,6 +45,6 @@
             </DockPanel>
         </Border>
 
-        <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" Margin="0"/>
+        <ContentControl Grid.Column="1" Content="{Binding CurrentPage}"/>
     </Grid>
 </Window>

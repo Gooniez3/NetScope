@@ -254,7 +254,7 @@ public class PingResultRow
         Seq = r.SequenceNumber;
         Status = r.Success ? "Reply" : r.Status;
         Rtt = r.RoundTripTimeMs.HasValue ? $"{r.RoundTripTimeMs.Value:F1} ms" : "—";
-        StatusColor = r.Success ? "#4CAF50" : "#F44336";
+        StatusColor = r.Success ? "#3FB950" : "#F85149";
     }
 }
 
@@ -284,7 +284,7 @@ public class TraceHopRow
         Address = h.Address ?? "*";
         Hostname = h.Hostname ?? "";
         Rtt = h.Responded && h.RoundTripTimeMs.HasValue ? $"{h.RoundTripTimeMs.Value:F1} ms" : "*";
-        StatusColor = h.Responded ? "#4CAF50" : "#888888";
+        StatusColor = h.Responded ? "#3FB950" : "#484F58";
     }
 }
 

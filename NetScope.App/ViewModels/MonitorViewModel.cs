@@ -27,13 +27,13 @@ public partial class MonitorViewModel : ViewModelBase
     public partial bool IsMonitoring { get; set; }
 
     [ObservableProperty]
-    public partial string StatusText { get; set; } = "Ready";
+    public partial string StatusText { get; set; } = "Idle";
 
     [ObservableProperty]
     public partial string HealthStatus { get; set; } = "—";
 
     [ObservableProperty]
-    public partial string HealthColor { get; set; } = "#888888";
+    public partial string HealthColor { get; set; } = "#484F58";
 
     [ObservableProperty]
     public partial string LatencyDisplay { get; set; } = "—";
@@ -48,7 +48,13 @@ public partial class MonitorViewModel : ViewModelBase
     public partial int CycleCount { get; set; }
 
     public ObservableCollection<MeasurementRow> Measurements { get; } = [];
-    public ObservableCollection<LatencyPoint> LatencyHistory { get; } = [];
+
+    private readonly List<double> _chartTimestamps = [];
+    private readonly List<double> _chartLatencies = [];
+    public IReadOnlyList<double> ChartTimestamps => _chartTimestamps;
+    public IReadOnlyList<double> ChartLatencies => _chartLatencies;
+    public event Action? ChartUpdated;
+    public event Action? ChartCleared;
 
     private CancellationTokenSource? _cts;
     private long _sessionId;
@@ -61,7 +67,9 @@ public partial class MonitorViewModel : ViewModelBase
         IsMonitoring = true;
         CycleCount = 0;
         Measurements.Clear();
-        LatencyHistory.Clear();
+        _chartTimestamps.Clear();
+        _chartLatencies.Clear();
+        ChartCleared?.Invoke();
         StatusText = "Monitoring…";
         _cts = new CancellationTokenSource();
 
@@ -141,11 +149,11 @@ public partial class MonitorViewModel : ViewModelBase
         HealthStatus = m.HealthStatus.ToString();
         HealthColor = m.HealthStatus switch
         {
-            NetworkHealthStatus.Healthy => "#4CAF50",
-            NetworkHealthStatus.Degraded => "#FF9800",
-            NetworkHealthStatus.Unstable => "#F44336",
-            NetworkHealthStatus.Disconnected => "#B71C1C",
-            _ => "#888888"
+            NetworkHealthStatus.Healthy => "#3FB950",
+            NetworkHealthStatus.Degraded => "#D29922",
+            NetworkHealthStatus.Unstable => "#F85149",
+            NetworkHealthStatus.Disconnected => "#F85149",
+            _ => "#484F58"
         };
         LatencyDisplay = m.AvgLatencyMs.HasValue ? $"{m.AvgLatencyMs.Value:F1} ms" : "—";
         LossDisplay = $"{m.PacketLossPercent:F0}%";
@@ -155,34 +163,13 @@ public partial class MonitorViewModel : ViewModelBase
         while (Measurements.Count > 100)
             Measurements.RemoveAt(Measurements.Count - 1);
 
-        LatencyHistory.Add(new LatencyPoint(m));
-        while (LatencyHistory.Count > 60)
-            LatencyHistory.RemoveAt(0);
-    }
-}
-
-public class LatencyPoint
-{
-    public string Time { get; }
-    public double Latency { get; }
-    public double Loss { get; }
-    public double Jitter { get; }
-    public double BarWidth { get; }
-    public string BarColor { get; }
-
-    public LatencyPoint(NetworkMeasurement m)
-    {
-        Time = m.Timestamp.ToLocalTime().ToString("HH:mm:ss");
-        Latency = m.AvgLatencyMs ?? 0;
-        Loss = m.PacketLossPercent;
-        Jitter = m.JitterMs ?? 0;
-        BarWidth = Math.Min(Math.Max(Latency * 4, 4), 400);
-        BarColor = Latency switch
+        _chartTimestamps.Add(m.Timestamp.LocalDateTime.ToOADate());
+        _chartLatencies.Add(m.AvgLatencyMs ?? 0);
+        while (_chartTimestamps.Count > 120)
         {
-            <= 20 => "#10B981",
-            <= 50 => "#F59E0B",
-            <= 100 => "#F97316",
-            _ => "#EF4444"
-        };
+            _chartTimestamps.RemoveAt(0);
+            _chartLatencies.RemoveAt(0);
+        }
+        ChartUpdated?.Invoke();
     }
 }
