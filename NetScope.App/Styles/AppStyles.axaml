@@ -1,72 +1,121 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Navigation -->
+    <!-- Sidebar navigation: text rows, not pills -->
+    <Style Selector="TextBlock.nav-section">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="#484F58"/>
+        <Setter Property="Margin" Value="14,14,12,4"/>
+    </Style>
+
     <Style Selector="Button.nav-btn">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="#8B949E"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="CornerRadius" Value="0"/>
         <Setter Property="FontSize" Value="13"/>
-        <Setter Property="Margin" Value="4,1"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="BorderThickness" Value="2,0,0,0"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
     <Style Selector="Button.nav-btn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#1C2128"/>
+        <Setter Property="Background" Value="#161B22"/>
         <Setter Property="Foreground" Value="#C9D1D9"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
     <Style Selector="Button.nav-active">
-        <Setter Property="Background" Value="#1C2128"/>
-        <Setter Property="Foreground" Value="#C9D1D9"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Background" Value="#161B22"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="BorderBrush" Value="#388BFD"/>
     </Style>
     <Style Selector="Button.nav-active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#1C2128"/>
-        <Setter Property="Foreground" Value="#C9D1D9"/>
+        <Setter Property="Background" Value="#161B22"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="BorderBrush" Value="#388BFD"/>
     </Style>
 
-    <!-- Buttons -->
+    <!-- Typography -->
+    <Style Selector="TextBlock.page-title">
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
+    </Style>
+    <Style Selector="TextBlock.page-subtitle">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="#6E7681"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+    </Style>
+    <Style Selector="TextBlock.section-label">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="#6E7681"/>
+    </Style>
+    <Style Selector="TextBlock.metric-caption">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="#8B949E"/>
+    </Style>
+    <Style Selector="TextBlock.metric-value">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
+    </Style>
+    <Style Selector="TextBlock.health-value">
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="TextBlock.field-label">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="#8B949E"/>
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <!-- Buttons: restrained accent, not web-green -->
     <Style Selector="Button.btn-primary">
-        <Setter Property="Background" Value="#238636"/>
+        <Setter Property="Background" Value="#1F6FEB"/>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Padding" Value="14,7"/>
-        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="14,6"/>
+        <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="#2EA043"/>
+        <Setter Property="BorderBrush" Value="#388BFD"/>
     </Style>
     <Style Selector="Button.btn-primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#2EA043"/>
+        <Setter Property="Background" Value="#388BFD"/>
+    </Style>
+    <Style Selector="Button.btn-primary:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Opacity" Value="0.45"/>
     </Style>
 
     <Style Selector="Button.btn-danger">
-        <Setter Property="Background" Value="#DA3633"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Padding" Value="14,7"/>
-        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#F85149"/>
+        <Setter Property="Padding" Value="14,6"/>
+        <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="#F85149"/>
     </Style>
     <Style Selector="Button.btn-danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#B62324"/>
+        <Setter Property="Background" Value="#3D1213"/>
+        <Setter Property="Foreground" Value="#FF7B72"/>
     </Style>
 
     <Style Selector="Button.btn-secondary">
-        <Setter Property="Background" Value="#21262D"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="#C9D1D9"/>
-        <Setter Property="Padding" Value="14,7"/>
-        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="#30363D"/>
     </Style>
     <Style Selector="Button.btn-secondary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#30363D"/>
+        <Setter Property="Background" Value="#161B22"/>
     </Style>
 
     <!-- DataGrid -->
@@ -78,51 +127,75 @@
         <Setter Property="RowBackground" Value="Transparent"/>
         <Setter Property="Foreground" Value="#C9D1D9"/>
         <Setter Property="FontSize" Value="12"/>
+        <Setter Property="RowHeight" Value="28"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
     </Style>
     <Style Selector="DataGridColumnHeader">
-        <Setter Property="Background" Value="#161B22"/>
-        <Setter Property="Foreground" Value="#484F58"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#6E7681"/>
         <Setter Property="FontSize" Value="11"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Padding" Value="8,6"/>
-        <Setter Property="SeparatorBrush" Value="#21262D"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="SeparatorBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="BorderBrush" Value="#21262D"/>
     </Style>
     <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
-        <Setter Property="Fill" Value="#1C2128"/>
+        <Setter Property="Fill" Value="#161B22"/>
     </Style>
     <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
-        <Setter Property="Fill" Value="#1F2A3A"/>
+        <Setter Property="Fill" Value="#1C2128"/>
     </Style>
     <Style Selector="DataGridCell">
-        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="Padding" Value="8,3"/>
         <Setter Property="FontSize" Value="12"/>
+        <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <!-- Inputs -->
     <Style Selector="TextBox.field">
-        <Setter Property="Background" Value="#0D1117"/>
+        <Setter Property="Background" Value="#010409"/>
         <Setter Property="BorderBrush" Value="#30363D"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="Padding" Value="8,5"/>
-        <Setter Property="Foreground" Value="#C9D1D9"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
         <Setter Property="FontSize" Value="13"/>
     </Style>
     <Style Selector="TextBox.field:focus">
-        <Setter Property="BorderBrush" Value="#58A6FF"/>
+        <Setter Property="BorderBrush" Value="#388BFD"/>
     </Style>
 
-    <!-- Tabs -->
+    <Style Selector="NumericUpDown">
+        <Setter Property="Background" Value="#010409"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="BorderBrush" Value="#30363D"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="MinWidth" Value="140"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="FormatString" Value="0"/>
+    </Style>
+    <Style Selector="NumericUpDown:focus">
+        <Setter Property="BorderBrush" Value="#388BFD"/>
+    </Style>
+    <Style Selector="NumericUpDown /template/ TextBox#PART_TextBox">
+        <Setter Property="Foreground" Value="#E6EDF3"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="8,4"/>
+    </Style>
+
     <Style Selector="TabItem">
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="Foreground" Value="#8B949E"/>
-        <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="Margin" Value="0,0,4,0"/>
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="Margin" Value="0,0,2,0"/>
     </Style>
     <Style Selector="TabItem:selected">
-        <Setter Property="Foreground" Value="#C9D1D9"/>
+        <Setter Property="Foreground" Value="#E6EDF3"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 

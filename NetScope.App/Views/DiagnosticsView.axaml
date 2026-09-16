@@ -7,126 +7,155 @@
              x:Class="NetScope.App.Views.DiagnosticsView"
              x:DataType="vm:DiagnosticsViewModel">
 
-    <DockPanel Margin="20,16,20,12">
-        <TextBlock DockPanel.Dock="Top" Text="Diagnostics" FontSize="16" FontWeight="SemiBold"
-                   Foreground="#C9D1D9" Margin="0,0,0,14"/>
+    <DockPanel Margin="24,18,24,14">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <TextBlock Classes="page-title" Text="Diagnostics"/>
+            <TextBlock Classes="page-subtitle" Text="Run ping, DNS, traceroute, and LAN discovery against live hosts."/>
+        </StackPanel>
 
-        <TabControl>
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}">
 
-            <!-- Ping -->
             <TabItem Header="Ping">
-                <StackPanel Spacing="10" Margin="0,10,0,0">
-                    <WrapPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,4">
-                            <TextBlock Text="Target" VerticalAlignment="Center" Foreground="#8B949E" FontSize="12"/>
-                            <TextBox Classes="field" Text="{Binding PingTarget}" Width="180"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,4">
-                            <TextBlock Text="Count" VerticalAlignment="Center" Foreground="#8B949E" FontSize="12"/>
-                            <NumericUpDown Value="{Binding PingCount}" Minimum="1" Maximum="100"
-                                           Width="90" FontSize="12"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom" Margin="0,0,0,4">
-                            <Button Classes="btn-primary" Content="Run Ping" Command="{Binding RunPingCommand}"
-                                    IsEnabled="{Binding !IsPinging}"/>
-                            <Button Classes="btn-secondary" Content="Cancel" Command="{Binding CancelOperationCommand}"
-                                    IsVisible="{Binding IsPinging}"/>
-                        </StackPanel>
-                    </WrapPanel>
-                    <TextBlock Text="{Binding PingStatus}" FontSize="12" Foreground="#484F58"/>
-                    <TextBlock Text="{Binding PingSummary}" FontSize="12" Foreground="#8B949E" FontWeight="SemiBold"
-                               IsVisible="{Binding PingSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                <DockPanel Margin="0,10,0,0">
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Target"/>
+                                <TextBox Classes="field" Text="{Binding PingTarget}" Width="180"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Count"/>
+                                <NumericUpDown Value="{Binding PingCount}" Minimum="1" Maximum="100"
+                                               Width="148"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="0,0,0,4">
+                                <Button Classes="btn-primary" Content="Run Ping" Command="{Binding RunPingCommand}"
+                                        IsEnabled="{Binding !IsPinging}"/>
+                                <Button Classes="btn-secondary" Content="Cancel" Command="{Binding CancelOperationCommand}"
+                                        IsVisible="{Binding IsPinging}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding PingStatus}" FontSize="12" Foreground="#6E7681"/>
+                        <TextBlock Text="{Binding PingSummary}" FontSize="12" Foreground="#8B949E"
+                                   IsVisible="{Binding PingSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
                     <DataGrid ItemsSource="{Binding PingResults}" IsReadOnly="True"
-                              CanUserSortColumns="False" HeadersVisibility="Column" MaxHeight="400">
+                              CanUserSortColumns="False" Margin="0,8,0,0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="#" Binding="{Binding Seq}" Width="50"/>
                             <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="140"/>
-                            <DataGridTextColumn Header="RTT" Binding="{Binding Rtt}" Width="100"/>
+                            <DataGridTemplateColumn Header="RTT" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:PingResultRow">
+                                        <TextBlock Text="{Binding Rtt}" TextAlignment="Right"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"
+                                                   Foreground="{Binding StatusColor}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </StackPanel>
+                </DockPanel>
             </TabItem>
 
-            <!-- DNS -->
             <TabItem Header="DNS">
-                <StackPanel Spacing="10" Margin="0,10,0,0">
-                    <WrapPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,4">
-                            <TextBlock Text="Hostname" VerticalAlignment="Center" Foreground="#8B949E" FontSize="12"/>
-                            <TextBox Classes="field" Text="{Binding DnsHostname}" Width="260"/>
-                        </StackPanel>
-                        <StackPanel VerticalAlignment="Bottom" Margin="0,0,0,4">
-                            <Button Classes="btn-primary" Content="Resolve" Command="{Binding RunDnsCommand}"
-                                    IsEnabled="{Binding !IsResolving}"/>
-                        </StackPanel>
-                    </WrapPanel>
-                    <TextBlock Text="{Binding DnsStatus}" FontSize="12" Foreground="#484F58"/>
+                <DockPanel Margin="0,10,0,0">
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Hostname"/>
+                                <TextBox Classes="field" Text="{Binding DnsHostname}" Width="260"/>
+                            </StackPanel>
+                            <StackPanel VerticalAlignment="Bottom" Margin="0,0,0,4">
+                                <Button Classes="btn-primary" Content="Resolve" Command="{Binding RunDnsCommand}"
+                                        IsEnabled="{Binding !IsResolving}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding DnsStatus}" FontSize="12" Foreground="#6E7681"/>
+                    </StackPanel>
                     <DataGrid ItemsSource="{Binding DnsResults}" IsReadOnly="True"
-                              CanUserSortColumns="False" HeadersVisibility="Column" MaxHeight="350">
+                              CanUserSortColumns="False" Margin="0,8,0,0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="280"/>
                             <DataGridTextColumn Header="Family" Binding="{Binding Family}" Width="90"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                </StackPanel>
+                </DockPanel>
             </TabItem>
 
-            <!-- Traceroute -->
             <TabItem Header="Traceroute">
-                <StackPanel Spacing="10" Margin="0,10,0,0">
-                    <WrapPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,4">
-                            <TextBlock Text="Target" VerticalAlignment="Center" Foreground="#8B949E" FontSize="12"/>
-                            <TextBox Classes="field" Text="{Binding TraceTarget}" Width="180"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom" Margin="0,0,0,4">
-                            <Button Classes="btn-primary" Content="Trace Route" Command="{Binding RunTraceCommand}"
-                                    IsEnabled="{Binding !IsTracing}"/>
-                            <Button Classes="btn-secondary" Content="Cancel" Command="{Binding CancelOperationCommand}"
-                                    IsVisible="{Binding IsTracing}"/>
-                        </StackPanel>
-                    </WrapPanel>
-                    <TextBlock Text="{Binding TraceStatus}" FontSize="12" Foreground="#484F58"/>
+                <DockPanel Margin="0,10,0,0">
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Target"/>
+                                <TextBox Classes="field" Text="{Binding TraceTarget}" Width="180"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="0,0,0,4">
+                                <Button Classes="btn-primary" Content="Trace Route" Command="{Binding RunTraceCommand}"
+                                        IsEnabled="{Binding !IsTracing}"/>
+                                <Button Classes="btn-secondary" Content="Cancel" Command="{Binding CancelOperationCommand}"
+                                        IsVisible="{Binding IsTracing}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding TraceStatus}" FontSize="12" Foreground="#6E7681"/>
+                    </StackPanel>
                     <DataGrid ItemsSource="{Binding TraceHops}" IsReadOnly="True"
-                              CanUserSortColumns="False" HeadersVisibility="Column" MaxHeight="420">
+                              CanUserSortColumns="False" Margin="0,8,0,0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Hop" Binding="{Binding Hop}" Width="50"/>
                             <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="140"/>
                             <DataGridTextColumn Header="Hostname" Binding="{Binding Hostname}" Width="200"/>
-                            <DataGridTextColumn Header="RTT" Binding="{Binding Rtt}" Width="100"/>
+                            <DataGridTemplateColumn Header="RTT" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:TraceHopRow">
+                                        <TextBlock Text="{Binding Rtt}" TextAlignment="Right"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"
+                                                   Foreground="{Binding StatusColor}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </StackPanel>
+                </DockPanel>
             </TabItem>
 
-            <!-- LAN Scan -->
             <TabItem Header="LAN Scan">
-                <StackPanel Spacing="10" Margin="0,10,0,0">
-                    <WrapPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,4">
-                            <TextBlock Text="Subnet" VerticalAlignment="Center" Foreground="#8B949E" FontSize="12"/>
-                            <TextBox Classes="field" Text="{Binding ScanSubnet}" Width="180"
-                                     PlaceholderText="auto-detect"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom" Margin="0,0,0,4">
-                            <Button Classes="btn-primary" Content="Scan Network" Command="{Binding RunScanCommand}"
-                                    IsEnabled="{Binding !IsScanning}"/>
-                            <Button Classes="btn-secondary" Content="Cancel" Command="{Binding CancelOperationCommand}"
-                                    IsVisible="{Binding IsScanning}"/>
-                        </StackPanel>
-                    </WrapPanel>
-                    <TextBlock Text="{Binding ScanStatus}" FontSize="12" Foreground="#484F58"/>
+                <DockPanel Margin="0,10,0,0">
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,4">
+                                <TextBlock Classes="field-label" Text="Subnet"/>
+                                <TextBox Classes="field" Text="{Binding ScanSubnet}" Width="180"
+                                         PlaceholderText="auto-detect"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="0,0,0,4">
+                                <Button Classes="btn-primary" Content="Scan Network" Command="{Binding RunScanCommand}"
+                                        IsEnabled="{Binding !IsScanning}"/>
+                                <Button Classes="btn-secondary" Content="Cancel" Command="{Binding CancelOperationCommand}"
+                                        IsVisible="{Binding IsScanning}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding ScanStatus}" FontSize="12" Foreground="#6E7681"/>
+                    </StackPanel>
                     <DataGrid ItemsSource="{Binding ScannedDevices}" IsReadOnly="True"
-                              CanUserSortColumns="False" HeadersVisibility="Column" MaxHeight="420">
+                              CanUserSortColumns="False" Margin="0,8,0,0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="IP" Binding="{Binding Ip}" Width="130"/>
                             <DataGridTextColumn Header="Hostname" Binding="{Binding Hostname}" Width="170"/>
                             <DataGridTextColumn Header="MAC" Binding="{Binding Mac}" Width="140"/>
-                            <DataGridTextColumn Header="Response" Binding="{Binding ResponseTime}" Width="90"/>
+                            <DataGridTemplateColumn Header="Response" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:DeviceRow">
+                                        <TextBlock Text="{Binding ResponseTime}" TextAlignment="Right"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                </StackPanel>
+                </DockPanel>
             </TabItem>
 
         </TabControl>

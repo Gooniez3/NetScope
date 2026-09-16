@@ -7,88 +7,118 @@
              x:Class="NetScope.App.Views.HistoryView"
              x:DataType="vm:HistoryViewModel">
 
-    <Grid RowDefinitions="Auto,*" Margin="20,16,20,12">
+    <Grid Margin="24,18,24,14" RowDefinitions="Auto,*" ClipToBounds="True">
 
-        <!-- Header -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,14">
-            <StackPanel DockPanel.Dock="Left">
-                <TextBlock Text="History" FontSize="16" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="#484F58" Margin="0,2,0,0"/>
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Classes="page-title" Text="History"/>
+                <TextBlock Classes="page-subtitle" Text="{Binding StatusText}"/>
             </StackPanel>
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8"
-                        HorizontalAlignment="Right" VerticalAlignment="Top">
-                <Button Classes="btn-secondary" Content="Refresh" Command="{Binding LoadSessionsCommand}"/>
-                <Button Classes="btn-secondary" Content="Cleanup 30d+" Command="{Binding CleanupCommand}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
+                <Button Classes="btn-secondary" Content="Refresh" Command="{Binding LoadSessionsCommand}"
+                        ZIndex="2"/>
+                <Button Classes="btn-secondary" Content="Cleanup 30d+" Command="{Binding CleanupCommand}"
+                        ZIndex="2"/>
             </StackPanel>
-        </DockPanel>
+        </Grid>
 
-        <!-- Content -->
-        <Grid Grid.Row="1" ColumnDefinitions="300,16,*">
+        <Grid Grid.Row="1" ColumnDefinitions="380,20,*" ClipToBounds="True">
 
-            <!-- Sessions -->
-            <DockPanel Grid.Column="0">
-                <TextBlock DockPanel.Dock="Top" Text="SESSIONS" FontSize="11" FontWeight="SemiBold"
-                           Foreground="#484F58" Margin="0,0,0,6"/>
-                <Button DockPanel.Dock="Bottom" Classes="btn-secondary" Content="View Session"
-                        Command="{Binding SelectSessionCommand}" CommandParameter="{Binding SelectedSession}"
-                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,8,0,0"/>
-                <DataGrid ItemsSource="{Binding Sessions}" SelectedItem="{Binding SelectedSession}"
-                          IsReadOnly="True" CanUserSortColumns="False" HeadersVisibility="Column"
-                          SelectionMode="Single">
+            <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" ClipToBounds="True">
+                <TextBlock Classes="section-label" Text="SESSIONS" Margin="0,0,0,6"/>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding Sessions}"
+                          SelectedItem="{Binding SelectedSession}"
+                          IsReadOnly="True"
+                          CanUserSortColumns="False"
+                          CanUserResizeColumns="True"
+                          SelectionMode="Single"
+                          HorizontalScrollBarVisibility="Disabled">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="36"/>
-                        <DataGridTextColumn Header="Started" Binding="{Binding Started}" Width="120"/>
-                        <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="80"/>
-                        <DataGridTextColumn Header="Cyc" Binding="{Binding Cycles}" Width="42"/>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="44"/>
+                        <DataGridTextColumn Header="Started" Binding="{Binding Started}" Width="*"/>
+                        <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="90"/>
+                        <DataGridTextColumn Header="Cycles" Binding="{Binding Cycles}" Width="80"/>
                     </DataGrid.Columns>
                 </DataGrid>
-            </DockPanel>
+                <Button Grid.Row="2" Classes="btn-secondary" Content="View Session"
+                        Command="{Binding SelectSessionCommand}"
+                        CommandParameter="{Binding SelectedSession}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="0,8,0,0"/>
+            </Grid>
 
-            <!-- Session details -->
-            <StackPanel Grid.Column="2" Spacing="10">
+            <Grid Grid.Column="2" RowDefinitions="Auto,*" ClipToBounds="True">
+                <Grid Grid.Row="0" ColumnDefinitions="*,*,*,*,*" Margin="0,0,0,12"
+                      IsVisible="{Binding HasAggregate}">
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Classes="metric-caption" Text="Measurements"/>
+                        <TextBlock Classes="metric-value" FontSize="16" Text="{Binding AggMeasurements}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Classes="metric-caption" Text="Uptime"/>
+                        <TextBlock Classes="metric-value" FontSize="16" Text="{Binding AggUptime}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Classes="metric-caption" Text="Avg Latency"/>
+                        <TextBlock Classes="metric-value" FontSize="16" Text="{Binding AggLatency}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="3">
+                        <TextBlock Classes="metric-caption" Text="Avg Jitter"/>
+                        <TextBlock Classes="metric-value" FontSize="16" Text="{Binding AggJitter}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Classes="metric-caption" Text="Avg Loss"/>
+                        <TextBlock Classes="metric-value" FontSize="16" Text="{Binding AggLoss}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
 
-                <!-- Aggregate stats -->
-                <Border Background="#161B22" CornerRadius="6" Padding="16,10" BorderBrush="#30363D"
-                        BorderThickness="1" IsVisible="{Binding HasAggregate}">
-                    <UniformGrid Columns="5">
-                        <StackPanel>
-                            <TextBlock Text="Measurements" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding AggMeasurements}" FontSize="16" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Uptime" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding AggUptime}" FontSize="16" FontWeight="SemiBold" Foreground="#3FB950"/>
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Avg Latency" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding AggLatency}" FontSize="16" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Avg Jitter" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding AggJitter}" FontSize="16" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Avg Loss" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding AggLoss}" FontSize="16" FontWeight="SemiBold" Foreground="#D29922"/>
-                        </StackPanel>
-                    </UniformGrid>
-                </Border>
-
-                <!-- Measurements -->
-                <TextBlock Text="SESSION MEASUREMENTS" FontSize="11" FontWeight="SemiBold" Foreground="#484F58"/>
-                <DataGrid ItemsSource="{Binding SessionMeasurements}"
-                          IsReadOnly="True" CanUserResizeColumns="True"
-                          CanUserSortColumns="False" HeadersVisibility="Column">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="80"/>
-                        <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="110"/>
-                        <DataGridTextColumn Header="Latency" Binding="{Binding Latency}" Width="80"/>
-                        <DataGridTextColumn Header="Loss" Binding="{Binding Loss}" Width="60"/>
-                        <DataGridTextColumn Header="Jitter" Binding="{Binding Jitter}" Width="80"/>
-                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </StackPanel>
+                <Grid Grid.Row="1" RowDefinitions="Auto,*">
+                    <TextBlock Classes="section-label" Text="SESSION MEASUREMENTS" Margin="0,0,0,6"/>
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding SessionMeasurements}"
+                              IsReadOnly="True" CanUserResizeColumns="True"
+                              CanUserSortColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="88"/>
+                            <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="110"/>
+                            <DataGridTemplateColumn Header="Latency" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:MeasurementRow">
+                                        <TextBlock Text="{Binding Latency}" TextAlignment="Right"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Loss" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:MeasurementRow">
+                                        <TextBlock Text="{Binding Loss}" TextAlignment="Right"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Jitter" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:MeasurementRow">
+                                        <TextBlock Text="{Binding Jitter}" TextAlignment="Right"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Status" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:MeasurementRow">
+                                        <TextBlock Text="{Binding Status}" Foreground="{Binding StatusColor}"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

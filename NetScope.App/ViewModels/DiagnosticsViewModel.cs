@@ -12,6 +12,9 @@ public partial class DiagnosticsViewModel : ViewModelBase
     [ObservableProperty]
     public partial string SelectedTool { get; set; } = "Ping";
 
+    [ObservableProperty]
+    public partial int SelectedTabIndex { get; set; }
+
     // --- Ping ---
     [ObservableProperty]
     public partial string PingTarget { get; set; } = "1.1.1.1";

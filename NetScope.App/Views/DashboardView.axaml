@@ -8,84 +8,120 @@
              x:Class="NetScope.App.Views.DashboardView"
              x:DataType="vm:DashboardViewModel">
 
-    <ScrollViewer Padding="20,16,20,12">
-        <StackPanel Spacing="14">
+    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,Auto,*,2*">
 
-            <!-- Page title -->
-            <TextBlock Text="Dashboard" FontSize="16" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-
-            <!-- Network info (compact inline) -->
-            <WrapPanel Margin="0,0,0,0">
-                <TextBlock Text="Interface" Foreground="#484F58" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding InterfaceName}" Foreground="#C9D1D9" FontSize="12" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                <TextBlock Text="IP" Foreground="#484F58" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding LocalIp}" Foreground="#C9D1D9" FontSize="12" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                <TextBlock Text="Gateway" Foreground="#484F58" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding Gateway}" Foreground="#C9D1D9" FontSize="12" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding ConnectionStatus}" Foreground="#3FB950" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            </WrapPanel>
-
-            <!-- Metrics row (single surface) -->
-            <Border Background="#161B22" CornerRadius="6" Padding="16,12" BorderBrush="#30363D" BorderThickness="1">
-                <UniformGrid Columns="4">
-                    <StackPanel Margin="0,0,12,0">
-                        <TextBlock Text="Latency" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding LatencyDisplay}" FontSize="20" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                    </StackPanel>
-                    <StackPanel Margin="0,0,12,0">
-                        <TextBlock Text="Packet Loss" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding PacketLossDisplay}" FontSize="20" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                    </StackPanel>
-                    <StackPanel Margin="0,0,12,0">
-                        <TextBlock Text="Jitter" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding JitterDisplay}" FontSize="20" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Health" FontSize="11" Foreground="#8B949E" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding HealthStatus}" FontSize="20" FontWeight="SemiBold" Foreground="{Binding HealthColor}"/>
-                    </StackPanel>
-                </UniformGrid>
-            </Border>
-
-            <!-- Quick monitor controls -->
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="Target" VerticalAlignment="Center" Foreground="#8B949E" FontSize="12"/>
-                <TextBox Classes="field" Text="{Binding MonitorTarget}" Width="180"/>
-                <Button Classes="btn-primary" Content="Start" Command="{Binding StartQuickMonitorCommand}"
-                        IsVisible="{Binding !IsMonitoring}"/>
-                <Button Classes="btn-danger" Content="Stop" Command="{Binding StopMonitorCommand}"
-                        IsVisible="{Binding IsMonitoring}"/>
-                <TextBlock Text="Monitoring" Foreground="#3FB950" FontSize="12" FontWeight="SemiBold"
-                           VerticalAlignment="Center" Margin="8,0,0,0" IsVisible="{Binding IsMonitoring}"/>
+        <!-- Header + connection line -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <TextBlock Classes="page-title" Text="Dashboard"/>
+            <TextBlock Classes="page-subtitle"
+                       Text="Monitor connection health and network performance."/>
+            <StackPanel Orientation="Horizontal" Spacing="0" Margin="0,10,0,0">
+                <TextBlock Text="{Binding InterfaceName}" FontSize="12" Foreground="#C9D1D9"/>
+                <TextBlock Text="/" FontSize="12" Foreground="#30363D" Margin="12,0"/>
+                <TextBlock Text="{Binding LocalIp}" FontSize="12" Foreground="#C9D1D9"/>
+                <TextBlock Text="/" FontSize="12" Foreground="#30363D" Margin="12,0"/>
+                <TextBlock Text="Gateway" FontSize="12" Foreground="#6E7681" Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding Gateway}" FontSize="12" Foreground="#C9D1D9"/>
+                <TextBlock Text="/" FontSize="12" Foreground="#30363D" Margin="12,0"/>
+                <TextBlock Text="{Binding ConnectionStatus}" FontSize="12"
+                           Foreground="{Binding ConnectionStatusColor}"/>
             </StackPanel>
-
-            <!-- Latency chart -->
-            <StackPanel Spacing="6">
-                <TextBlock Text="LATENCY" FontSize="11" FontWeight="SemiBold" Foreground="#484F58"/>
-                <Border Background="#161B22" CornerRadius="6" BorderBrush="#30363D" BorderThickness="1"
-                        Padding="4" ClipToBounds="True">
-                    <sp:AvaPlot x:Name="LatencyChart" Height="200"/>
-                </Border>
-            </StackPanel>
-
-            <!-- Recent measurements -->
-            <StackPanel Spacing="6">
-                <TextBlock Text="RECENT MEASUREMENTS" FontSize="11" FontWeight="SemiBold" Foreground="#484F58"/>
-                <DataGrid ItemsSource="{Binding RecentMeasurements}"
-                          IsReadOnly="True" CanUserResizeColumns="True"
-                          CanUserSortColumns="False" HeadersVisibility="Column"
-                          MaxHeight="300">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="80"/>
-                        <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120"/>
-                        <DataGridTextColumn Header="Latency" Binding="{Binding Latency}" Width="90"/>
-                        <DataGridTextColumn Header="Loss" Binding="{Binding Loss}" Width="70"/>
-                        <DataGridTextColumn Header="Jitter" Binding="{Binding Jitter}" Width="90"/>
-                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </StackPanel>
-
         </StackPanel>
-    </ScrollViewer>
+
+        <!-- Health summary -->
+        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Classes="section-label" Text="HEALTH" Margin="0,0,0,4"/>
+                <TextBlock Classes="health-value" Text="{Binding HealthStatus}"
+                           Foreground="{Binding HealthColor}"/>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="metric-caption" Text="Latency"/>
+                <TextBlock Classes="metric-value" Text="{Binding LatencyDisplay}" Margin="0,2,0,0"/>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="metric-caption" Text="Packet Loss"/>
+                <TextBlock Classes="metric-value" Text="{Binding PacketLossDisplay}" Margin="0,2,0,0"/>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="metric-caption" Text="Jitter"/>
+                <TextBlock Classes="metric-value" Text="{Binding JitterDisplay}" Margin="0,2,0,0"/>
+            </StackPanel>
+        </UniformGrid>
+
+        <!-- Monitoring control bar -->
+        <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,0,0,14">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock Classes="field-label" Text="Target"/>
+                <TextBox Classes="field" Text="{Binding MonitorTarget}" Width="200"
+                         IsEnabled="{Binding !IsMonitoring}"/>
+            </StackPanel>
+            <Button DockPanel.Dock="Left" Classes="btn-primary" Content="Start Monitoring"
+                    Command="{Binding StartQuickMonitorCommand}"
+                    IsVisible="{Binding !IsMonitoring}"
+                    VerticalAlignment="Bottom" Margin="12,0,0,0"/>
+            <Button DockPanel.Dock="Left" Classes="btn-danger" Content="Stop Monitoring"
+                    Command="{Binding StopMonitorCommand}"
+                    IsVisible="{Binding IsMonitoring}"
+                    VerticalAlignment="Bottom" Margin="12,0,0,0"/>
+            <TextBlock DockPanel.Dock="Left" Text="Running" FontSize="12" Foreground="#8B949E"
+                       VerticalAlignment="Bottom" Margin="12,0,0,6"
+                       IsVisible="{Binding IsMonitoring}"/>
+        </DockPanel>
+
+        <!-- Live latency chart -->
+        <DockPanel Grid.Row="3" Margin="0,0,0,12">
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                <TextBlock Classes="section-label" Text="LIVE LATENCY"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding MonitorTarget}"
+                           FontSize="11" Foreground="#8B949E" HorizontalAlignment="Right"/>
+            </DockPanel>
+            <sp:AvaPlot x:Name="LatencyChart" MinHeight="110"/>
+        </DockPanel>
+
+        <!-- Recent measurements -->
+        <DockPanel Grid.Row="4">
+            <TextBlock DockPanel.Dock="Top" Classes="section-label" Text="RECENT MEASUREMENTS" Margin="0,0,0,6"/>
+            <DataGrid ItemsSource="{Binding RecentMeasurements}"
+                      IsReadOnly="True" CanUserResizeColumns="True"
+                      CanUserSortColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="88"/>
+                    <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120"/>
+                    <DataGridTemplateColumn Header="Latency" Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:MeasurementRow">
+                                <TextBlock Text="{Binding Latency}" TextAlignment="Right"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Loss" Width="88">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:MeasurementRow">
+                                <TextBlock Text="{Binding Loss}" TextAlignment="Right"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Jitter" Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:MeasurementRow">
+                                <TextBlock Text="{Binding Jitter}" TextAlignment="Right"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Status" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:MeasurementRow">
+                                <TextBlock Text="{Binding Status}" Foreground="{Binding StatusColor}"
+                                           VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+    </Grid>
 </UserControl>

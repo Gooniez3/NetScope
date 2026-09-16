@@ -463,11 +463,12 @@ The application opens a dark-themed professional desktop window with sidebar nav
 
 | Page | Description |
 |---|---|
-| **Dashboard** | Connection status, active interface, IP/gateway info, live health metrics, quick monitor with start/stop, recent measurement table |
-| **Monitor** | Configurable monitoring (target, interval, probes, timeout), start/stop, save-to-DB toggle, live metric cards, latency bar chart, scrolling measurement table |
-| **History** | Browse saved SQLite sessions, view session measurements, aggregate statistics (uptime, latency, jitter, loss), cleanup old data |
-| **Diagnostics** | Tabbed interface for Ping, DNS, Traceroute, and LAN Scan — all using existing Core/Infrastructure services |
-| **Settings** | Monitoring defaults, database path display, about information |
+| **Dashboard** | Connection status, active interface, IP/gateway, health summary, live latency chart, recent measurements |
+| **Monitor** | Configurable monitoring (target, interval, probes, timeout), start/stop, save-to-DB, live metrics, latency chart, measurement table |
+| **Diagnostics** | Ping, DNS, and Traceroute tools |
+| **LAN Discovery** | LAN scan (same Diagnostics engine, LAN Scan tab) |
+| **History** | Browse saved SQLite sessions, session measurements, aggregate statistics, cleanup |
+| **Settings** | Monitoring defaults, database path, about information |
 
 ### Architecture
 

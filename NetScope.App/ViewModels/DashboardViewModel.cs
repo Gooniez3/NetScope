@@ -21,6 +21,9 @@ public partial class DashboardViewModel : ViewModelBase
     public partial string ConnectionStatus { get; set; } = "Checking…";
 
     [ObservableProperty]
+    public partial string ConnectionStatusColor { get; set; } = "#6E7681";
+
+    [ObservableProperty]
     public partial string LatencyDisplay { get; set; } = "—";
 
     [ObservableProperty]
@@ -79,10 +82,12 @@ public partial class DashboardViewModel : ViewModelBase
             });
 
             ConnectionStatus = "Connected";
+            ConnectionStatusColor = "#8B949E";
         }
         catch
         {
             ConnectionStatus = "Error";
+            ConnectionStatusColor = "#F85149";
         }
         finally
         {
@@ -140,6 +145,7 @@ public partial class DashboardViewModel : ViewModelBase
             _ => "#484F58"
         };
         ConnectionStatus = m.IsConnected ? "Connected" : "Disconnected";
+        ConnectionStatusColor = m.IsConnected ? "#8B949E" : "#F85149";
 
         RecentMeasurements.Insert(0, new MeasurementRow(m));
         while (RecentMeasurements.Count > 50)
@@ -164,6 +170,7 @@ public class MeasurementRow
     public string Loss { get; }
     public string Jitter { get; }
     public string Status { get; }
+    public string StatusColor { get; }
 
     public MeasurementRow(NetworkMeasurement m)
     {
@@ -173,5 +180,13 @@ public class MeasurementRow
         Loss = $"{m.PacketLossPercent:F0}%";
         Jitter = m.JitterMs.HasValue ? $"{m.JitterMs.Value:F1} ms" : "—";
         Status = m.HealthStatus.ToString();
+        StatusColor = m.HealthStatus switch
+        {
+            NetworkHealthStatus.Healthy => "#3FB950",
+            NetworkHealthStatus.Degraded => "#D29922",
+            NetworkHealthStatus.Unstable => "#F85149",
+            NetworkHealthStatus.Disconnected => "#F85149",
+            _ => "#8B949E"
+        };
     }
 }

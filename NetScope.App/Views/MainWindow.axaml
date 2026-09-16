@@ -11,33 +11,41 @@
         MinWidth="900" MinHeight="550"
         Background="#0D1117">
 
-    <Grid ColumnDefinitions="180,*">
+    <Grid ColumnDefinitions="196,*">
 
         <Border Grid.Column="0" Background="#010409" BorderBrush="#21262D" BorderThickness="0,0,1,0">
             <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Margin="16,16,16,12">
-                    <TextBlock Text="NetScope" FontSize="15" FontWeight="SemiBold" Foreground="#C9D1D9"/>
-                    <TextBlock Text="Network Diagnostics" FontSize="10" Foreground="#484F58" Margin="0,2,0,0"/>
+                <StackPanel DockPanel.Dock="Top" Margin="14,16,14,4">
+                    <TextBlock Text="NetScope" FontSize="14" FontWeight="SemiBold" Foreground="#E6EDF3"/>
+                    <TextBlock Text="Network Diagnostics" FontSize="11" Foreground="#6E7681" Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <Border DockPanel.Dock="Top" Height="1" Background="#21262D" Margin="12,0,12,8"/>
-
                 <TextBlock DockPanel.Dock="Bottom" Text="v0.7.1" FontSize="10" Foreground="#30363D"
-                           Margin="16,8,16,12"/>
+                           Margin="14,8,14,12"/>
 
-                <StackPanel Margin="4,0">
+                <StackPanel Margin="0,8,0,0">
+                    <TextBlock Classes="nav-section" Text="OVERVIEW"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsDashboardActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Dashboard"
                             Content="Dashboard"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsMonitorActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Monitor"
                             Content="Monitor"/>
+
+                    <TextBlock Classes="nav-section" Text="TOOLS"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsDiagnosticsActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"
                             Content="Diagnostics"/>
+                    <Button Classes="nav-btn" Classes.nav-active="{Binding IsLanDiscoveryActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="LanDiscovery"
+                            Content="LAN Discovery"/>
+
+                    <TextBlock Classes="nav-section" Text="DATA"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsHistoryActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="History"
                             Content="History"/>
+
+                    <TextBlock Classes="nav-section" Text="SYSTEM"/>
                     <Button Classes="nav-btn" Classes.nav-active="{Binding IsSettingsActive}"
                             Command="{Binding NavigateCommand}" CommandParameter="Settings"
                             Content="Settings"/>

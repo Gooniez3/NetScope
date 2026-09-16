@@ -17,6 +17,8 @@ public partial class HistoryViewModel : ViewModelBase
     [ObservableProperty]
     public partial SessionRow? SelectedSession { get; set; }
 
+    private long _loadedSessionId = -1;
+
     // Aggregate display
     [ObservableProperty]
     public partial bool HasAggregate { get; set; }
@@ -53,6 +55,7 @@ public partial class HistoryViewModel : ViewModelBase
             StatusText = sessions.Count > 0
                 ? $"{sessions.Count} session(s) found."
                 : "No sessions found. Run a monitor with --save or enable persistence in Monitor tab.";
+            _loadedSessionId = -1;
         }
         catch (Exception ex)
         {
@@ -64,16 +67,35 @@ public partial class HistoryViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
-    private async Task SelectSessionAsync(SessionRow? session)
+    partial void OnSelectedSessionChanged(SessionRow? value)
     {
-        SelectedSession = session;
-        if (session is null)
+        if (value is null)
         {
             SessionMeasurements.Clear();
             HasAggregate = false;
+            _loadedSessionId = -1;
             return;
         }
+
+        if (value.Id == _loadedSessionId)
+            return;
+
+        _ = SelectSessionCommand.ExecuteAsync(value);
+    }
+
+    [RelayCommand]
+    private async Task SelectSessionAsync(SessionRow? session)
+    {
+        if (session is null)
+        {
+            SelectedSession = null;
+            return;
+        }
+
+        if (!ReferenceEquals(SelectedSession, session))
+            SelectedSession = session;
+        if (session.Id == _loadedSessionId && SessionMeasurements.Count > 0)
+            return;
 
         IsLoading = true;
         try
@@ -98,6 +120,7 @@ public partial class HistoryViewModel : ViewModelBase
                 HasAggregate = false;
             }
 
+            _loadedSessionId = session.Id;
             StatusText = $"Session #{session.Id}: {measurements.Count} measurement(s)";
         }
         catch (Exception ex)
