@@ -2,7 +2,75 @@
 
 **Network visibility. Diagnostics. Intelligence.**
 
-A cross-platform desktop application for monitoring, diagnosing, and understanding local and internet network connectivity.
+A local desktop app for monitoring, diagnosing, and understanding network connectivity. Live latency, ping, DNS, traceroute, LAN discovery, SQLite history, and a rule-based session explainer — no account, no API key, no LLM.
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="NetScope Dashboard — connection health, live latency chart, and recent measurements">
+</p>
+
+<p align="center">
+  <em>Dashboard · v0.9.0 · Windows</em>
+</p>
+
+## What it does
+
+| Page | What you get |
+|---|---|
+| **Dashboard** | Active interface, gateway, health, live latency chart, recent samples |
+| **Monitor** | Continuous probes with configurable interval, optional SQLite save, ScottPlot chart |
+| **Diagnostics** | Ping, DNS lookup, traceroute |
+| **LAN Discovery** | ICMP sweep with hostname and MAC when the ARP cache has them |
+| **History** | Saved sessions, per-session stats, delete one / clear all / drop data older than 30 days |
+| **Analysis** | Deterministic, offline explanation of a saved run — not a language model |
+
+.NET 10 · Avalonia 12 · Clean Architecture (Core / Infrastructure / App / CLI / Tests)
+
+## Screenshots
+
+Continuous monitoring against `1.1.1.1`, with health, loss, jitter, and a live chart:
+
+<p align="center">
+  <img src="docs/screenshots/monitor.png" alt="NetScope Monitor — live latency, packet loss, jitter, and measurement table">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/lan-discovery.png" alt="LAN Discovery — devices found on 192.168.1.0/24" width="49%">
+  <img src="docs/screenshots/traceroute.png" alt="Traceroute to 1.1.1.1 with hop hostnames and RTT" width="49%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/ping.png" alt="ICMP ping to 1.1.1.1" width="49%">
+  <img src="docs/screenshots/dns.png" alt="DNS lookup for google.com" width="49%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/history.png" alt="History — saved monitoring sessions and measurements" width="49%">
+  <img src="docs/screenshots/analysis.png" alt="Analysis — rule-based session summary with no connectivity issues" width="49%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/settings.png" alt="Settings — monitoring defaults, local SQLite path, and version">
+</p>
+
+## Quick start
+
+```sh
+dotnet run --project NetScope.App
+```
+
+Windows portable exe (self-contained, no separate .NET install):
+
+```powershell
+powershell -File scripts/publish-win.ps1
+.\publish\win-x64\NetScope.exe
+```
+
+CLI:
+
+```sh
+dotnet run --project NetScope.Cli -- info
+dotnet run --project NetScope.Cli -- ping 1.1.1.1
+```
+
+History is stored in `~/.netscope/netscope.db` (`%USERPROFILE%\.netscope\` on Windows).
 
 ## Architecture
 
@@ -622,7 +690,7 @@ ICMP on Linux may require `net.ipv4.ping_group_range` or `CAP_NET_RAW`. Windows 
 - [x] **Phase 5** — Monitoring engine
 - [x] **Phase 6** — SQLite persistence & historical monitoring
 - [x] **Phase 7** — Desktop UI (Avalonia)
-- [x] **Phase 8** — AI diagnostics
+- [x] **Phase 8** — Rule-based diagnostics
 - [x] **Phase 9** — Security, hardening, and release readiness
 - [ ] Phase 10 — Portfolio presentation
 
@@ -637,7 +705,23 @@ dotnet build NetScope.slnx --configuration Release
 
 Current version: **0.9.0**. No installer is produced in this phase.
 
-## Running the Desktop App
+## Desktop executable (Windows)
+
+Publish a self-contained `NetScope.exe` that does not require a separate .NET install:
+
+```sh
+powershell -File scripts/publish-win.ps1
+```
+
+Or:
+
+```sh
+dotnet publish NetScope.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o publish/win-x64
+```
+
+Then rename `publish/win-x64/NetScope.App.exe` to `NetScope.exe` and run it. Monitoring history is stored in `%USERPROFILE%\.netscope\netscope.db`. This is a portable executable, not an installer. The `publish/` folder is gitignored.
+
+## Running the Desktop App (development)
 
 ```sh
 dotnet run --project NetScope.App
