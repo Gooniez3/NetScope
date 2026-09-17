@@ -8,7 +8,7 @@
              x:Class="NetScope.App.Views.MonitorView"
              x:DataType="vm:MonitorViewModel">
 
-    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,Auto,*" ClipToBounds="True">
 
         <DockPanel Grid.Row="0" Margin="0,0,0,12">
             <StackPanel DockPanel.Dock="Left">
@@ -24,73 +24,91 @@
             </StackPanel>
         </DockPanel>
 
-        <StackPanel Grid.Row="1" Margin="0,0,0,12">
-            <TextBlock Classes="section-label" Text="CONFIGURATION" Margin="0,0,0,8"/>
-            <WrapPanel>
-                <StackPanel Margin="0,0,20,6">
-                    <TextBlock Classes="field-label" Text="Target"/>
-                    <TextBox Classes="field" Text="{Binding Target}" Width="180"
-                             IsEnabled="{Binding !IsMonitoring}"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,20,6">
-                    <TextBlock Classes="field-label" Text="Interval (s)"/>
-                    <NumericUpDown Value="{Binding IntervalSeconds}" Minimum="1" Maximum="300"
-                                   Width="148" IsEnabled="{Binding !IsMonitoring}"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,20,6">
-                    <TextBlock Classes="field-label" Text="Probes"/>
-                    <NumericUpDown Value="{Binding ProbesPerCycle}" Minimum="1" Maximum="20"
-                                   Width="148" IsEnabled="{Binding !IsMonitoring}"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,20,6">
-                    <TextBlock Classes="field-label" Text="Timeout (ms)"/>
-                    <NumericUpDown Value="{Binding TimeoutMs}" Minimum="100" Maximum="30000"
-                                   Width="148" IsEnabled="{Binding !IsMonitoring}"/>
-                </StackPanel>
-                <CheckBox Content=" Save to database" IsChecked="{Binding SaveToDatabase}"
-                          IsEnabled="{Binding !IsMonitoring}" Foreground="#8B949E" FontSize="12"
-                          VerticalAlignment="Bottom" Margin="0,0,0,8"/>
-            </WrapPanel>
-        </StackPanel>
-
-        <Grid Grid.Row="2" ColumnDefinitions="160,1,*" Margin="0,0,0,12">
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Classes="section-label" Text="HEALTH" Margin="0,0,0,4"/>
-                <TextBlock Classes="health-value" Text="{Binding HealthStatus}"
-                           Foreground="{Binding HealthColor}"/>
-                <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="#6E7681" Margin="0,4,0,0"/>
+        <Border Grid.Row="1" Classes="settings-card" Padding="16,12" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Classes="section-label" Text="CONFIGURATION" Margin="0,0,0,8"/>
+                <WrapPanel>
+                    <StackPanel Margin="0,0,20,6">
+                        <TextBlock Classes="field-label" Text="Target"/>
+                        <TextBox Classes="field" Text="{Binding Target}" Width="180"
+                                 IsEnabled="{Binding !IsMonitoring}"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,20,6">
+                        <TextBlock Classes="field-label" Text="Interval (s)"/>
+                        <NumericUpDown Value="{Binding IntervalSeconds}" Minimum="1" Maximum="300"
+                                       Width="148" IsEnabled="{Binding !IsMonitoring}"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,20,6">
+                        <TextBlock Classes="field-label" Text="Probes"/>
+                        <NumericUpDown Value="{Binding ProbesPerCycle}" Minimum="1" Maximum="20"
+                                       Width="148" IsEnabled="{Binding !IsMonitoring}"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,20,6">
+                        <TextBlock Classes="field-label" Text="Timeout (ms)"/>
+                        <NumericUpDown Value="{Binding TimeoutMs}" Minimum="100" Maximum="30000"
+                                       Width="148" IsEnabled="{Binding !IsMonitoring}"/>
+                    </StackPanel>
+                    <CheckBox Content=" Save to database" IsChecked="{Binding SaveToDatabase}"
+                              IsEnabled="{Binding !IsMonitoring}" Foreground="#8B949E" FontSize="12"
+                              VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                </WrapPanel>
             </StackPanel>
-            <Border Grid.Column="1" Background="#21262D" Margin="8,4,20,4"/>
-            <UniformGrid Grid.Column="2" Columns="4" VerticalAlignment="Center">
-                <StackPanel>
-                    <TextBlock Classes="metric-caption" Text="Latency"/>
-                    <TextBlock Classes="metric-value" Text="{Binding LatencyDisplay}" Margin="0,2,0,0"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Classes="metric-caption" Text="Packet Loss"/>
-                    <TextBlock Classes="metric-value" Text="{Binding LossDisplay}" Margin="0,2,0,0"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Classes="metric-caption" Text="Jitter"/>
-                    <TextBlock Classes="metric-value" Text="{Binding JitterDisplay}" Margin="0,2,0,0"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Classes="metric-caption" Text="Cycles"/>
-                    <TextBlock Classes="metric-value" Text="{Binding CycleCount}" Margin="0,2,0,0"/>
-                </StackPanel>
-            </UniformGrid>
-        </Grid>
+        </Border>
 
-        <DockPanel Grid.Row="3" Margin="0,0,0,12">
+        <Border Grid.Row="2" Classes="metric-bar">
+            <Grid ColumnDefinitions="160,1,*">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Classes="section-label" Text="HEALTH" Margin="0,0,0,4"/>
+                    <TextBlock Classes="health-value" FontSize="18" Text="{Binding HealthStatus}"
+                               Foreground="{Binding HealthColor}"/>
+                    <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="#6E7681" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Border Grid.Column="1" Background="{DynamicResource NsBorder}" Margin="8,4,20,4"/>
+                <UniformGrid Grid.Column="2" Columns="4" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Classes="metric-caption" Text="Latency"/>
+                        <TextBlock Classes="metric-value" Text="{Binding LatencyDisplay}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Classes="metric-caption" Text="Packet Loss"/>
+                        <TextBlock Classes="metric-value" Text="{Binding LossDisplay}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Classes="metric-caption" Text="Jitter"/>
+                        <TextBlock Classes="metric-value" Text="{Binding JitterDisplay}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Classes="metric-caption" Text="Cycles"/>
+                        <TextBlock Classes="metric-value" Text="{Binding CycleCount}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </UniformGrid>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3" RowDefinitions="*,Auto" ClipToBounds="True" MinHeight="160">
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
             <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                 <TextBlock Classes="section-label" Text="LIVE LATENCY"/>
                 <TextBlock DockPanel.Dock="Right" Text="{Binding Target}"
                            FontSize="11" Foreground="#8B949E" HorizontalAlignment="Right"/>
             </DockPanel>
-            <sp:AvaPlot x:Name="LatencyChart" MinHeight="110"/>
+            <Border Classes="plot-frame">
+                <Grid>
+                    <sp:AvaPlot x:Name="LatencyChart"/>
+                    <Border Background="#D90D1117" IsVisible="{Binding !Measurements.Count}">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="4">
+                            <TextBlock Text="Waiting for the first cycle" Classes="primary-text" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Set the target, then Start Monitoring. This is the only place a session starts."
+                                       Classes="muted" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
         </DockPanel>
 
-        <DockPanel Grid.Row="4" LastChildFill="False">
+        <DockPanel Grid.Row="1" Margin="0,4,0,0"
+                   IsVisible="{Binding Measurements.Count}">
             <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                 <TextBlock Classes="section-label" Text="MEASUREMENTS"/>
                 <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" FontSize="11" Foreground="#6E7681">
@@ -101,22 +119,12 @@
                     </TextBlock.Text>
                 </TextBlock>
             </DockPanel>
-            <Border DockPanel.Dock="Top" Classes="empty-state"
-                    IsVisible="{Binding !Measurements.Count}">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Waiting for the first cycle" Classes="primary-text" FontWeight="SemiBold"/>
-                    <TextBlock Text="Set the target and interval, then Start Monitoring. This is the only place a session is started."
-                               Classes="muted" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-            <DataGrid DockPanel.Dock="Top"
-                      ItemsSource="{Binding Measurements}"
-                      IsVisible="{Binding Measurements.Count}"
+            <DataGrid ItemsSource="{Binding Measurements}"
                       Height="{Binding Measurements.Count, Converter={StaticResource RowListHeight}}"
                       IsReadOnly="True" CanUserResizeColumns="True"
                       CanUserSortColumns="False"
                       HorizontalScrollBarVisibility="Auto"
-                      VerticalAlignment="Top">
+                      VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="92" MinWidth="92"/>
                     <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120" MinWidth="100"/>
@@ -155,5 +163,6 @@
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
+        </Grid>
     </Grid>
 </UserControl>

@@ -8,26 +8,33 @@
              x:Class="NetScope.App.Views.DashboardView"
              x:DataType="vm:DashboardViewModel">
 
-    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,*,Auto,Auto">
+    <Grid Margin="24,18,24,14" RowDefinitions="Auto,Auto,*" ClipToBounds="True">
 
         <DockPanel Grid.Row="0" Margin="0,0,0,14">
             <StackPanel DockPanel.Dock="Left">
                 <TextBlock Classes="page-title" Text="Dashboard"/>
                 <TextBlock Classes="page-subtitle"
-                           Text="Live connection snapshot. Start a session on Monitor to fill latency history."/>
+                           Text="Live interface snapshot. Latency history comes from a Monitor session."/>
                 <TextBlock Text="Loading network information…" FontSize="12" Classes="muted"
                            Margin="0,8,0,0" IsVisible="{Binding IsLoading}"/>
-                <StackPanel Orientation="Horizontal" Spacing="0" Margin="0,10,0,0">
-                    <TextBlock Text="{Binding InterfaceName}" FontSize="12" Classes="primary-text"/>
-                    <TextBlock Text="/" FontSize="12" Foreground="{DynamicResource NsBorderStrong}" Margin="12,0"/>
-                    <TextBlock Text="{Binding LocalIp}" FontSize="12" Classes="primary-text"/>
-                    <TextBlock Text="/" FontSize="12" Foreground="{DynamicResource NsBorderStrong}" Margin="12,0"/>
-                    <TextBlock Text="Gateway" FontSize="12" Classes="muted" Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding Gateway}" FontSize="12" Classes="primary-text"/>
-                    <TextBlock Text="/" FontSize="12" Foreground="#30363D" Margin="12,0"/>
-                    <TextBlock Text="{Binding ConnectionStatus}" FontSize="12"
-                               Foreground="{Binding ConnectionStatusColor}"/>
-                </StackPanel>
+                <WrapPanel Margin="0,10,0,0">
+                    <Border Classes="chip">
+                        <TextBlock Text="{Binding InterfaceName}" FontSize="12" Classes="primary-text"/>
+                    </Border>
+                    <Border Classes="chip">
+                        <TextBlock Text="{Binding LocalIp}" FontSize="12" Classes="primary-text"/>
+                    </Border>
+                    <Border Classes="chip">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="Gateway" FontSize="12" Classes="muted"/>
+                            <TextBlock Text="{Binding Gateway}" FontSize="12" Classes="primary-text"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Classes="chip">
+                        <TextBlock Text="{Binding ConnectionStatus}" FontSize="12"
+                                   Foreground="{Binding ConnectionStatusColor}"/>
+                    </Border>
+                </WrapPanel>
             </StackPanel>
             <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Top" Spacing="6">
                 <Button Classes="btn-primary" Content="Open Monitor"
@@ -38,62 +45,67 @@
             </StackPanel>
         </DockPanel>
 
-        <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock Classes="section-label" Text="HEALTH" Margin="0,0,0,4"/>
-                <TextBlock Classes="health-value" Text="{Binding Monitor.HealthStatus}"
-                           Foreground="{Binding Monitor.HealthColor}"/>
-            </StackPanel>
-            <StackPanel>
-                <TextBlock Classes="metric-caption" Text="Latency"/>
-                <TextBlock Classes="metric-value" Text="{Binding Monitor.LatencyDisplay}" Margin="0,2,0,0"/>
-            </StackPanel>
-            <StackPanel>
-                <TextBlock Classes="metric-caption" Text="Packet Loss"/>
-                <TextBlock Classes="metric-value" Text="{Binding Monitor.LossDisplay}" Margin="0,2,0,0"/>
-            </StackPanel>
-            <StackPanel>
-                <TextBlock Classes="metric-caption" Text="Jitter"/>
-                <TextBlock Classes="metric-value" Text="{Binding Monitor.JitterDisplay}" Margin="0,2,0,0"/>
-            </StackPanel>
-            <StackPanel>
-                <TextBlock Classes="metric-caption" Text="Down"/>
-                <TextBlock Classes="metric-value" Text="{Binding DownRateDisplay}" Margin="0,2,0,0"/>
-            </StackPanel>
-            <StackPanel>
-                <TextBlock Classes="metric-caption" Text="Up"/>
-                <TextBlock Classes="metric-value" Text="{Binding UpRateDisplay}" Margin="0,2,0,0"/>
-            </StackPanel>
-        </UniformGrid>
+        <Border Grid.Row="1" Classes="metric-bar">
+            <UniformGrid Columns="6">
+                <StackPanel>
+                    <TextBlock Classes="section-label" Text="HEALTH" Margin="0,0,0,4"/>
+                    <TextBlock Classes="health-value" FontSize="18" Text="{Binding Monitor.HealthStatus}"
+                               Foreground="{Binding Monitor.HealthColor}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Latency"/>
+                    <TextBlock Classes="metric-value" Text="{Binding Monitor.LatencyDisplay}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Packet Loss"/>
+                    <TextBlock Classes="metric-value" Text="{Binding Monitor.LossDisplay}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Jitter"/>
+                    <TextBlock Classes="metric-value" Text="{Binding Monitor.JitterDisplay}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Down"/>
+                    <TextBlock Classes="metric-value" Text="{Binding DownRateDisplay}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="metric-caption" Text="Up"/>
+                    <TextBlock Classes="metric-value" Text="{Binding UpRateDisplay}" Margin="0,2,0,0"/>
+                </StackPanel>
+            </UniformGrid>
+        </Border>
 
-        <DockPanel Grid.Row="2" Margin="0,0,0,12" MinHeight="140">
+        <Grid Grid.Row="2" RowDefinitions="*,Auto" ClipToBounds="True" MinHeight="160">
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
             <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                 <TextBlock Classes="section-label" Text="LIVE LATENCY"/>
                 <TextBlock DockPanel.Dock="Right" Text="{Binding Monitor.Target}"
                            FontSize="11" Foreground="#8B949E" HorizontalAlignment="Right"/>
             </DockPanel>
-            <sp:AvaPlot x:Name="LatencyChart" MinHeight="110"/>
+            <Border Classes="plot-frame">
+                <Grid>
+                    <sp:AvaPlot x:Name="LatencyChart"/>
+                    <Border Background="#D90D1117" IsVisible="{Binding !Monitor.Measurements.Count}">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="4">
+                            <TextBlock Text="No latency samples" Classes="primary-text" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Open Monitor and start a session. The chart fills from that run."
+                                       Classes="muted" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
         </DockPanel>
 
-        <TextBlock Grid.Row="3" Classes="section-label" Text="RECENT MEASUREMENTS" Margin="0,0,0,6"/>
-
-        <DockPanel Grid.Row="4" LastChildFill="False">
-            <Border DockPanel.Dock="Top" Classes="empty-state"
-                    IsVisible="{Binding !Monitor.Measurements.Count}">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="No measurements yet" Classes="primary-text" FontWeight="SemiBold"/>
-                    <TextBlock Text="Open Monitor to configure the target and start a session. Results appear here while it runs."
-                               Classes="muted" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-            <DataGrid DockPanel.Dock="Top"
-                      ItemsSource="{Binding Monitor.Measurements}"
-                      IsVisible="{Binding Monitor.Measurements.Count}"
+        <DockPanel Grid.Row="1" Margin="0,4,0,0"
+                   IsVisible="{Binding Monitor.Measurements.Count}">
+            <TextBlock DockPanel.Dock="Top" Classes="section-label" Text="RECENT MEASUREMENTS" Margin="0,0,0,6"/>
+            <DataGrid ItemsSource="{Binding Monitor.Measurements}"
                       Height="{Binding Monitor.Measurements.Count, Converter={StaticResource RowListHeight}}"
                       IsReadOnly="True" CanUserResizeColumns="True"
                       CanUserSortColumns="False"
                       HorizontalScrollBarVisibility="Auto"
-                      VerticalAlignment="Top">
+                      VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="92" MinWidth="92"/>
                     <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="120" MinWidth="100"/>
@@ -132,5 +144,6 @@
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
+        </Grid>
     </Grid>
 </UserControl>

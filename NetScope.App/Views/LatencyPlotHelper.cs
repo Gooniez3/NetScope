@@ -28,6 +28,9 @@ internal static class LatencyPlotHelper
         plt.Axes.Top.IsVisible = false;
         plt.Legend.IsVisible = false;
         plt.Axes.Margins(0.08, 0.18);
+        plt.Axes.SetLimitsY(0, 25);
+        plt.Axes.SetLimitsX(0, 1);
+        plt.Axes.Bottom.TickLabelStyle.IsVisible = false;
         chart.Refresh();
     }
 
@@ -45,6 +48,7 @@ internal static class LatencyPlotHelper
         scatter.Color = Color.FromHex("#58A6FF");
         scatter.MarkerColor = Color.FromHex("#58A6FF");
 
+        plt.Axes.Bottom.TickLabelStyle.IsVisible = true;
         plt.Axes.DateTimeTicksBottom();
 
         var tickGen = plt.Axes.Bottom.TickGenerator as ScottPlot.TickGenerators.DateTimeAutomatic;

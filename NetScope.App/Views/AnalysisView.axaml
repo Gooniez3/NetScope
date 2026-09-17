@@ -50,7 +50,10 @@
             </StackPanel>
         </Border>
 
-        <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,*" IsVisible="{Binding HasReport}">
+        <Border Grid.Row="2" Classes="settings-card" Padding="20,16" Margin="0"
+                VerticalAlignment="Top"
+                IsVisible="{Binding HasReport}">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto">
             <StackPanel Margin="0,0,0,14">
                 <TextBlock Classes="health-value" Text="{Binding Headline}"
                            Foreground="{Binding SeverityColor}" TextWrapping="Wrap"/>
@@ -87,9 +90,9 @@
                            TextWrapping="Wrap"/>
             </StackPanel>
 
-            <Grid Grid.Row="4" RowDefinitions="Auto,*" IsVisible="{Binding HasFindings}">
+            <StackPanel Grid.Row="4" Margin="0,4,0,0" IsVisible="{Binding HasFindings}">
                 <TextBlock Classes="section-label" Text="FINDINGS" Margin="0,0,0,8"/>
-                <ScrollViewer Grid.Row="1">
+                <ScrollViewer MaxHeight="280">
                     <StackPanel>
                         <ItemsControl ItemsSource="{Binding Findings}">
                             <ItemsControl.ItemTemplate>
@@ -113,7 +116,8 @@
                                    IsVisible="{Binding ShowLocalNetworkHint}"/>
                     </StackPanel>
                 </ScrollViewer>
-            </Grid>
+            </StackPanel>
         </Grid>
+        </Border>
     </Grid>
 </UserControl>

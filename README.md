@@ -6,7 +6,7 @@
 
 **Network visibility. Diagnostics. Intelligence.**
 
-A local desktop application for monitoring, diagnosing, and understanding network connectivity. Live latency, ping, DNS, traceroute, LAN discovery, SQLite history, and a rule-based session explainer — no account, no API key, no LLM.
+A local desktop application for monitoring, diagnosing, and understanding network connectivity. Live latency, ping, DNS, traceroute, TCP ports, LAN discovery, SQLite history, and a rule-based session explainer — no account, no API key, no LLM.
 
 [![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![Avalonia](https://img.shields.io/badge/Avalonia-12-8B5CF6)](https://avaloniaui.net/)
@@ -23,8 +23,8 @@ The engines live in a Core layer with no sockets and no database. Avalonia and t
 
 | Capability | What it provides |
 |---|---|
-| **Dashboard** | Active interface, gateway, health, live Down/Up NIC rates, latency chart, recent samples. |
-| **Monitor** | Continuous probes, configurable interval, optional SQLite save, ScottPlot chart. |
+| **Dashboard** | Active interface, gateway, health, live Down/Up NIC rates, latency chart from the Monitor session. Open Monitor starts probes. |
+| **Monitor** | Continuous probes, configurable interval, optional SQLite save, ScottPlot chart and measurement table. |
 | **Diagnostics** | Ping, DNS lookup, ICMP traceroute, TCP port tester. |
 | **LAN Discovery** | ICMP sweep with hostname and MAC when the ARP cache has them. |
 | **History** | Saved sessions, per-session stats, delete one / clear all / drop data older than 30 days. |
@@ -51,6 +51,10 @@ Dashboard is the latest ping. Analysis is the whole session.
 | Ping | DNS |
 |---|---|
 | ![Ping](docs/screenshots/ping.png) | ![DNS](docs/screenshots/dns.png) |
+
+| TCP Ports |
+|---|
+| ![TCP Ports](docs/screenshots/ports.png) |
 
 ### History and explanation
 

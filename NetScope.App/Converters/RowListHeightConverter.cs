@@ -14,13 +14,13 @@ public sealed class RowListHeightConverter : IValueConverter
         if (count <= 0)
             return 0d;
 
-        const double header = 30;
+        const double header = 32;
         const double row = 28;
-        var cap = 420d;
+        var cap = 200d;
         if (parameter is string text && double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed))
             cap = parsed;
 
-        return Math.Min(header + (count * row) + 4, cap);
+        return Math.Min(header + (count * row) + 8, cap);
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

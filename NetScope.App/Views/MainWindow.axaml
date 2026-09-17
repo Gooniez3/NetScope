@@ -17,11 +17,17 @@
         <Border Grid.Column="0" Background="{DynamicResource NsSidebarBg}"
                 BorderBrush="{DynamicResource NsBorder}" BorderThickness="0,0,1,0">
             <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Margin="14,16,14,4">
-                    <TextBlock Text="NetScope" FontSize="14" FontWeight="SemiBold"
-                               Foreground="{DynamicResource NsText}"/>
-                    <TextBlock Text="Network Diagnostics" FontSize="11"
-                               Foreground="{DynamicResource NsTextMuted}" Margin="0,2,0,0"/>
+                <StackPanel DockPanel.Dock="Top" Margin="14,16,14,8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Image Source="/Assets/netscope.png" Width="22" Height="22"
+                               Stretch="Uniform" VerticalAlignment="Center"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="NetScope" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource NsText}"/>
+                            <TextBlock Text="Network Diagnostics" FontSize="11"
+                                       Foreground="{DynamicResource NsTextMuted}" Margin="0,1,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
 
                 <TextBlock DockPanel.Dock="Bottom" Text="v1.0.0" FontSize="10"

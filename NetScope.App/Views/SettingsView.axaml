@@ -72,11 +72,16 @@
                     </Border>
 
                     <Border Classes="settings-card">
-                        <StackPanel Spacing="4">
+                        <StackPanel Spacing="8">
                             <TextBlock Classes="section-label" Text="ABOUT"/>
-                            <TextBlock Text="NetScope — Network Diagnostics" Classes="primary-text" FontSize="13"/>
-                            <TextBlock Text="Version 1.0.0" Classes="muted"/>
-                            <TextBlock Text=".NET 10 · Avalonia 12 · ScottPlot 5" FontSize="11" Classes="muted"/>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Image Source="/Assets/netscope.png" Width="32" Height="32" Stretch="Uniform"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="NetScope — Network Diagnostics" Classes="primary-text" FontSize="13"/>
+                                    <TextBlock Text="Version 1.0.0" Classes="muted"/>
+                                    <TextBlock Text=".NET 10 · Avalonia 12 · ScottPlot 5" FontSize="11" Classes="muted"/>
+                                </StackPanel>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                 </StackPanel>

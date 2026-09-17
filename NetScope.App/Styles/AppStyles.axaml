@@ -254,8 +254,8 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="6"/>
         <Setter Property="Padding" Value="16,14"/>
-        <Setter Property="HorizontalAlignment" Value="Left"/>
-        <Setter Property="MaxWidth" Value="520"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="Margin" Value="0,8,0,0"/>
     </Style>
 
@@ -266,6 +266,38 @@
         <Setter Property="CornerRadius" Value="6"/>
         <Setter Property="Padding" Value="16,14"/>
         <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+
+    <Style Selector="Border.metric-bar">
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+
+    <Style Selector="Border.plot-frame">
+        <Setter Property="Background" Value="{DynamicResource NsWindowBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+        <Setter Property="MinHeight" Value="140"/>
+    </Style>
+
+    <Style Selector="Border.chip">
+        <Setter Property="Background" Value="{DynamicResource NsSurface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource NsBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Margin" Value="0,0,8,6"/>
+    </Style>
+
+    <Style Selector="TabControl">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="0"/>
     </Style>
 
 </Styles>

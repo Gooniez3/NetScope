@@ -30,10 +30,10 @@ public partial class MonitorViewModel : ViewModelBase
     public partial string StatusText { get; set; } = "Idle";
 
     [ObservableProperty]
-    public partial string HealthStatus { get; set; } = "—";
+    public partial string HealthStatus { get; set; } = "Idle";
 
     [ObservableProperty]
-    public partial string HealthColor { get; set; } = "#484F58";
+    public partial string HealthColor { get; set; } = "#8B949E";
 
     [ObservableProperty]
     public partial string LatencyDisplay { get; set; } = "—";
@@ -66,6 +66,11 @@ public partial class MonitorViewModel : ViewModelBase
 
         IsMonitoring = true;
         CycleCount = 0;
+        HealthStatus = "Idle";
+        HealthColor = "#8B949E";
+        LatencyDisplay = "—";
+        LossDisplay = "—";
+        JitterDisplay = "—";
         Measurements.Clear();
         _chartTimestamps.Clear();
         _chartLatencies.Clear();
